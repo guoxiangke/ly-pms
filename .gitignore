@@ -17,3 +17,13 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+
+/database/*.sqlite
+.DS_Store
+/.vercel
+/composer.lock
+/package-lock.json
+/public/css/
+/public/js/
+/public/mix-manifest.json
+/storage/debugbar/

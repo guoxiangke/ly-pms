@@ -13,7 +13,7 @@
         "laravel/sanctum": "^3.2",
         "laravel/tinker": "^2.8",
         "laravel/vapor-core": "^2.30",
-        "livewire/livewire": "^3.0@beta"
+        "livewire/livewire": "^2.11"
     },
     "repositories": [
         {

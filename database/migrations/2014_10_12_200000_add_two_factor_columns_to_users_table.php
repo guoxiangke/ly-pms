@@ -5,6 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Laravel\Fortify\Fortify;
 
+// Changed to fit TiDB Cloud.
 return new class extends Migration
 {
     /**
@@ -18,12 +19,12 @@ return new class extends Migration
                     ->nullable();
 
             $table->text('two_factor_recovery_codes')
-                    ->after('two_factor_secret')
+                    ->after('password') // Changed to fit TiDB Cloud.
                     ->nullable();
 
             if (Fortify::confirmsTwoFactorAuthentication()) {
                 $table->timestamp('two_factor_confirmed_at')
-                        ->after('two_factor_recovery_codes')
+                        ->after('password') // Changed to fit TiDB Cloud.
                         ->nullable();
             }
         });

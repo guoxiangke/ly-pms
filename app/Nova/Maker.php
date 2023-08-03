@@ -3,22 +3,23 @@
 namespace App\Nova;
 
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rules;
-use Laravel\Nova\Fields\Gravatar;
 use Laravel\Nova\Fields\ID;
-use Laravel\Nova\Fields\Password;
 use Laravel\Nova\Fields\Text;
+use Laravel\Nova\Fields\Textarea;
+use Laravel\Nova\Fields\Date;
+use Laravel\Nova\Fields\Image;
+use Laravel\Nova\Fields\BelongsToMany;
 use Laravel\Nova\Http\Requests\NovaRequest;
 
-class User extends Resource
+
+class Maker extends Resource
 {
-    public static $perPageOptions = [100,500];
     /**
      * The model the resource corresponds to.
      *
-     * @var class-string<\App\Models\User>
+     * @var class-string<\App\Models\Maker>
      */
-    public static $model = \App\Models\User::class;
+    public static $model = \App\Models\Maker::class;
 
     /**
      * The single value that should be used to represent the resource when being displayed.
@@ -33,7 +34,7 @@ class User extends Resource
      * @var array
      */
     public static $search = [
-        'id', 'name', 'email',
+        'id',
     ];
 
     /**
@@ -46,23 +47,21 @@ class User extends Resource
     {
         return [
             ID::make()->sortable(),
-
-            Gravatar::make()->maxWidth(50),
-
             Text::make('Name')
                 ->sortable()
                 ->rules('required', 'max:255'),
 
-            Text::make('Email')
-                ->sortable()
-                ->rules('required', 'email', 'max:254')
-                ->creationRules('unique:users,email')
-                ->updateRules('unique:users,email,{{resourceId}}'),
+            Textarea::make('description')->hideFromIndex(),
 
-            Password::make('Password')
-                ->onlyOnForms()
-                ->creationRules('required', Rules\Password::defaults())
-                ->updateRules('nullable', Rules\Password::defaults()),
+            Image::make('avatar')
+                // ->disk('s3')
+                ->path('ly/announcers')
+                ->storeAs(function (Request $request) {
+                    return $this->id . '.jpg';
+                    // return sha1($request->attachment->getClientOriginalName());
+                })
+                ->acceptedTypes('.jpg')
+                ->disableDownload(),
         ];
     }
 

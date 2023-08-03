@@ -3,29 +3,36 @@
 namespace App\Nova;
 
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rules;
-use Laravel\Nova\Fields\Gravatar;
 use Laravel\Nova\Fields\ID;
-use Laravel\Nova\Fields\Password;
-use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Http\Requests\NovaRequest;
+use Laravel\Nova\Fields\Date;
+use Laravel\Nova\Fields\Text;
+use Laravel\Nova\Fields\Textarea;
+use Laravel\Nova\Fields\Image;
+use Laravel\Nova\Fields\BelongsToMany;
+use Laravel\Nova\Fields\BelongsTo;
 
-class User extends Resource
+use Spatie\TagsField\Tags;
+
+class LyMeta extends Resource
 {
-    public static $perPageOptions = [100,500];
+    // public static function label() { return '良友'; }
+    public static $priority = 1;
+    public static $group = 'Metadata';
+    public static $perPageOptions = [100,200];
     /**
      * The model the resource corresponds to.
      *
-     * @var class-string<\App\Models\User>
+     * @var class-string<\App\Models\LyMeta>
      */
-    public static $model = \App\Models\User::class;
+    public static $model = \App\Models\LyMeta::class;
 
     /**
      * The single value that should be used to represent the resource when being displayed.
      *
      * @var string
      */
-    public static $title = 'name';
+    public static $title = 'id';
 
     /**
      * The columns that should be searched.
@@ -33,7 +40,7 @@ class User extends Resource
      * @var array
      */
     public static $search = [
-        'id', 'name', 'email',
+        'id',
     ];
 
     /**
@@ -46,23 +53,34 @@ class User extends Resource
     {
         return [
             ID::make()->sortable(),
-
-            Gravatar::make()->maxWidth(50),
-
             Text::make('Name')
                 ->sortable()
                 ->rules('required', 'max:255'),
-
-            Text::make('Email')
+            Text::make('code')
                 ->sortable()
-                ->rules('required', 'email', 'max:254')
-                ->creationRules('unique:users,email')
-                ->updateRules('unique:users,email,{{resourceId}}'),
+                ->rules('required', 'max:12'),
+            Tags::make('Category', 'Tags')
+                ->type('ly')
+                ->single(),
+                // ->withMeta(['placeholder' => 'Add categories...']),
+                // ->canBeDeselected(),
+                // ->limit($maxNumberOfTags),
+            Date::make('begin_at')->sortable(),
+            Date::make('stop_at')->sortable(),
+            BelongsToMany::make('Announcers'),
 
-            Password::make('Password')
-                ->onlyOnForms()
-                ->creationRules('required', Rules\Password::defaults())
-                ->updateRules('nullable', Rules\Password::defaults()),
+            Image::make('avatar')
+                // ->disk('s3')
+                ->path('ly/programs')
+                ->storeAs(function (Request $request) {
+                    return $this->code . '.jpg';
+                    // return sha1($request->attachment->getClientOriginalName());
+                })
+                ->acceptedTypes('.jpg')
+                ->disableDownload(),
+            BelongsTo::make('maker'),
+            Textarea::make('description')->hideFromIndex(),
+            Textarea::make('remark')->hideFromIndex()
         ];
     }
 

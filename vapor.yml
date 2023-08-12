@@ -2,7 +2,7 @@ id: 50254
 name: PMS
 environments:
     production:
-        storage: '${AWS_BUCKET}'
+        storage: 'pms2023'
         memory: 1024
         cli-memory: 512
         runtime: 'php-8.2:al2'

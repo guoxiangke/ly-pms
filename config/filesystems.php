@@ -55,7 +55,28 @@ return [
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
             'throw' => false,
         ],
-
+        'r2-share' => [
+            'driver' => 's3',
+            'region' => env('R2_DEFAULT_REGION'),
+            'key' => env('R2_SHARE_ACCESS_KEY_ID'),
+            'secret' => env('R2_SHARE_SECRET_ACCESS_KEY'),
+            'bucket' => env('R2_SHARE_BUCKET'),
+            'url' => env('R2_SHARE_URL'),
+            'endpoint' => env('R2_SHARE_ENDPOINT'),
+            'use_path_style_endpoint' => env('R2_USE_PATH_STYLE_ENDPOINT', false),
+            'throw' => false,
+        ],
+        'r2-tingdao' => [
+            'driver' => 's3',
+            'region' => env('R2_DEFAULT_REGION'),
+            'key' => env('R2_TINGDAO_ACCESS_KEY_ID'),
+            'secret' => env('R2_TINGDAO_SECRET_ACCESS_KEY'),
+            'bucket' => env('R2_TINGDAO_BUCKET'),
+            'url' => env('R2_TINGDAO_URL'),
+            'endpoint' => env('R2_TINGDAO_ENDPOINT'),
+            'use_path_style_endpoint' => env('R2_TINGDAO_USE_PATH_STYLE_ENDPOINT', false),
+            'throw' => false,
+        ],
     ],
 
     /*

@@ -160,6 +160,8 @@ return [
          * Package Service Providers...
          */
 
+        Madcoda\Youtube\YoutubeServiceProviderLaravel5::class, // <- add this line
+
         /*
          * Application Service Providers...
          */
@@ -186,6 +188,8 @@ return [
 
     'aliases' => Facade::defaultAliases()->merge([
         // 'Example' => App\Facades\Example::class,
+        'Youtube'   => Madcoda\Youtube\Facades\Youtube::class, // <- add this line
+        // 'Helper' => App\Helpers\Helper::class,
     ])->toArray(),
 
 ];

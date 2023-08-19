@@ -13,6 +13,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         // $schedule->command('inspire')->hourly();
+        $schedule->command("fwd:get-youtube-list-last-item-for-ffmpeg")->cron("0 * * * *");
     }
 
     /**

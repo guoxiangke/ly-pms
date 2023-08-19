@@ -35,7 +35,7 @@ class DownloadTingDao extends Command
         $id = $this->argument('id');
         // $storage = Storage::disk('local');
         // $directory = "/public/$id/";
-        $storage = Storage::disk('tingdao');
+        $storage = Storage::disk('r2-tingdao');
         $directory = "/$id/";
         $storage->makeDirectory($directory);
         

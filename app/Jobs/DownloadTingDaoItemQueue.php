@@ -38,7 +38,7 @@ class DownloadTingDaoItemQueue implements ShouldQueue
         $id = $item['zjid'];
         // $storage = Storage::disk('local');
         // $directory = "/public/$id/";
-        $storage = Storage::disk('tingdao');
+        $storage = Storage::disk('r2-tingdao');
         $directory = "/$id/";
         $url = $item['video_url'];
         $name = basename($url);//uRgxyOV3XzoA.mp3

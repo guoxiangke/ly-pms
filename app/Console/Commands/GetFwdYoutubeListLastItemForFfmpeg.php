@@ -30,6 +30,6 @@ class GetFwdYoutubeListLastItemForFfmpeg extends Command
         // Sunday-Play-list
         $playListId = 'PLLDxN82mMW3NrAoY-Nm6JYsk6ib5_5AZf';
         $all = Helper::get_all_items_by_youtube_playlist_id($playListId);
-        Storage::disk('r2-share')->put("/playlist/fwd-{$playListId}-test.json", json_encode($all->last()->snippet));
+        Storage::disk('r2-share')->put("/playlist/fwd-{$playListId}.json", json_encode($all->last()->snippet));
     }
 }

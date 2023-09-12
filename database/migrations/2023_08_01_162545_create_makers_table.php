@@ -16,6 +16,8 @@ return new class extends Migration
             $table->string('name')->unique();
             $table->string('avatar')->nullable();
             $table->text('descripton')->nullable();
+            $table->timestamp('begin_at')->nullable()->comment('合作时间');
+            $table->timestamp('stop_at')->nullable()->comment('停止合作/下架时间');
             $table->timestamps();
         });
     }

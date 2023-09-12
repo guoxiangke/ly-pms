@@ -10,6 +10,7 @@
         "guzzlehttp/guzzle": "^7.2",
         "http-interop/http-factory-guzzle": "^1.2",
         "inertiajs/inertia-laravel": "^0.6.9",
+        "influxdata/influxdb-client-php": "*",
         "laravel/framework": "^10.9",
         "laravel/jetstream": "^3.2",
         "laravel/nova": "^4.0",

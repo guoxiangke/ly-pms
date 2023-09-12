@@ -9,6 +9,7 @@ use Laravel\Nova\Fields\Date;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Fields\Textarea;
 use Laravel\Nova\Fields\Image;
+use Laravel\Nova\Fields\VaporImage;
 use Laravel\Nova\Fields\BelongsToMany;
 use Laravel\Nova\Fields\BelongsTo;
 
@@ -51,36 +52,42 @@ class LyMeta extends Resource
      */
     public function fields(NovaRequest $request)
     {
+        // https://docs.vapor.build/resources/storage.html
+        // https://nova.laravel.com/docs/4.0/resources/fields.html#vapor-image-field
+        $image = app()->environment() == 'local' ? Image::class : VaporImage::class;
+
         return [
             ID::make()->sortable(),
+            Text::make('avatar', function () {
+                return "<img width='100px' src='{$this->cover}' />";
+            })->asHtml(),
             Text::make('Name')
                 ->sortable()
                 ->rules('required', 'max:255'),
             Text::make('code')
                 ->sortable()
                 ->rules('required', 'max:12'),
-            Tags::make('Category', 'Tags')
-                ->type('ly')
-                ->single(),
                 // ->withMeta(['placeholder' => 'Add categories...']),
                 // ->canBeDeselected(),
                 // ->limit($maxNumberOfTags),
+            BelongsToMany::make('Announcers')->allowDuplicateRelations(),
+            BelongsTo::make('maker'),
+
+            Tags::make('Category', 'Tags')
+                ->type('ly')
+                ->single(),
             Date::make('begin_at')->sortable(),
             Date::make('stop_at')->sortable(),
-            BelongsToMany::make('Announcers'),
 
-            Image::make('avatar')
-                // ->disk('s3')
+            Textarea::make('description')->hideFromIndex(),
+            Textarea::make('remark')->hideFromIndex(),
+
+            $image::make('avatar')
                 ->path('ly/programs')
                 ->storeAs(function (Request $request) {
                     return $this->code . '.jpg';
-                    // return sha1($request->attachment->getClientOriginalName());
                 })
-                ->acceptedTypes('.jpg')
-                ->disableDownload(),
-            BelongsTo::make('maker'),
-            Textarea::make('description')->hideFromIndex(),
-            Textarea::make('remark')->hideFromIndex()
+                ->acceptedTypes('.jpg')->onlyOnForms(),
         ];
     }
 

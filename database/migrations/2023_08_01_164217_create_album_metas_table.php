@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('album_metas', function (Blueprint $table) {
             $table->id();
+            $table->timestamp('stop_at')->nullable(); //下架一个专辑
             $table->timestamps();
         });
     }

@@ -51,10 +51,17 @@ class LtsMeta extends Resource
      */
     public function fields(NovaRequest $request)
     {
+        // https://docs.vapor.build/resources/storage.html
+        // https://nova.laravel.com/docs/4.0/resources/fields.html#vapor-image-field
+        $image = app()->environment() == 'local' ? Image::class : VaporImage::class;
+        
         return [
             // ID::make()->sortable(),
             Text::make('index')
                 ->sortable(),
+            Text::make('avatar', function () {
+                return "<img width='100px' src='{$this->cover}' />";
+            })->asHtml(),
             Text::make('Name')
                 ->sortable()
                 ->rules('required', 'max:255'),
@@ -66,21 +73,17 @@ class LtsMeta extends Resource
             Tags::make('Category', 'Tags')
                 ->type('lts')
                 ->single(),
-                // ->withMeta(['placeholder' => 'Add categories...']),
-                // ->canBeDeselected(),
-                // ->limit($maxNumberOfTags),
             Text::make('author')
                 ->sortable(),
             Date::make('stop_at')->sortable(),
             Image::make('avatar')
-                // ->disk('s3')
-                ->path('ly/programs')
+                ->path('ly/lts')
                 ->storeAs(function (Request $request) {
                     return $this->code . '.jpg';
-                    // return sha1($request->attachment->getClientOriginalName());
                 })
                 ->acceptedTypes('.jpg')
-                ->disableDownload(),
+                ->disableDownload()
+                ->onlyOnForms(),
             Textarea::make('description')->hideFromIndex(),
             Textarea::make('remark')->hideFromIndex(),
             // Text::make('fields')->hideFromIndex()->rules('nullable', 'max:255'),

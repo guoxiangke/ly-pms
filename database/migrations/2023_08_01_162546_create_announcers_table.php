@@ -20,6 +20,8 @@ return new class extends Migration
             // $table->text('favlor')->nullable();
             // $table->text('testimony')->nullable();
             // $table->text('ministry')->nullable();
+            $table->timestamp('begin_at')->nullable()->comment('加入时间');
+            $table->timestamp('stop_at')->nullable()->comment('停止显示');
             $table->softDeletes();
             $table->timestamps();
         });

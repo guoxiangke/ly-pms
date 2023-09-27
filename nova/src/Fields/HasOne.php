@@ -5,6 +5,7 @@ namespace Laravel\Nova\Fields;
 use Illuminate\Http\Request;
 use Laravel\Nova\Contracts\BehavesAsPanel;
 use Laravel\Nova\Contracts\RelatableField;
+use Laravel\Nova\Exceptions\NovaException;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Laravel\Nova\Nova;
 use Laravel\Nova\Panel;
@@ -183,6 +184,18 @@ class HasOne extends Field implements RelatableField, BehavesAsPanel
     }
 
     /**
+     * Determine if the field should be for the given request.
+     *
+     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
+     * @return bool
+     */
+    public function authorizedToRelate(Request $request)
+    {
+        return $request->findResource()->authorizedToAdd($request, $this->resourceClass::newModel())
+            && $this->resourceClass::authorizedToCreate($request);
+    }
+
+    /**
      * Resolve the field's value.
      *
      * @param  mixed  $resource
@@ -237,7 +250,9 @@ class HasOne extends Field implements RelatableField, BehavesAsPanel
         return Panel::make($this->name, [$this])
                     ->withMeta([
                         'prefixComponent' => true,
-                    ])->withComponent('relationship-panel');
+                    ])
+                    ->help($this->getHelpText())
+                    ->withComponent('relationship-panel');
     }
 
     /**
@@ -264,12 +279,12 @@ class HasOne extends Field implements RelatableField, BehavesAsPanel
                 'singularLabel' => $this->singularLabel,
                 'alreadyFilled' => $this->alreadyFilled($request),
                 'authorizedToView' => optional($this->hasOneResource)->authorizedToView($request) ?? true,
-                'authorizedToCreate' => $this->ofManyRelationship === true ? false : $this->resourceClass::authorizedToCreate($request),
+                'authorizedToCreate' => $this->ofManyRelationship === true ? false : $this->authorizedToRelate($request),
                 'createButtonLabel' => $this->resourceClass::createButtonLabel(),
                 'from' => array_filter([
                     'viaResource' => $request->resource,
                     'viaResourceId' => $request->resourceId,
-                    'viaRelationship' => $request->viaRelationship,
+                    'viaRelationship' => $request->viaRelationship ?? $this->attribute,
                 ]),
             ], parent::jsonSerialize());
         });
@@ -332,7 +347,7 @@ class HasOne extends Field implements RelatableField, BehavesAsPanel
      * Hydrate the given attribute on the model based on the incoming request.
      *
      * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
-     * @param  object  $model
+     * @param  \Illuminate\Database\Eloquent\Model|\Laravel\Nova\Support\Fluent  $model
      * @param  string  $attribute
      * @param  string|null  $requestAttribute
      * @return (\Closure():(void))|null
@@ -594,5 +609,26 @@ class HasOne extends Field implements RelatableField, BehavesAsPanel
             return ($this->relationshipType() === 'hasOne' && $field instanceof BelongsTo && $relatedResource) ||
                 ($this->relationshipType() === 'morphOne' && $field instanceof MorphTo && $relatedResource);
         };
+    }
+
+    /**
+     * Show the field in the modal preview.
+     *
+     * @param  (callable(\Laravel\Nova\Http\Requests\NovaRequest):(bool))|bool  $callback
+     * @return $this
+     */
+    public function showOnPreview($callback = true)
+    {
+        throw NovaException::helperNotSupported(__METHOD__, __CLASS__);
+    }
+
+    /**
+     * Specify that the element should only be shown on the preview modal.
+     *
+     * @return $this
+     */
+    public function onlyOnPreview()
+    {
+        throw NovaException::helperNotSupported(__METHOD__, __CLASS__);
     }
 }

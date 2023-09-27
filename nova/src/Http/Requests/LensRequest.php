@@ -48,12 +48,17 @@ class LensRequest extends NovaRequest
     /**
      * Apply the specified ordering to the given query.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @template TValue of \Illuminate\Database\Eloquent\Builder
+     *
+     * @param  TValue  $query
+     * @param  (callable(TValue): (TValue))|null  $defaultCallback
+     * @return TValue
      */
-    public function withOrdering($query)
+    public function withOrdering($query, $defaultCallback = null)
     {
         if (! $this->orderBy || ! $this->orderByDirection) {
+            with($query, $defaultCallback);
+
             return $query;
         }
 

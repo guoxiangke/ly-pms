@@ -2,6 +2,7 @@
   <component
     :is="componentName"
     v-if="hasUserMenu"
+    @menu-closed="handleUserMenuClosed"
     class="flex items-center"
     :placement="dropdownPlacement"
   >
@@ -85,7 +86,7 @@ import identity from 'lodash/identity'
 import isNull from 'lodash/isNull'
 import omitBy from 'lodash/omitBy'
 import pickBy from 'lodash/pickBy'
-import { mapActions, mapGetters } from 'vuex'
+import { mapActions, mapGetters, mapMutations } from 'vuex'
 
 export default {
   props: {
@@ -94,6 +95,7 @@ export default {
 
   methods: {
     ...mapActions(['logout', 'stopImpersonating']),
+    ...mapMutations(['toggleMainMenu']),
 
     async attempt() {
       if (confirm(this.__('Are you sure you want to log out?'))) {
@@ -115,6 +117,12 @@ export default {
     handleStopImpersonating() {
       if (confirm(this.__('Are you sure you want to stop impersonating?'))) {
         this.stopImpersonating()
+      }
+    },
+
+    handleUserMenuClosed() {
+      if (this.mobile === true) {
+        this.toggleMainMenu()
       }
     },
   },

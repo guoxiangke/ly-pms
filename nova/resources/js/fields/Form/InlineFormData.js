@@ -55,4 +55,8 @@ export default class InlineFormData {
 
     return `${this.attribute}[${attribute}]`
   }
+
+  slug(attribute) {
+    return `${this.attribute}.${attribute}`
+  }
 }

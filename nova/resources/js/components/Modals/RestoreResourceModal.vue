@@ -54,6 +54,14 @@ export default {
     working: false,
   }),
 
+  watch: {
+    show(showing) {
+      if (showing === false) {
+        this.working = false
+      }
+    },
+  },
+
   /**
    * Mount the component.
    */

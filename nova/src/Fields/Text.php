@@ -9,6 +9,8 @@ use Laravel\Nova\Http\Requests\NovaRequest;
 
 class Text extends Field implements FilterableField
 {
+    use AsHTML;
+    use Copyable;
     use FieldFilterable;
     use HasSuggestions;
     use SupportsDependentFields;
@@ -22,55 +24,8 @@ class Text extends Field implements FilterableField
     public $component = 'text-field';
 
     /**
-     * Indicates if the field value should be displayed as HTML.
-     *
-     * @var bool
-     */
-    public $asHtml = false;
-
-    /**
-     * Indicates if the field value is copyable inside Nova.
-     *
-     * @var bool
-     */
-    public $copyable = false;
-
-    /**
-     * Display the field as raw HTML using Vue.
-     *
-     * @return $this
-     */
-    public function asHtml()
-    {
-        if ($this->copyable) {
-            throw new \Exception("The `asHtml` option is not available on fields set to `copyable`. Please remove the `copyable` method from the {$this->name} field to enable `asHtml`.");
-        }
-
-        $this->asHtml = true;
-
-        return $this;
-    }
-
-    /**
-     * Allow the field to be copyable to the clipboard inside Nova.
-     *
-     * @return $this
-     */
-    public function copyable()
-    {
-        if ($this->asHtml) {
-            throw new \Exception("The `copyable` option is not available on fields displayed as HTML. Please remove the `asHtml` method from the {$this->name} field to enable `copyable`.");
-        }
-
-        $this->copyable = true;
-
-        return $this;
-    }
-
-    /**
      * Make the field filter.
      *
-     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
      * @return \Laravel\Nova\Fields\Filters\Filter
      */
     protected function makeFilter(NovaRequest $request)

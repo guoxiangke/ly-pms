@@ -6,18 +6,9 @@
   </div>
 </template>
 
-<script>
-export default {
-  props: {
-    showArrow: {
-      type: Boolean,
-      default: true,
-    },
-
-    arrowClass: {
-      type: String,
-      default: null,
-    },
-  },
-}
+<script setup>
+defineProps({
+  showArrow: { type: Boolean, default: true },
+  arrowClass: { type: String, default: null },
+})
 </script>

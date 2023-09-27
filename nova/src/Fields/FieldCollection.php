@@ -4,6 +4,7 @@ namespace Laravel\Nova\Fields;
 
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\MissingValue;
 use Illuminate\Support\Collection;
 use Illuminate\Support\LazyCollection;
 use Laravel\Nova\Contracts\FilterableField;
@@ -14,10 +15,11 @@ use Laravel\Nova\Http\Requests\NovaRequest;
 use Laravel\Nova\Panel;
 use Laravel\Nova\ResourceTool;
 use Laravel\Nova\ResourceToolElement;
+use Laravel\Nova\Util;
 
 /**
  * @template TKey of int
- * @template TValue of \Laravel\Nova\Panel|\Laravel\Nova\ResourceToolElement|\Laravel\Nova\Fields\Field
+ * @template TValue of \Laravel\Nova\Panel|\Laravel\Nova\ResourceToolElement|\Laravel\Nova\Fields\Field|\Illuminate\Http\Resources\MissingValue
  *
  * @extends \Illuminate\Support\Collection<TKey, TValue>
  */
@@ -36,6 +38,22 @@ class FieldCollection extends Collection
         }));
 
         return $this;
+    }
+
+    /**
+     * Flatten stacked fields.
+     *
+     * @return static<int, TValue>
+     */
+    public function flattenStackedFields()
+    {
+        return $this->map(function ($field) {
+            if ($field instanceof Stack) {
+                return $field->fields()->all();
+            }
+
+            return $field;
+        })->flatten();
     }
 
     /**
@@ -210,6 +228,18 @@ class FieldCollection extends Collection
     }
 
     /**
+     * Reject if the field is a missing value.
+     *
+     * @return static<int, \Laravel\Nova\Panel|\Laravel\Nova\ResourceToolElement|\Laravel\Nova\Fields\Field>
+     */
+    public function withoutMissingValues()
+    {
+        return $this->reject(function ($field) {
+            return $field instanceof MissingValue;
+        });
+    }
+
+    /**
      * Reject fields which use their own index listings.
      *
      * @return static<int, TValue>
@@ -248,7 +278,7 @@ class FieldCollection extends Collection
     /**
      * Filter the fields to only many-to-many relationships.
      *
-     * @return static<int, \Laravel\Nova\Fields\MorphToMany|\Laravel\Nova\Fields\BelongsToMany>
+     * @return static<TKey, \Laravel\Nova\Fields\MorphToMany|\Laravel\Nova\Fields\BelongsToMany>
      */
     public function filterForManyToManyRelations()
     {
@@ -260,7 +290,7 @@ class FieldCollection extends Collection
     /**
      * Reject if the field supports Filterable Field.
      *
-     * @return static<int, \Laravel\Nova\Fields\Field&\Laravel\Nova\Contracts\FilterableField>
+     * @return static<TKey, \Laravel\Nova\Fields\Field&\Laravel\Nova\Contracts\FilterableField>
      */
     public function withOnlyFilterableFields()
     {
@@ -298,7 +328,7 @@ class FieldCollection extends Collection
                     yield "{$key}_type" => $field->morphToType;
                 }
 
-                yield $key => $field->resolveDependentValue($request);
+                yield $key => Util::hydrate($field->resolveDependentValue($request));
             }
         });
 

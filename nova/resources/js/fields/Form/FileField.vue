@@ -10,7 +10,7 @@
       <!-- Existing Image -->
       <div class="space-y-4">
         <div
-          v-if="hasValue && previewFile && files.length == 0"
+          v-if="hasValue && previewFile && files.length === 0"
           class="grid grid-cols-4 gap-x-6 gap-y-2"
         >
           <FilePreviewBlock
@@ -19,7 +19,7 @@
             :removable="shouldShowRemoveButton"
             @removed="confirmRemoval"
             :rounded="field.rounded"
-            :dusk="field.attribute + '-delete-link'"
+            :dusk="`${field.attribute}-delete-link`"
           />
         </div>
 
@@ -33,13 +33,13 @@
         <!-- DropZone -->
         <DropZone
           v-if="shouldShowField"
-          @change="handleFileChange"
           :files="files"
-          @file-removed="removeFile"
+          @file-changed="handleFileChange"
+          @file-removed="file = null"
           :rounded="field.rounded"
           :accepted-types="field.acceptedTypes"
           :disabled="file?.processing"
-          :dusk="field.attribute + '-delete-link'"
+          :dusk="`${field.attribute}-delete-link`"
           :input-dusk="field.attribute"
         />
       </div>
@@ -49,6 +49,8 @@
 
 <script>
 import { DependentFormField, Errors, HandlesValidationErrors } from '@/mixins'
+import InlineFormData from './InlineFormData'
+
 import Vapor from 'laravel-vapor'
 
 function createFile(file) {
@@ -57,20 +59,20 @@ function createFile(file) {
     extension: file.name.split('.').pop(),
     type: file.type,
     originalFile: file,
+    vapor: false,
+    processing: false,
+    progress: 0,
   }
 }
 
 export default {
   emits: ['file-upload-started', 'file-upload-finished', 'file-deleted'],
 
-  props: [
-    'resourceId',
-    'relatedResourceName',
-    'relatedResourceId',
-    'viaRelationship',
-  ],
-
   mixins: [HandlesValidationErrors, DependentFormField],
+
+  inject: ['removeFile'],
+
+  expose: ['beforeRemove'],
 
   data: () => ({
     previewFile: null,
@@ -95,7 +97,7 @@ export default {
     this.preparePreviewImage()
 
     this.field.fill = formData => {
-      let attribute = this.field.attribute
+      let attribute = this.fieldAttribute
 
       if (this.file && !this.isVaporField) {
         formData.append(attribute, this.file.originalFile, this.file.name)
@@ -103,19 +105,8 @@ export default {
 
       if (this.file && this.isVaporField) {
         formData.append(attribute, this.file.name)
-        formData.append('vaporFile[' + attribute + '][key]', this.vaporFile.key)
-        formData.append(
-          'vaporFile[' + attribute + '][uuid]',
-          this.vaporFile.uuid
-        )
-        formData.append(
-          'vaporFile[' + attribute + '][filename]',
-          this.vaporFile.filename
-        )
-        formData.append(
-          'vaporFile[' + attribute + '][extension]',
-          this.vaporFile.extension
-        )
+
+        this.fillVaporFilePayload(formData, attribute)
       }
     }
   },
@@ -147,25 +138,27 @@ export default {
       this.file = createFile(newFiles[0])
 
       if (this.isVaporField) {
+        this.file.vapor = true
         this.uploadVaporFiles()
       }
-    },
-
-    removeFile() {
-      this.file = null
     },
 
     uploadVaporFiles() {
       this.file.processing = true
       this.$emit('file-upload-started')
 
-      Vapor.store(this.file.originalFile)
+      Vapor.store(this.file.originalFile, {
+        progress: progress => {
+          this.file.progress = Math.round(progress * 100)
+        },
+      })
         .then(response => {
           this.vaporFile.key = response.key
           this.vaporFile.uuid = response.uuid
           this.vaporFile.filename = this.file.name
           this.vaporFile.extension = this.file.extension
           this.file.processing = false
+          this.file.progress = 100
           this.$emit('file-upload-finished')
         })
         .catch(error => {
@@ -185,38 +178,52 @@ export default {
       this.removeModalOpen = false
     },
 
+    beforeRemove() {
+      this.removeUploadedFile()
+    },
+
     async removeUploadedFile() {
-      this.uploadErrors = new Errors()
-
-      const {
-        resourceName,
-        resourceId,
-        relatedResourceName,
-        relatedResourceId,
-        viaRelationship,
-      } = this
-      const attribute = this.field.attribute
-
-      const uri =
-        this.viaRelationship &&
-        this.relatedResourceName &&
-        this.relatedResourceId
-          ? `/nova-api/${resourceName}/${resourceId}/${relatedResourceName}/${relatedResourceId}/field/${attribute}?viaRelationship=${viaRelationship}`
-          : `/nova-api/${resourceName}/${resourceId}/field/${attribute}`
-
+      //   this.uploadErrors = new Errors()
       try {
-        await Nova.request().delete(uri)
-        this.closeRemoveModal()
-        this.deleted = true
+        await this.removeFile(this.fieldAttribute)
         this.$emit('file-deleted')
+        this.deleted = true
+        this.file = null
         Nova.success(this.__('The file was deleted!'))
       } catch (error) {
-        this.closeRemoveModal()
-
         if (error.response?.status === 422) {
           this.uploadErrors = new Errors(error.response.data.errors)
         }
+      } finally {
+        this.closeRemoveModal()
       }
+    },
+
+    fillVaporFilePayload(formData, attribute) {
+      const vaporAttribute =
+        formData instanceof InlineFormData
+          ? formData.slug(attribute)
+          : attribute
+
+      const vaporFormData =
+        formData instanceof InlineFormData ? formData.formData : formData
+
+      vaporFormData.append(
+        `vaporFile[${vaporAttribute}][key]`,
+        this.vaporFile.key
+      )
+      vaporFormData.append(
+        `vaporFile[${vaporAttribute}][uuid]`,
+        this.vaporFile.uuid
+      )
+      vaporFormData.append(
+        `vaporFile[${vaporAttribute}][filename]`,
+        this.vaporFile.filename
+      )
+      vaporFormData.append(
+        `vaporFile[${vaporAttribute}][extension]`,
+        this.vaporFile.extension
+      )
     },
   },
 
@@ -258,7 +265,7 @@ export default {
         name += '-' + this.relatedResourceName
       }
 
-      return `file-${name}-${this.field.attribute}`
+      return `file-${name}-${this.fieldAttribute}`
     },
 
     /**
@@ -304,7 +311,7 @@ export default {
      * Determining if the field is a Vapor field.
      */
     isVaporField() {
-      return this.currentField.component == 'vapor-file-field'
+      return this.currentField.component === 'vapor-file-field'
     },
   },
 }

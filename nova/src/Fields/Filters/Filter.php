@@ -11,14 +11,14 @@ abstract class Filter extends BaseFilter
     /**
      * The filter's field.
      *
-     * @var \Laravel\Nova\Contracts\FilterableField
+     * @var \Laravel\Nova\Contracts\FilterableField&\Laravel\Nova\Fields\Field
      */
     public $field;
 
     /**
      * Construct a new filter.
      *
-     * @param  \Laravel\Nova\Contracts\FilterableField  $field
+     * @param  \Laravel\Nova\Contracts\FilterableField&\Laravel\Nova\Fields\Field  $field
      */
     public function __construct(FilterableField $field)
     {

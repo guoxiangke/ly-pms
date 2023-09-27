@@ -2,7 +2,9 @@
 
 namespace Laravel\Nova\Fields;
 
+use Illuminate\Support\Str;
 use Laravel\Nova\Http\Requests\NovaRequest;
+use Laravel\Nova\Nova;
 
 class KeyValue extends Field
 {
@@ -14,6 +16,15 @@ class KeyValue extends Field
      * @var string
      */
     public $component = 'key-value-field';
+
+    public function resolve($resource, $attribute = null)
+    {
+        parent::resolve($resource, $attribute);
+
+        if ($this->value === '{}') {
+            $this->value = null;
+        }
+    }
 
     /**
      * Indicates if the element should be shown on the index view.
@@ -69,15 +80,30 @@ class KeyValue extends Field
      *
      * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
      * @param  string  $requestAttribute
-     * @param  object  $model
+     * @param  \Illuminate\Database\Eloquent\Model|\Laravel\Nova\Support\Fluent  $model
      * @param  string  $attribute
      * @return void
      */
     protected function fillAttributeFromRequest(NovaRequest $request, $requestAttribute, $model, $attribute)
     {
         if ($request->exists($requestAttribute)) {
-            $model->{$attribute} = json_decode($request[$requestAttribute], true);
+            // The value for KeyValue fields are serialized on the front-end using `JSON.stringify`,
+            // so we need to convert it to an associative array before saving it to the database.
+            $this->fillModelWithData($model, json_decode($request[$requestAttribute], true), $attribute);
         }
+    }
+
+    /**
+     * Fill the model's attribute with data.
+     *
+     * @param  \Illuminate\Database\Eloquent\Model|\Laravel\Nova\Support\Fluent  $model
+     * @param  mixed  $value
+     * @param  string  $attribute
+     * @return void
+     */
+    public function fillModelWithData($model, $value, string $attribute)
+    {
+        $model->forceFill([Str::replace('.', '->', $attribute) => $value]);
     }
 
     /**
@@ -177,9 +203,9 @@ class KeyValue extends Field
     public function jsonSerialize(): array
     {
         return array_merge(parent::jsonSerialize(), [
-            'keyLabel' => $this->keyLabel ?? __('Key'),
-            'valueLabel' => $this->valueLabel ?? __('Value'),
-            'actionText' => $this->actionText ?? __('Add row'),
+            'keyLabel' => $this->keyLabel ?? Nova::__('Key'),
+            'valueLabel' => $this->valueLabel ?? Nova::__('Value'),
+            'actionText' => $this->actionText ?? Nova::__('Add row'),
             'readonlyKeys' => $this->readonlyKeys(app(NovaRequest::class)),
             'canAddRow' => $this->canAddRow,
             'canDeleteRow' => $this->canDeleteRow,

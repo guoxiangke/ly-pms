@@ -3,19 +3,25 @@
 namespace Laravel\Nova\Fields;
 
 use Illuminate\Support\Arr;
+use Laravel\Nova\Contracts\Deletable as DeletableContract;
 use Laravel\Nova\Contracts\FilterableField;
 use Laravel\Nova\Contracts\Previewable;
+use Laravel\Nova\Contracts\Storable as StorableContract;
 use Laravel\Nova\Fields\Filters\TextFilter;
 use Laravel\Nova\Fields\Markdown\CommonMarkPreset;
 use Laravel\Nova\Fields\Markdown\DefaultPreset;
 use Laravel\Nova\Fields\Markdown\ZeroPreset;
 use Laravel\Nova\Http\Requests\NovaRequest;
+use Laravel\Nova\ManagesPresets;
 
-class Markdown extends Field implements FilterableField, Previewable
+class Markdown extends Field implements DeletableContract, FilterableField, Previewable, StorableContract
 {
-    use Expandable,
-        FieldFilterable,
-        SupportsDependentFields;
+    use Expandable;
+    use FieldFilterable;
+    use HasAttachments;
+    use Storable;
+    use SupportsDependentFields;
+    use ManagesPresets;
 
     /**
      * The field's component.
@@ -32,13 +38,6 @@ class Markdown extends Field implements FilterableField, Previewable
     public $showOnIndex = false;
 
     /**
-     * Indicates the preset the field should use.
-     *
-     * @var string
-     */
-    public $preset = 'default';
-
-    /**
      * The built-in presets for the Markdown field.
      *
      * @var string[]
@@ -50,21 +49,27 @@ class Markdown extends Field implements FilterableField, Previewable
     ];
 
     /**
-     * Define the preset the field should use. Can be "commonmark", "zero", and "default".
+     * Hydrate the given attribute on the model based on the incoming request.
      *
-     * @param  string  $preset
-     * @param  string|null  $presetClass
-     * @return $this
+     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
+     * @param  string  $requestAttribute
+     * @param  \Illuminate\Database\Eloquent\Model|\Laravel\Nova\Support\Fluent  $model
+     * @param  string  $attribute
+     * @return void|\Closure
      */
-    public function preset($preset, $presetClass = null)
+    protected function fillAttribute(NovaRequest $request, $requestAttribute, $model, $attribute)
     {
-        if (! is_null($presetClass)) {
-            $this->presets[$preset] = $presetClass;
-        }
+        return $this->fillAttributeWithAttachment($request, $requestAttribute, $model, $attribute);
+    }
 
-        $this->preset = $preset;
-
-        return $this;
+    /**
+     * Get the full path that the field is stored at on disk.
+     *
+     * @return string|null
+     */
+    public function getStoragePath()
+    {
+        return null;
     }
 
     /**
@@ -124,6 +129,7 @@ class Markdown extends Field implements FilterableField, Previewable
             'shouldShow' => $this->shouldBeExpanded(),
             'preset' => $this->preset,
             'previewFor' => $this->previewFor($this->value ?? ''),
+            'withFiles' => $this->withFiles,
         ]);
     }
 }

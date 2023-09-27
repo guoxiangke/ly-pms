@@ -20,7 +20,7 @@
           <LinkButton
             dusk="cancel-upload-delete-button"
             type="button"
-            @click.prevent="$emit('close')"
+            @click.prevent="handleClose"
             class="mr-3"
           >
             {{ __('Cancel') }}
@@ -30,8 +30,8 @@
             @click.prevent="handleConfirm"
             ref="confirmButton"
             dusk="confirm-upload-delete-button"
-            :disabled="clicked"
-            :processing="clicked"
+            :disabled="working"
+            :processing="working"
             component="DangerButton"
           >
             {{ __('Delete') }}
@@ -57,11 +57,24 @@ export default {
     // this.$refs.confirmButton.focus()
   },
 
-  data: () => ({ clicked: false }),
+  data: () => ({ working: false }),
+
+  watch: {
+    show(showing) {
+      if (showing === false) {
+        this.working = false
+      }
+    },
+  },
 
   methods: {
+    handleClose() {
+      this.working = false
+      this.$emit('close')
+    },
+
     handleConfirm() {
-      this.clicked = true
+      this.working = true
       this.$emit('confirm')
     },
   },

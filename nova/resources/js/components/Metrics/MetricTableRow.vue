@@ -13,14 +13,14 @@
     </td>
 
     <td
-      class="px-2 truncate"
+      class="px-2"
       :class="{
         [rowClasses]: true,
         'pl-6': !row.icon,
         'pr-6': !row.editUrl || !row.viewUrl,
       }"
     >
-      <h2 class="text-base text-gray-500 truncate">
+      <h2 class="text-base text-gray-500">
         {{ row.title }}
       </h2>
       <p class="text-gray-400 text-xs truncate">{{ row.subtitle }}</p>

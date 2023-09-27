@@ -18,7 +18,8 @@
         v-if="resourceCountLabel"
         class="text-xs px-4"
         :class="{
-          'ml-auto': paginationComponent == 'pagination-links',
+          'ml-auto hidden md:inline':
+            paginationComponent === 'pagination-links',
         }"
       >
         {{ resourceCountLabel }}

@@ -42,7 +42,7 @@ class Line extends Text implements Unfillable
      */
     public static $classes = [
         self::HEADING => 'text-base font-semibold',
-        self::BASE => 'text-base',
+        self::BASE => 'text-sm',
         self::SUBTITLE => 'text-xs tracking-loose font-bold uppercase text-80',
         self::SMALL => 'text-xs',
     ];

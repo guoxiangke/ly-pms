@@ -21,10 +21,6 @@ export default {
   props: ['resourceName', 'field'],
 
   computed: {
-    timezone() {
-      return Nova.config('userTimezone') || Nova.config('timezone')
-    },
-
     formattedDate() {
       if (this.usesCustomizedDisplay) {
         return this.field.displayedAs
@@ -40,6 +36,10 @@ export default {
           minute: '2-digit',
           timeZoneName: 'short',
         })
+    },
+
+    timezone() {
+      return Nova.config('userTimezone') || Nova.config('timezone')
     },
   },
 }

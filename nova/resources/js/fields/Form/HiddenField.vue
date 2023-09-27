@@ -1,6 +1,6 @@
 <template>
   <div class="hidden" :errors="errors">
-    <input type="hidden" :value="value" />
+    <input :dusk="field.attribute" type="hidden" :value="value" />
   </div>
 </template>
 

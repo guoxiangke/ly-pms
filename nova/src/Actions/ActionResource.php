@@ -103,18 +103,18 @@ class ActionResource extends Resource
     {
         return [
             ID::make(Nova::__('ID'), 'id')->showOnPreview(),
-            Text::make(__('Action Name'), 'name', function ($value) {
+            Text::make(Nova::__('Action Name'), 'name', function ($value) {
                 return Nova::__($value);
             })->showOnPreview(),
 
-            Text::make(__('Action Initiated By'), function () {
+            Text::make(Nova::__('Action Initiated By'), function () {
                 return $this->user->name ?? $this->user->email ?? __('Nova User');
             })->showOnPreview(),
 
-            MorphToActionTarget::make(__('Action Target'), 'target')->showOnPreview(),
+            MorphToActionTarget::make(Nova::__('Action Target'), 'target')->showOnPreview(),
 
-            Status::make(__('Action Status'), 'status', function ($value) {
-                return __(ucfirst($value));
+            Status::make(Nova::__('Action Status'), 'status', function ($value) {
+                return Nova::__(ucfirst($value));
             })->loadingWhen([Nova::__('Waiting'), Nova::__('Running')])->failedWhen([Nova::__('Failed')]),
 
             $this->when(isset($this->original), function () {
@@ -127,7 +127,7 @@ class ActionResource extends Resource
 
             Textarea::make(Nova::__('Exception'), 'exception')->showOnPreview(),
 
-            DateTime::make(__('Action Happened At'), 'created_at')->exceptOnForms()->showOnPreview(),
+            DateTime::make(Nova::__('Action Happened At'), 'created_at')->exceptOnForms()->showOnPreview(),
         ];
     }
 

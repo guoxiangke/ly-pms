@@ -17,7 +17,7 @@ class ResourceCollection extends Collection
      * Return the authorized resources of the collection.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return static
+     * @return static<TKey, TValue>
      */
     public function authorized(Request $request)
     {
@@ -30,7 +30,7 @@ class ResourceCollection extends Collection
      * Return the resources available to be displayed in the navigation.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return static
+     * @return static<TKey, TValue>
      */
     public function availableForNavigation(Request $request)
     {
@@ -42,7 +42,7 @@ class ResourceCollection extends Collection
     /**
      * Return the searchable resources for the collection.
      *
-     * @return static
+     * @return static<TKey, TValue>
      */
     public function searchable()
     {
@@ -59,7 +59,7 @@ class ResourceCollection extends Collection
     public function grouped()
     {
         return $this->groupBy(function ($resource, $key) {
-            return $resource::group();
+            return (string) $resource::group();
         })->toBase()->sortKeys();
     }
 

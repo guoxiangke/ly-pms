@@ -2,15 +2,14 @@
   <div class="flex relative" :class="$attrs.class">
     <select
       v-bind="defaultAttributes"
-      v-model="selected"
       @change="handleChange"
       class="w-full block form-control form-select form-select-multiple"
       :multiple="true"
       ref="selectControl"
       :class="{
-        'form-control-sm': size == 'sm',
-        'form-control-xs': size == 'xs',
-        'form-control-xxs': size == 'xxs',
+        'form-control-sm': size === 'sm',
+        'form-control-xs': size === 'xs',
+        'form-control-xxs': size === 'xxs',
         'form-select-bordered': bordered,
         ...selectClasses,
       }"
@@ -43,6 +42,7 @@
 </template>
 
 <script>
+import filter from 'lodash/filter'
 import groupBy from 'lodash/groupBy'
 import map from 'lodash/map'
 import omit from 'lodash/omit'
@@ -92,9 +92,10 @@ export default {
     },
 
     handleChange(event) {
-      let selected = map(event.target.selectedOptions, option => {
-        return option.value
-      })
+      let selected = map(
+        filter(event.target.options, option => option.selected),
+        option => option.value
+      )
 
       this.$emit('change', selected)
     },

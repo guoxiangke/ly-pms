@@ -9,6 +9,7 @@ use Laravel\Nova\Contracts\BatchableAction;
 use Laravel\Nova\Fields\ActionFields;
 use Laravel\Nova\Nova;
 
+#[\AllowDynamicProperties]
 class CallQueuedAction
 {
     use Batchable, CallsQueuedActions;
@@ -37,6 +38,16 @@ class CallQueuedAction
         $this->fields = $fields;
         $this->models = $models;
         $this->actionBatchId = $actionBatchId;
+
+        if (property_exists($action, 'timeout')) {
+            /** @phpstan-ignore-next-line */
+            $this->timeout = $action->timeout;
+        }
+
+        if (property_exists($action, 'tries')) {
+            /** @phpstan-ignore-next-line */
+            $this->tries = $action->tries;
+        }
     }
 
     /**
@@ -65,7 +76,9 @@ class CallQueuedAction
     public function failed($e)
     {
         Nova::usingActionEvent(function ($actionEvent) use ($e) {
-            $actionEvent->markBatchAsFailed($this->actionBatchId, $e);
+            if (! $this->action->withoutActionEvents) {
+                $actionEvent->markBatchAsFailed($this->actionBatchId, $e);
+            }
         });
 
         if ($method = $this->failedMethodName()) {

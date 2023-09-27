@@ -49,7 +49,9 @@ trait CallsQueuedActions
     protected function callAction($callback)
     {
         Nova::usingActionEvent(function ($actionEvent) {
-            $actionEvent->markBatchAsRunning($this->actionBatchId);
+            if (! $this->action->withoutActionEvents) {
+                $actionEvent->markBatchAsRunning($this->actionBatchId);
+            }
         });
 
         $action = $this->setJobInstanceIfNecessary($this->action);
@@ -58,7 +60,9 @@ trait CallsQueuedActions
 
         if (! $this->job->hasFailed() && ! $this->job->isReleased()) {
             Nova::usingActionEvent(function ($actionEvent) {
-                $actionEvent->markBatchAsFinished($this->actionBatchId);
+                if (! $this->action->withoutActionEvents) {
+                    $actionEvent->markBatchAsFinished($this->actionBatchId);
+                }
             });
         }
     }

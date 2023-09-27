@@ -24,10 +24,6 @@ import { DependentFormField, HandlesValidationErrors } from '@/mixins'
 export default {
   mixins: [HandlesValidationErrors, DependentFormField],
 
-  data: () => ({
-    value: false,
-  }),
-
   methods: {
     /*
      * Set the initial value for the field
@@ -37,18 +33,25 @@ export default {
     },
 
     /**
+     * Return the field default value.
+     */
+    fieldDefaultValue() {
+      return false
+    },
+
+    /**
      * Provide a function that fills a passed FormData object with the
      * field's internal value attribute
      */
     fill(formData) {
-      this.fillIfVisible(formData, this.field.attribute, this.trueValue)
+      this.fillIfVisible(formData, this.fieldAttribute, this.trueValue)
     },
 
     toggle() {
       this.value = !this.value
 
       if (this.field) {
-        this.emitFieldValueChange(this.field.attribute, this.value)
+        this.emitFieldValueChange(this.fieldAttribute, this.value)
       }
     },
   },

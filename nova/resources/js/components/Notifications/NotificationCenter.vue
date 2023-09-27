@@ -15,8 +15,8 @@
     </button>
   </div>
 
-  <teleport to="#notifications">
-    <div v-if="notificationsShown" class="fixed flex inset-0">
+  <teleport to="body">
+    <div v-if="notificationsShown" class="fixed flex inset-0 z-20">
       <div
         @click="toggleNotifications"
         class="absolute inset-0 bg-gray-600 dark:bg-gray-900 opacity-75"
@@ -31,9 +31,40 @@
           class="bg-white dark:bg-gray-800 flex items-center h-14 px-4"
         >
           <Heading :level="3" class="ml-1">{{ __('Notifications') }}</Heading>
-          <LinkButton @click="markAllNotificationsAsRead" class="ml-auto">
-            {{ __('Mark all as Read') }}
-          </LinkButton>
+
+          <div class="ml-auto">
+            <Dropdown>
+              <template #default>
+                <DropdownTrigger
+                  :dusk="`notification-center-action-dropdown`"
+                  :show-arrow="false"
+                >
+                  <span class="py-0.5 px-2 rounded">
+                    <Icon :solid="true" type="dots-horizontal" />
+                  </span>
+                </DropdownTrigger>
+              </template>
+
+              <template #menu>
+                <DropdownMenu width="200">
+                  <DropdownMenuItem
+                    as="button"
+                    @click="markAllNotificationsAsRead"
+                  >
+                    {{ __('Mark all as Read') }}
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem
+                    as="button"
+                    @click="handleDeleteAllNotifications"
+                    destructive
+                  >
+                    {{ __('Delete all notifications') }}
+                  </DropdownMenuItem>
+                </DropdownMenu>
+              </template>
+            </Dropdown>
+          </div>
         </nav>
 
         <div
@@ -57,6 +88,7 @@
               <component
                 :is="notification.component || `MessageNotification`"
                 :notification="notification"
+                @hide="toggleNotifications"
                 @delete-notification="() => deleteNotification(notification.id)"
                 @mark-as-read="() => markNotificationAsRead(notification.id)"
               />
@@ -97,6 +129,7 @@
 
 <script>
 import { createNamespacedHelpers } from 'vuex'
+
 const { mapMutations, mapActions, mapGetters } = createNamespacedHelpers('nova')
 
 export default {
@@ -106,7 +139,7 @@ export default {
 
   watch: {
     notificationsShown(newValue) {
-      if (newValue == true) {
+      if (newValue === true) {
         document.body.classList.add('overflow-y-hidden')
         return
       }
@@ -128,9 +161,16 @@ export default {
     ...mapActions([
       'fetchNotifications',
       'deleteNotification',
+      'deleteAllNotifications',
       'markNotificationAsRead',
       'markAllNotificationsAsRead',
     ]),
+
+    handleDeleteAllNotifications() {
+      if (confirm('Are you sure you want to delete all the notifications?')) {
+        this.deleteAllNotifications()
+      }
+    },
   },
 
   computed: {

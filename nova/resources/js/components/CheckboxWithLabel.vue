@@ -1,9 +1,8 @@
 <template>
-  <label class="flex items-center select-none">
+  <label class="flex items-center select-none space-x-2">
     <Checkbox
       @input="$emit('input', $event)"
       :checked="checked"
-      class="mr-2"
       :name="name"
       :disabled="disabled"
     />

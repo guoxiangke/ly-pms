@@ -52,54 +52,21 @@ export default {
   mixins: [InteractsWithResourceInformation],
 
   props: {
-    authorizedToRelate: {
-      type: Boolean,
-      required: true,
-    },
-    resourceName: {
-      default: null,
-    },
-    resources: {
-      default: [],
-    },
-    singularName: {
-      type: String,
-      required: true,
-    },
-    selectedResources: {
-      default: [],
-    },
+    authorizedToRelate: { type: Boolean, required: true },
+    resourceName: { default: null },
+    resources: { default: [] },
+    singularName: { type: String, required: true },
+    selectedResources: { default: [] },
     selectedResourceIds: {},
-    shouldShowCheckboxes: {
-      type: Boolean,
-      default: false,
-    },
-    actionsAreAvailable: {
-      type: Boolean,
-      default: false,
-    },
-    viaResource: {
-      default: null,
-    },
-    viaResourceId: {
-      default: null,
-    },
-    viaRelationship: {
-      default: null,
-    },
-    relationshipType: {
-      default: null,
-    },
-    updateSelectionStatus: {
-      type: Function,
-    },
-    actionsEndpoint: {
-      default: null,
-    },
-    sortable: {
-      type: Boolean,
-      default: false,
-    },
+    shouldShowCheckboxes: { type: Boolean, default: false },
+    actionsAreAvailable: { type: Boolean, default: false },
+    viaResource: { default: null },
+    viaResourceId: { default: null },
+    viaRelationship: { default: null },
+    relationshipType: { default: null },
+    updateSelectionStatus: { type: Function },
+    actionsEndpoint: { default: null },
+    sortable: { type: Boolean, default: false },
   },
 
   data: () => ({
@@ -155,15 +122,6 @@ export default {
       return (
         this.relationshipType == 'belongsToMany' ||
         this.relationshipType == 'morphToMany'
-      )
-    },
-
-    /**
-     * Determine if the current resource listing is via a has-one relationship.
-     */
-    viaHasOne() {
-      return (
-        this.relationshipType == 'hasOne' || this.relationshipType == 'morphOne'
       )
     },
 

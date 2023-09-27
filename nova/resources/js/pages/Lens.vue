@@ -1,5 +1,9 @@
 <template>
-  <ResourceLens :resourceName="resourceName" :lens="lens" />
+  <ResourceLens
+    :resourceName="resourceName"
+    :lens="lens"
+    :searchable="searchable"
+  />
 </template>
 
 <script>
@@ -17,6 +21,11 @@ export default {
     lens: {
       type: String,
       required: true,
+    },
+
+    searchable: {
+      type: Boolean,
+      default: false,
     },
 
     ...mapProps(['resourceName']),

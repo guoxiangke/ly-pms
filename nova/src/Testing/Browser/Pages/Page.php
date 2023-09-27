@@ -27,17 +27,6 @@ class Page extends Dusk
     }
 
     /**
-     * Dismiss toasted messages.
-     *
-     * @param  \Laravel\Dusk\Browser  $browser
-     * @return void
-     */
-    public function dismissToasted(Browser $browser)
-    {
-        $browser->script('Nova.$toasted.clear()');
-    }
-
-    /**
      * Get the URL for the page.
      *
      * @return string
@@ -60,8 +49,8 @@ class Page extends Dusk
     public function assertOk(Browser $browser)
     {
         $browser->waitForLocation($this->novaPageUrl)
-                ->assertPathIs($this->novaPageUrl)
-                ->waitFor('@nova-content');
+            ->assertPathIs($this->novaPageUrl)
+            ->waitFor('@nova-content');
     }
 
     /**
@@ -95,6 +84,18 @@ class Page extends Dusk
     public function assertWithoutBreadcrumb(Browser $browser)
     {
         $browser->assertMissing('@nova-breadcrumb');
+    }
+
+    /**
+     * Set luxon timezone for the frontend.
+     *
+     * @param  \Laravel\Dusk\Browser  $browser
+     * @param  string  $timezone
+     * @return void
+     */
+    public function luxonTimezone(Browser $browser, string $timezone = 'system')
+    {
+        $browser->script('Nova.$testing.timezone("'.$timezone.'")');
     }
 
     /**

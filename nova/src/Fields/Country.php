@@ -4,6 +4,10 @@ namespace Laravel\Nova\Fields;
 
 use Laravel\Nova\Nova;
 
+/**
+ * @phpstan-type TOptionValue string
+ * @phpstan-type TOptionLabel \Laravel\Nova\Support\PendingTranslation
+ */
 class Country extends Select
 {
     /**

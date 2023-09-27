@@ -5,6 +5,7 @@ namespace Laravel\Nova\Http\Controllers\Pages;
 use Illuminate\Routing\Controller;
 use Inertia\Inertia;
 use Laravel\Nova\Http\Requests\ResourceUpdateOrUpdateAttachedRequest;
+use Laravel\Nova\Http\Resources\UpdateViewResource;
 use Laravel\Nova\Menu\Breadcrumb;
 use Laravel\Nova\Menu\Breadcrumbs;
 use Laravel\Nova\Nova;
@@ -38,11 +39,14 @@ class ResourceUpdateController extends Controller
      *
      * @param  \Laravel\Nova\Http\Requests\ResourceUpdateOrUpdateAttachedRequest  $request
      * @return \Laravel\Nova\Menu\Breadcrumbs
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      */
     protected function breadcrumb(ResourceUpdateOrUpdateAttachedRequest $request)
     {
         $resourceClass = $request->resource();
-        $resource = $request->findResourceOrFail();
+        $resource = UpdateViewResource::make()->newResourceWith($request);
 
         return Breadcrumbs::make(
             collect([Breadcrumb::make(Nova::__('Resources'))])->when($request->viaRelationship(), function ($breadcrumbs) use ($request) {
@@ -56,7 +60,7 @@ class ResourceUpdateController extends Controller
                     Breadcrumb::resource($resource),
                 );
             })->push(
-                Breadcrumb::make(__('Update :resource', ['resource' => $resourceClass::singularLabel()]))
+                Breadcrumb::make(Nova::__('Update :resource', ['resource' => $resourceClass::singularLabel()]))
             )->all()
         );
     }

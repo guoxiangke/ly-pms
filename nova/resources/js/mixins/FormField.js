@@ -7,25 +7,30 @@ export default {
   extends: FormEvents,
   props: {
     ...mapProps([
+      'nested',
       'shownViaNewRelationModal',
       'field',
       'viaResource',
       'viaResourceId',
       'viaRelationship',
       'resourceName',
+      'resourceId',
       'showHelpText',
       'mode',
     ]),
-    formUniqueId: {
-      type: String,
-    },
   },
 
-  data: () => ({ value: '' }),
+  data() {
+    return {
+      value: this.fieldDefaultValue(),
+    }
+  },
+
+  created() {
+    this.setInitialValue()
+  },
 
   mounted() {
-    this.setInitialValue()
-
     // Add a default fill method for the field
     this.field.fill = this.fill
 
@@ -46,7 +51,14 @@ export default {
         this.field.value === undefined || this.field.value === null
       )
         ? this.field.value
-        : ''
+        : this.fieldDefaultValue()
+    },
+
+    /**
+     * Return the field default value.
+     */
+    fieldDefaultValue() {
+      return ''
     },
 
     /**
@@ -54,7 +66,7 @@ export default {
      * field's internal value attribute
      */
     fill(formData) {
-      this.fillIfVisible(formData, this.field.attribute, String(this.value))
+      this.fillIfVisible(formData, this.fieldAttribute, String(this.value))
     },
 
     /**
@@ -73,8 +85,15 @@ export default {
       this.value = event.target.value
 
       if (this.field) {
-        this.emitFieldValueChange(this.field.attribute, this.value)
+        this.emitFieldValueChange(this.fieldAttribute, this.value)
       }
+    },
+
+    /**
+     * Clean up any side-effects when removing this field dynamically (Repeater).
+     */
+    beforeRemove() {
+      //
     },
 
     listenToValueChanges(value) {
@@ -84,7 +103,7 @@ export default {
 
   computed: {
     /**
-     * Determine the current field
+     * Determine the current field.
      */
     currentField() {
       return this.field
@@ -118,6 +137,13 @@ export default {
       return Boolean(
         this.field.readonly || get(this.field, 'extraAttributes.readonly')
       )
+    },
+
+    /**
+     * Determine if the field is accessed from Action
+     */
+    isActionRequest() {
+      return ['action-fullscreen', 'action-modal'].includes(this.mode)
     },
   },
 }

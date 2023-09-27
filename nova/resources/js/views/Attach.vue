@@ -22,7 +22,7 @@
       :data-form-unique-id="formUniqueId"
       autocomplete="off"
     >
-      <Card class="overflow-hidden mb-8">
+      <Card class="mb-8">
         <!-- Related Resource -->
         <div
           v-if="parentResource"
@@ -54,7 +54,7 @@
                 v-if="field.searchable"
                 :data-testid="`${field.resourceName}-search-input`"
                 @input="performSearch"
-                @clear="clearSelection"
+                @clear="clearResourceSelection"
                 @selected="selectResource"
                 :debounce="field.debounce"
                 :value="selectedResource"
@@ -109,14 +109,14 @@
 
               <SelectControl
                 v-else
-                dusk="attachable-select"
                 class="w-full"
                 :class="{
                   'form-input-border-error': validationErrors.has(
                     field.attribute
                   ),
                 }"
-                :data-testid="`${field.resourceName}-select`"
+                :data-testid="field.resourceName"
+                dusk="attachable-select"
                 v-model:selected="selectedResourceId"
                 @change="selectResourceFromSelectControl"
                 :options="availableResources"
@@ -220,12 +220,10 @@
 <script>
 import each from 'lodash/each'
 import find from 'lodash/find'
-import isNil from 'lodash/isNil'
 import tap from 'lodash/tap'
 import {
   PerformsSearches,
   TogglesTrashed,
-  Errors,
   FormEvents,
   HandlesFormRequest,
   PreventsFormAbandonment,
@@ -282,6 +280,7 @@ export default {
     selectedResource: null,
     selectedResourceId: null,
     relationModalOpen: false,
+    initializingWithExistingResource: false,
   }),
 
   created() {
@@ -376,14 +375,12 @@ export default {
         })
     },
 
-    resetErrors() {
-      this.validationErrors = new Errors()
-    },
-
     /**
      * Get all of the available resources for the current search / trashed state.
      */
     getAvailableResources(search = '') {
+      Nova.$progress.start()
+
       return Nova.request()
         .get(
           `/nova-api/${this.resourceName}/${this.resourceId}/attachable/${this.relatedResourceName}`,
@@ -391,15 +388,24 @@ export default {
             params: {
               search,
               current: this.selectedResourceId,
+              first: this.initializingWithExistingResource,
               withTrashed: this.withTrashed,
               viaRelationship: this.viaRelationship,
             },
           }
         )
         .then(response => {
+          Nova.$progress.done()
+
+          if (this.isSearchable) {
+            this.initializingWithExistingResource = false
+          }
           this.availableResources = response.data.resources
           this.withTrashed = response.data.withTrashed
           this.softDeletes = response.data.softDeletes
+        })
+        .catch(e => {
+          Nova.$progress.done()
         })
     },
 
@@ -450,6 +456,10 @@ export default {
       try {
         await this.attachRequest()
 
+        window.scrollTo(0, 0)
+
+        this.disableNavigateBackUsingHistory()
+
         this.allowLeavingForm()
 
         this.submittedViaAttachAndAttachAnother = false
@@ -469,11 +479,9 @@ export default {
       this.handleProceedingToPreviousPage()
       this.allowLeavingForm()
 
-      if (window.history.length > 1) {
-        window.history.back()
-      } else {
-        Nova.visit('/')
-      }
+      this.proceedToPreviousPage(
+        `/resources/${this.resourceName}/${this.resourceId}`
+      )
     },
 
     /**
@@ -520,7 +528,7 @@ export default {
       this.selectInitialResource()
 
       if (this.field) {
-        this.emitFieldValueChange(this.field.attribute, this.selectedResourceId)
+        this.emitFieldValueChange(this.fieldAttribute, this.selectedResourceId)
       }
     },
 
@@ -568,6 +576,15 @@ export default {
     closeRelationModal() {
       this.relationModalOpen = false
       Nova.$emit('create-relation-modal-closed')
+    },
+
+    clearResourceSelection() {
+      this.clearSelection()
+
+      if (!this.isSearchable) {
+        this.initializingWithExistingResource = false
+        this.getAvailableResources()
+      }
     },
   },
 

@@ -119,7 +119,6 @@ export default {
       default: '',
     },
     viaResource: String,
-    viaHasOne: Boolean,
     softDeletes: Boolean,
     trashed: {
       type: String,

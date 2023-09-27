@@ -324,7 +324,7 @@ class MorphTo extends Field implements FilterableField, RelatableField
      * Hydrate the given attribute on the model based on the incoming request.
      *
      * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
-     * @param  object  $model
+     * @param  \Illuminate\Database\Eloquent\Model|\Laravel\Nova\Support\Fluent  $model
      * @return void
      */
     public function fill(NovaRequest $request, $model)
@@ -350,7 +350,7 @@ class MorphTo extends Field implements FilterableField, RelatableField
      * Hydrate the given attribute on the model based on the incoming request.
      *
      * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
-     * @param  object  $model
+     * @param  \Illuminate\Database\Eloquent\Model|\Laravel\Nova\Support\Fluent  $model
      * @return mixed
      */
     public function fillForAction(NovaRequest $request, $model)

@@ -1,6 +1,11 @@
 import pick from 'lodash/pick'
 
 const propTypes = {
+  nested: {
+    type: Boolean,
+    default: false,
+  },
+
   preventInitialLoading: {
     type: Boolean,
     default: false,
@@ -68,7 +73,8 @@ const propTypes = {
   mode: {
     type: String,
     default: 'form',
-    validator: v => ['form', 'modal'].includes(v),
+    validator: v =>
+      ['form', 'modal', 'action-modal', 'action-fullscreen'].includes(v),
   },
 }
 

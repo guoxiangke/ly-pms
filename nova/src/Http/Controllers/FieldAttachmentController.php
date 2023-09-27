@@ -6,7 +6,7 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Str;
 use Laravel\Nova\Http\Requests\NovaRequest;
 
-class TrixAttachmentController extends Controller
+class FieldAttachmentController extends Controller
 {
     /**
      * Store an attachment for a Trix field.
@@ -16,16 +16,20 @@ class TrixAttachmentController extends Controller
      */
     public function store(NovaRequest $request)
     {
-        /** @var \Laravel\Nova\Fields\Field&\Laravel\Nova\Fields\Trix $field */
+        /** @var \Laravel\Nova\Fields\Field&\Laravel\Nova\Contracts\Storable $field */
         $field = $request->newResource()
                         ->availableFields($request)
+                        ->filter(function ($field) {
+                            return optional($field)->withFiles === true;
+                        })
                         ->findFieldByAttribute($request->field, function () {
                             abort(404);
                         });
 
-        return response()->json(['url' => call_user_func(
-            $field->attachCallback, $request
-        )]);
+        /** @phpstan-ignore-next-line */
+        $url = call_user_func($field->attachCallback, $request);
+
+        return response()->json(['url' => $url]);
     }
 
     /**
@@ -36,16 +40,18 @@ class TrixAttachmentController extends Controller
      */
     public function destroyAttachment(NovaRequest $request)
     {
-        /** @var \Laravel\Nova\Fields\Field&\Laravel\Nova\Fields\Trix $field */
+        /** @var \Laravel\Nova\Fields\Field&\Laravel\Nova\Contracts\Storable $field */
         $field = $request->newResource()
                         ->availableFields($request)
+                        ->filter(function ($field) {
+                            return optional($field)->withFiles === true;
+                        })
                         ->findFieldByAttribute($request->field, function () {
                             abort(404);
                         });
 
-        call_user_func(
-            $field->detachCallback, $request
-        );
+        /** @phpstan-ignore-next-line */
+        call_user_func($field->detachCallback, $request);
 
         return response()->noContent(200);
     }
@@ -58,16 +64,18 @@ class TrixAttachmentController extends Controller
      */
     public function destroyPending(NovaRequest $request)
     {
-        /** @var \Laravel\Nova\Fields\Field&\Laravel\Nova\Fields\Trix $field */
+        /** @var \Laravel\Nova\Fields\Field&\Laravel\Nova\Contracts\Storable $field */
         $field = $request->newResource()
                         ->availableFields($request)
+                        ->filter(function ($field) {
+                            return optional($field)->withFiles === true;
+                        })
                         ->findFieldByAttribute($request->field, function () {
                             abort(404);
                         });
 
-        call_user_func(
-            $field->discardCallback, $request
-        );
+        /** @phpstan-ignore-next-line */
+        call_user_func($field->discardCallback, $request);
 
         return response()->noContent(200);
     }

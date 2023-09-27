@@ -2,7 +2,7 @@
   <div
     v-bind="$attrs"
     v-show="props.show"
-    class="absolute left-0 right-0 bottom-0 h-screen"
+    class="absolute inset-0"
     :style="{ top: `${scrollY}px` }"
   />
 </template>

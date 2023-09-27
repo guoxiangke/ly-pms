@@ -44,6 +44,8 @@ export default {
     uriKey: String,
   },
 
+  inject: ['orderByParameter', 'orderByDirectionParameter'],
+
   methods: {
     /**
      * Handle the click event.
@@ -111,7 +113,7 @@ export default {
      * The current order query parameter for this resource
      */
     sortKey() {
-      return `${this.resourceName}_order`
+      return this.orderByParameter
     },
 
     /**
@@ -125,7 +127,7 @@ export default {
      * The current direction query parameter for this resource
      */
     directionKey() {
-      return `${this.resourceName}_direction`
+      return this.orderByDirectionParameter
     },
 
     /**

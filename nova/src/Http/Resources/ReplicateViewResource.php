@@ -34,12 +34,15 @@ class ReplicateViewResource extends CreateViewResource
      */
     public function newResourceWith(ResourceCreateOrAttachRequest $request)
     {
-        return tap($request->newResourceWith(
-            tap($request->findModelQuery($this->fromResourceId), function ($query) use ($request) {
-                $resource = $request->resource();
-                $resource::replicateQuery($request, $query);
-            })->firstOrFail()
-        ))->authorizeToReplicate($request)
-        ->replicate();
+        $query = $request->findModelQuery($this->fromResourceId);
+
+        $resource = $request->resource();
+        $resource::replicateQuery($request, $query);
+
+        $resource = $request->newResourceWith($query->firstOrFail());
+
+        $resource->authorizeToReplicate($request);
+
+        return $resource->replicate();
     }
 }

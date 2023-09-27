@@ -26,7 +26,7 @@
 
       <div class="flex flex-1 px-4 sm:px-8 lg:px-12">
         <GlobalSearch
-          class="relative z-50"
+          class="relative"
           v-if="globalSearchEnabled"
           dusk="global-search-component"
         />
@@ -88,7 +88,7 @@
           </div>
 
           <div class="overflow-x-auto">
-            <MainMenu class="mt-3 px-2" />
+            <MainMenu data-screen="responsive" class="mt-3 px-2" />
           </div>
 
           <div

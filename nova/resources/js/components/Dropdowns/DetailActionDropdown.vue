@@ -1,135 +1,98 @@
 <template>
-  <div v-if="hasDropdownItems">
-    <Dropdown>
-      <span class="sr-only">{{ __('Resource Row Dropdown') }}</span>
-      <DropdownTrigger
-        :dusk="`${resource.id.value}-control-selector`"
-        :show-arrow="false"
-        class="rounded hover:bg-gray-200 dark:hover:bg-gray-800 focus:outline-none focus:ring"
-      >
-        <BasicButton component="span">
-          <Icon :solid="true" type="dots-horizontal" />
-        </BasicButton>
-      </DropdownTrigger>
-
-      <template #menu>
-        <DropdownMenu width="auto" class="px-1">
-          <ScrollWrap
-            :height="250"
-            class="divide-y divide-gray-100 dark:divide-gray-800 divide-solid"
-          >
-            <div class="py-1" v-if="canModifyResource">
-              <!-- Replicate Resource Link -->
-              <DropdownMenuItem
-                v-if="resource.authorizedToReplicate"
-                :dusk="`${resource.id.value}-replicate-button`"
-                :href="
-                  $url(
-                    `/resources/${resourceName}/${resource.id.value}/replicate`,
-                    { viaResource, viaResourceId, viaRelationship }
-                  )
-                "
-                :title="__('Replicate')"
-              >
-                {{ __('Replicate') }}
-              </DropdownMenuItem>
-
-              <!-- Impersonate Resource Button -->
-              <DropdownMenuItem
-                as="button"
-                v-if="canBeImpersonated"
-                :dusk="`${resource.id.value}-impersonate-button`"
-                @click.prevent="
-                  startImpersonating({
-                    resource: resourceName,
-                    resourceId: resource.id.value,
-                  })
-                "
-                :title="__('Impersonate')"
-              >
-                {{ __('Impersonate') }}
-              </DropdownMenuItem>
-
-              <DropdownMenuItem
-                v-if="resource.authorizedToDelete && !resource.softDeleted"
-                data-testid="open-delete-modal"
-                dusk="open-delete-modal-button"
-                @click.prevent="openDeleteModal"
-                :destructive="true"
-              >
-                {{ __('Delete Resource') }}
-              </DropdownMenuItem>
-
-              <DropdownMenuItem
-                as="button"
-                v-if="resource.authorizedToRestore && resource.softDeleted"
-                class="block text-sm text-left w-full px-3 py-1 font-semibold text-red-400 hover:text-red-300 focus:text-red-600 focus:outline-none focus:ring ring-inset"
-                data-testid="open-restore-modal"
-                dusk="open-restore-modal-button"
-                @click.prevent="openRestoreModal"
-              >
-                {{ __('Restore Resource') }}
-              </DropdownMenuItem>
-
-              <DropdownMenuItem
-                as="button"
-                v-if="resource.authorizedToForceDelete"
-                class="block text-sm text-left w-full px-3 py-1 font-semibold text-red-400 hover:text-red-300 focus:text-red-600 focus:outline-none focus:ring ring-inset"
-                data-testid="open-force-delete-modal"
-                dusk="open-force-delete-modal-button"
-                @click.prevent="openForceDeleteModal"
-                :destructive="true"
-              >
-                {{ __('Force Delete Resource') }}
-              </DropdownMenuItem>
-            </div>
-
-            <div
-              v-if="actions.length > 0"
-              :dusk="`${resource.id.value}-inline-actions`"
-              class="py-1"
-            >
-              <!-- User Actions -->
-              <DropdownMenuItem
-                as="button"
-                v-for="action in actions"
-                :key="action.uriKey"
-                :dusk="`${resource.id.value}-inline-action-${action.uriKey}`"
-                @click="() => handleActionClick(action.uriKey)"
-                :title="action.name"
-                :destructive="action.destructive"
-              >
-                {{ action.name }}
-              </DropdownMenuItem>
-            </div>
-          </ScrollWrap>
-        </DropdownMenu>
-      </template>
-    </Dropdown>
-
-    <!-- Action Confirmation Modal -->
-    <component
-      v-if="confirmActionModalOpened"
-      :show="confirmActionModalOpened"
-      :is="selectedAction.component"
-      :working="working"
-      :selected-resources="selectedResources"
+  <div>
+    <ActionDropdown
+      class="mt-1 md:mt-0 md:ml-2 md:mr-2"
+      v-if="resource"
+      :resource="resource"
+      :actions="actions"
+      :via-resource="viaResource"
+      :via-resource-id="viaResourceId"
+      :via-relationship="viaRelationship"
       :resource-name="resourceName"
-      :action="selectedAction"
-      :endpoint="endpoint"
-      :errors="errors"
-      @confirm="executeAction"
-      @close="closeConfirmationModal"
-    />
+      @actionExecuted="$emit('actionExecuted')"
+      :selected-resources="[resource.id.value]"
+      :trigger-dusk-attribute="`${resource.id.value}-control-selector`"
+    >
+      <template #sr-only>
+        <span class="sr-only">{{ __('Actions') }}</span>
+      </template>
 
-    <!-- Action Response Modal -->
-    <component
-      v-if="selectedAction"
-      :is="actionResponseData.modal"
-      @close="closeActionResponseModal"
-      :show="showActionResponseModal"
-      :data="actionResponseData"
-    />
+      <div
+        class="py-1"
+        v-if="
+          resource.authorizedToReplicate ||
+          (currentUser.canImpersonate && resource.authorizedToImpersonate) ||
+          (resource.authorizedToDelete && !resource.softDeleted) ||
+          (resource.authorizedToRestore && resource.softDeleted) ||
+          resource.authorizedToForceDelete
+        "
+      >
+        <!-- Replicate Resource Link -->
+        <DropdownMenuItem
+          v-if="resource.authorizedToReplicate"
+          :dusk="`${resource.id.value}-replicate-button`"
+          :href="
+            $url(`/resources/${resourceName}/${resource.id.value}/replicate`, {
+              viaResource,
+              viaResourceId,
+              viaRelationship,
+            })
+          "
+          :title="__('Replicate')"
+        >
+          {{ __('Replicate') }}
+        </DropdownMenuItem>
+
+        <!-- Impersonate Resource Button -->
+        <DropdownMenuItem
+          as="button"
+          v-if="currentUser.canImpersonate && resource.authorizedToImpersonate"
+          :dusk="`${resource.id.value}-impersonate-button`"
+          @click.prevent="
+            startImpersonating({
+              resource: resourceName,
+              resourceId: resource.id.value,
+            })
+          "
+          :title="__('Impersonate')"
+        >
+          {{ __('Impersonate') }}
+        </DropdownMenuItem>
+
+        <DropdownMenuItem
+          v-if="resource.authorizedToDelete && !resource.softDeleted"
+          data-testid="open-delete-modal"
+          dusk="open-delete-modal-button"
+          @click.prevent="openDeleteModal"
+          :destructive="true"
+        >
+          {{ __('Delete Resource') }}
+        </DropdownMenuItem>
+
+        <DropdownMenuItem
+          as="button"
+          v-if="resource.authorizedToRestore && resource.softDeleted"
+          class="block text-sm text-left w-full px-3 py-1 font-semibold text-red-400 hover:text-red-300 focus:text-red-600 focus:outline-none focus:ring ring-inset"
+          data-testid="open-restore-modal"
+          dusk="open-restore-modal-button"
+          @click.prevent="openRestoreModal"
+        >
+          {{ __('Restore Resource') }}
+        </DropdownMenuItem>
+
+        <DropdownMenuItem
+          as="button"
+          v-if="resource.authorizedToForceDelete"
+          class="block text-sm text-left w-full px-3 py-1 font-semibold text-red-400 hover:text-red-300 focus:text-red-600 focus:outline-none focus:ring ring-inset"
+          data-testid="open-force-delete-modal"
+          dusk="open-force-delete-modal-button"
+          @click.prevent="openForceDeleteModal"
+          :destructive="true"
+        >
+          {{ __('Force Delete Resource') }}
+        </DropdownMenuItem>
+      </div>
+    </ActionDropdown>
 
     <DeleteResourceModal
       :show="deleteModalOpen"
@@ -154,20 +117,15 @@
 </template>
 
 <script>
-import {
-  Deletable,
-  HandlesActions,
-  InteractsWithResourceInformation,
-  mapProps,
-} from '@/mixins'
+import { Deletable, InteractsWithResourceInformation, mapProps } from '@/mixins'
 import { mapGetters, mapActions } from 'vuex'
 
 export default {
-  emits: ['resource-deleted', 'resource-restored'],
+  emits: ['actionExecuted', 'resource-deleted', 'resource-restored'],
 
   inheritAttrs: false,
 
-  mixins: [Deletable, HandlesActions, InteractsWithResourceInformation],
+  mixins: [Deletable, InteractsWithResourceInformation],
 
   props: {
     resource: { type: Object },
@@ -183,8 +141,6 @@ export default {
   },
 
   data: () => ({
-    showActionResponseModal: false,
-    actionResponseData: {},
     deleteModalOpen: false,
     restoreModalOpen: false,
     forceDeleteModalOpen: false,
@@ -192,14 +148,6 @@ export default {
 
   methods: {
     ...mapActions(['startImpersonating']),
-
-    openPreviewModal() {
-      this.previewModalOpen = true
-    },
-
-    closePreviewModal() {
-      this.previewModalOpen = false
-    },
 
     /**
      * Show the confirmation modal for deleting or detaching a resource
@@ -306,44 +254,6 @@ export default {
     },
   },
 
-  computed: {
-    ...mapGetters(['currentUser']),
-
-    currentSearch() {
-      return ''
-    },
-
-    encodedFilters() {
-      return ''
-    },
-
-    currentTrashed() {
-      return ''
-    },
-
-    hasDropdownItems() {
-      return this.actions.length > 0 || this.canModifyResource
-    },
-
-    canModifyResource() {
-      return (
-        this.resource.authorizedToReplicate ||
-        this.canBeImpersonated ||
-        (this.resource.authorizedToDelete && !this.resource.softDeleted) ||
-        (this.resource.authorizedToRestore && this.resource.softDeleted) ||
-        this.resource.authorizedToForceDelete
-      )
-    },
-
-    canBeImpersonated() {
-      return (
-        this.currentUser.canImpersonate && this.resource.authorizedToImpersonate
-      )
-    },
-
-    selectedResources() {
-      return [this.resource.id.value]
-    },
-  },
+  computed: mapGetters(['currentUser']),
 }
 </script>

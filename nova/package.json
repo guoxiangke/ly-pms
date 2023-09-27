@@ -12,6 +12,7 @@
   },
   "devDependencies": {
     "@babel/preset-env": "^7.16.11",
+    "@tailwindcss/container-queries": "^0.1.1",
     "@tailwindcss/typography": "^0.5.4",
     "@vue/babel-plugin-jsx": "^1.1.0",
     "@vue/babel-preset-jsx": "^1.2.4",
@@ -42,19 +43,19 @@
     "@popperjs/core": "^2.11.2",
     "@vue/compat": "^3.2.29",
     "autosize": "^4.0.2",
-    "browser-sync": "^2.27.7",
+    "browser-sync": "^2.28.1",
     "browser-sync-webpack-plugin": "^2.3.0",
     "chartist": "^0.11.0",
     "chartist-plugin-tooltips-updated": "^0.1.4",
     "codemirror": "^5.65.1",
     "colortranslator": "^1.9.2",
-    "floating-vue": "^2.0.0-beta.16",
+    "floating-vue": "^2.0.0-beta.22",
     "form-backend-validation": "^2.3.3",
     "inflector-js": "^1.0.1",
     "js-cookie": "^2.2.1",
     "laravel-echo": "^1.11.3",
     "laravel-vapor": "^0.4.0",
-    "luxon": "^1.27.0",
+    "luxon": "^1.28.1",
     "mousetrap": "^1.6.3",
     "numbro": "^2.3.6",
     "places.js": "^1.7.3",
@@ -66,10 +67,5 @@
     "uid": "^2.0.0",
     "vue": "^3.2.29",
     "vuex": "^4.0.2"
-  },
-  "babel": {
-    "plugins": [
-      "@vue/babel-plugin-jsx"
-    ]
   }
 }

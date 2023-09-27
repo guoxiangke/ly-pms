@@ -78,7 +78,7 @@ class AttachableController extends Controller
      * Get attachable query resolver.
      *
      * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
-     * @param  \Laravel\Nova\Contracts\PivotableField  $field
+     * @param  \Laravel\Nova\Fields\Field&\Laravel\Nova\Contracts\PivotableField  $field
      * @return callable(\Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Query\Builder):void
      */
     protected function getAttachableQueryResolver(NovaRequest $request, PivotableField $field)

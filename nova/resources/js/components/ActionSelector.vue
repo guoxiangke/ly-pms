@@ -1,26 +1,26 @@
 <template>
   <SelectControl
     v-bind="$attrs"
-    v-if="actions.length > 0 || availablePivotActions.length > 0"
+    v-if="actionsForSelect.length > 0"
+    ref="actionSelectControl"
     size="xs"
     @change="handleSelectionChange"
     :options="actionsForSelect"
     data-testid="action-select"
     dusk="action-select"
     selected=""
-    :class="{ 'max-w-[6rem]': width == 'auto', 'w-full': width == 'full' }"
+    :class="{ 'max-w-[6rem]': width === 'auto', 'w-full': width === 'full' }"
     :aria-label="__('Select Action')"
-    ref="selectControl"
   >
     <option value="" disabled selected>{{ __('Actions') }}</option>
   </SelectControl>
 
   <!-- Confirm Action Modal -->
   <component
-    v-if="confirmActionModalOpened"
     class="text-left"
-    :show="confirmActionModalOpened"
-    :is="selectedAction.component"
+    v-if="actionModalVisible"
+    :show="actionModalVisible"
+    :is="selectedAction?.component"
     :working="working"
     :selected-resources="selectedResources"
     :resource-name="resourceName"
@@ -31,127 +31,77 @@
   />
 
   <component
-    :is="actionResponseData.modal"
-    @close="closeActionResponseModal"
-    v-if="showActionResponseModal"
-    :show="showActionResponseModal"
+    v-if="responseModalVisible"
+    :show="responseModalVisible"
+    :is="actionResponseData?.modal"
+    @confirm="closeResponseModal"
+    @close="closeResponseModal"
     :data="actionResponseData"
   />
 </template>
 
-<script>
-import { HandlesActions, InteractsWithResourceInformation } from '@/mixins'
+<script setup>
+import { useActions } from '@/composables/useActions'
+import { useStore } from 'vuex'
+import { computed, ref } from 'vue'
 
-export default {
-  inheritAttrs: false,
+// Elements
+const actionSelectControl = ref(null)
 
-  mixins: [InteractsWithResourceInformation, HandlesActions],
+const store = useStore()
 
-  props: {
-    width: {
-      type: String,
-      default: 'auto',
-    },
+const emitter = defineEmits(['actionExecuted'])
 
-    selectedResources: {
-      type: [Array, String],
-      default: () => [],
-    },
-    pivotActions: {},
-    pivotName: String,
+const props = defineProps({
+  width: { type: String, default: 'auto' },
+  pivotName: { type: String, default: null },
 
-    endpoint: {
-      default: null,
-    },
-
-    actionQueryString: {
-      type: Object,
-      default: () => ({
-        currentSearch: '',
-        encodedFilters: '',
-        currentTrashed: '',
-        viaResource: '',
-        viaResourceId: '',
-        viaRelationship: '',
-      }),
-    },
+  resourceName: {},
+  viaResource: {},
+  viaResourceId: {},
+  viaRelationship: {},
+  relationshipType: {},
+  pivotActions: {
+    type: Object,
+    default: () => ({ name: 'Pivot', actions: [] }),
   },
+  actions: { type: Array, default: [] },
+  selectedResources: { type: [Array, String], default: () => [] },
+  endpoint: { type: String, default: null },
+  triggerDuskAttribute: { type: String, default: null },
+})
 
-  data: () => ({
-    showActionResponseModal: false,
-    actionResponseData: {},
-  }),
+const {
+  errors,
+  actionModalVisible,
+  responseModalVisible,
+  openConfirmationModal,
+  closeConfirmationModal,
+  closeResponseModal,
+  handleActionClick,
+  selectedAction,
+  setSelectedActionKey,
+  determineActionStrategy,
+  working,
+  executeAction,
+  availableActions,
+  availablePivotActions,
+  actionResponseData,
+} = useActions(props, emitter, store)
 
-  watch: {
-    /**
-     * Watch the actions property for changes.
-     */
-    availableActions() {
-      this.initializeActionFields()
-    },
+const handleSelectionChange = event => {
+  setSelectedActionKey(event)
+  determineActionStrategy()
 
-    /**
-     * Watch the pivot actions property for changes.
-     */
-    availablePivotActions() {
-      this.initializeActionFields()
-    },
-
-    /**
-     * Watch the pivot actions property for changes.
-     */
-    availableStandaloneActions() {
-      this.initializeActionFields()
-    },
-  },
-
-  computed: {
-    currentSearch() {
-      return this.actionQueryString.currentSearch
-    },
-
-    encodedFilters() {
-      return this.actionQueryString.encodedFilters
-    },
-
-    currentTrashed() {
-      return this.actionQueryString.currentTrashed
-    },
-
-    viaResource() {
-      return this.actionQueryString.viaResource
-    },
-
-    viaResourceId() {
-      return this.actionQueryString.viaResourceId
-    },
-
-    viaRelationship() {
-      return this.actionQueryString.viaRelationship
-    },
-
-    actionsForSelect() {
-      return [
-        ...this.availableActions.map(a => ({
-          value: a.uriKey,
-          label: a.name,
-        })),
-
-        ...this.availablePivotActions.map(a => {
-          return {
-            group: this.pivotName,
-            value: a.uriKey,
-            label: a.name,
-          }
-        }),
-
-        ...this.availableStandaloneActions.map(a => ({
-          group: this.__('Standalone Actions'),
-          value: a.uriKey,
-          label: a.name,
-        })),
-      ]
-    },
-  },
+  actionSelectControl.value.resetSelection()
 }
+
+const actionsForSelect = computed(() => [
+  ...availableActions.value.map(a => ({ value: a.uriKey, label: a.name })),
+  ...availablePivotActions.value.map(a => ({
+    group: props.pivotName,
+    value: a.uriKey,
+    label: a.name,
+  })),
+])
 </script>

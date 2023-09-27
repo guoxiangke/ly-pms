@@ -16,8 +16,10 @@
         <SelectAllDropdown
           v-if="shouldShowCheckBoxes"
           :all-matching-resource-count="allMatchingResourceCount"
+          :current-page-count="currentPageCount"
           @toggle-select-all="toggleSelectAll"
           @toggle-select-all-matching="toggleSelectAllMatching"
+          @deselect="$emit('deselect')"
         />
       </div>
 
@@ -28,11 +30,13 @@
           <ActionSelector
             v-if="shouldShowActionSelector"
             :resource-name="resourceName"
+            :via-resource="actionQueryString.viaResource"
+            :via-resource-id="actionQueryString.viaResourceId"
+            :via-relationship="actionQueryString.viaRelationship"
             :actions="availableActions"
             :pivot-actions="pivotActions"
             :pivot-name="pivotName"
             :endpoint="actionsEndpoint"
-            :action-query-string="actionQueryString"
             :selected-resources="selectedResourcesForActionSelector"
             @actionExecuted="getResources"
           />
@@ -58,7 +62,6 @@
           :resource-name="resourceName"
           :soft-deletes="softDeletes"
           :via-resource="viaResource"
-          :via-has-one="viaHasOne"
           :trashed="trashed"
           :per-page="perPage"
           :per-page-options="filterPerPageOptions"
@@ -112,11 +115,13 @@
       <ActionSelector
         width="full"
         :resource-name="resourceName"
+        :via-resource="actionQueryString.viaResource"
+        :via-resource-id="actionQueryString.viaResourceId"
+        :via-relationship="actionQueryString.viaRelationship"
         :actions="availableActions"
         :pivot-actions="pivotActions"
         :pivot-name="pivotName"
         :endpoint="actionsEndpoint"
-        :action-query-string="actionQueryString"
         :selected-resources="selectedResourcesForActionSelector"
         @actionExecuted="getResources"
       />
@@ -126,7 +131,7 @@
 
 <script>
 export default {
-  emits: ['start-polling', 'stop-polling'],
+  emits: ['start-polling', 'stop-polling', 'deselect'],
 
   props: [
     'actionsEndpoint',
@@ -160,6 +165,7 @@ export default {
     'resources',
     'resourceInformation',
     'resourceName',
+    'currentPageCount',
     'restoreAllMatchingResources',
     'restoreSelectedResources',
     'selectAllChecked',
@@ -177,7 +183,6 @@ export default {
     'trashedChanged',
     'trashedParameter',
     'updatePerPageChanged',
-    'viaHasOne',
     'viaManyToMany',
     'viaResource',
   ],

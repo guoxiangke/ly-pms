@@ -3,6 +3,7 @@ import pickBy from 'lodash/pickBy'
 
 export default {
   data: () => ({
+    filterHasLoaded: false,
     filterIsActive: false,
   }),
 
@@ -56,6 +57,10 @@ export default {
      * Set up filters for the current view
      */
     async initializeFilters(lens) {
+      if (this.filterHasLoaded === true) {
+        return
+      }
+
       // Clear out the filters from the store first
       this.$store.commit(`${this.resourceName}/clearFilters`)
 
@@ -75,6 +80,8 @@ export default {
       )
 
       await this.initializeState(lens)
+
+      this.filterHasLoaded = true
     },
 
     /**

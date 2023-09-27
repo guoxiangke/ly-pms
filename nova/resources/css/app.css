@@ -1,5 +1,6 @@
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
+/*rtl:begin:ignore*/
 @import 'codemirror/lib/codemirror.css';
 @import 'codemirror/theme/3024-day.css';
 @import 'codemirror/theme/3024-night.css';
@@ -56,6 +57,7 @@
 @import 'codemirror/theme/xq-light.css';
 @import 'codemirror/theme/yeti.css';
 @import 'codemirror/theme/zenburn.css';
+/*rtl:end:ignore*/
 @import 'nova';
 @import 'fonts';
 @import 'tailwindcss/utilities';

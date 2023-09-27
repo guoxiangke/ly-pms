@@ -122,6 +122,20 @@ class FormData extends Fluent
     }
 
     /**
+     * Retrieve input from the request as a json value.
+     *
+     * @param  string  $key
+     * @param  mixed  $default
+     * @return mixed
+     */
+    public function json($key, $default = null)
+    {
+        $value = $this->get($key, $default);
+
+        return is_string($value) ? json_decode($value, true) : $value;
+    }
+
+    /**
      * Retrieve input as a boolean value.
      *
      * Returns true when value is "1", "true", "on", and "yes". Otherwise, returns false.

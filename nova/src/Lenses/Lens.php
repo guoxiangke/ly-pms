@@ -5,7 +5,6 @@ namespace Laravel\Nova\Lenses;
 use ArrayAccess;
 use Illuminate\Contracts\Routing\UrlRoutable;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\ConditionallyLoadsAttributes;
 use Illuminate\Http\Resources\DelegatesToResource;
 use Illuminate\Support\Str;
@@ -49,6 +48,13 @@ abstract class Lens implements ArrayAccess, JsonSerializable, UrlRoutable
      * @var \Illuminate\Database\Eloquent\Model|\stdClass
      */
     public $resource;
+
+    /**
+     * The columns that should be searched.
+     *
+     * @var array
+     */
+    public static $search = [];
 
     /**
      * Execute the query for the lens.
@@ -135,7 +141,6 @@ abstract class Lens implements ArrayAccess, JsonSerializable, UrlRoutable
         return $this->availableFields($request)
             ->filterForIndex($request, $this->resource)
             ->withoutListableFields()
-            ->resolve($this->resource)
             ->authorized($request)
             ->resolveForDisplay($this->resource);
     }
@@ -149,6 +154,7 @@ abstract class Lens implements ArrayAccess, JsonSerializable, UrlRoutable
     public function filterableFields(NovaRequest $request)
     {
         return $this->availableFields($request)
+                    ->flattenStackedFields()
                     ->withOnlyFilterableFields()
                     ->authorized($request);
     }
@@ -162,6 +168,26 @@ abstract class Lens implements ArrayAccess, JsonSerializable, UrlRoutable
     public function availableFields(NovaRequest $request)
     {
         return new FieldCollection(array_values($this->filter($this->fields($request))));
+    }
+
+    /**
+     * Determine if this resource is searchable.
+     *
+     * @return bool
+     */
+    public static function searchable()
+    {
+        return ! empty(static::searchableColumns());
+    }
+
+    /**
+     * Get the searchable columns for the lens.
+     *
+     * @return array
+     */
+    public static function searchableColumns()
+    {
+        return static::$search;
     }
 
     /**

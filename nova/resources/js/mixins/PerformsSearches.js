@@ -3,7 +3,8 @@ import debounce from 'lodash/debounce'
 export default {
   data: () => ({
     search: '',
-    selectedResource: '',
+    selectedResource: null,
+    selectedResourceId: null,
     availableResources: [],
   }),
 
@@ -13,18 +14,16 @@ export default {
      */
     selectResource(resource) {
       this.selectedResource = resource
+      this.selectedResourceId = resource.value
 
       if (this.field) {
         if (typeof this['emitFieldValueChange'] == 'function') {
           this.emitFieldValueChange(
-            this.field.attribute,
-            this.selectedResource.value
+            this.fieldAttribute,
+            this.selectedResourceId
           )
         } else {
-          Nova.$emit(
-            this.field.attribute + '-change',
-            this.selectedResource.value
-          )
+          Nova.$emit(this.fieldAttribute + '-change', this.selectedResourceId)
         }
       }
     },
@@ -40,14 +39,15 @@ export default {
      * Clear the selected resource and availableResources
      */
     clearSelection() {
-      this.selectedResource = ''
+      this.selectedResource = null
+      this.selectedResourceId = null
       this.availableResources = []
 
       if (this.field) {
         if (typeof this['emitFieldValueChange'] == 'function') {
-          this.emitFieldValueChange(this.field.attribute, null)
+          this.emitFieldValueChange(this.fieldAttribute, null)
         } else {
-          Nova.$emit(this.field.attribute + '-change', null)
+          Nova.$emit(this.fieldAttribute + '-change', null)
         }
       }
     },

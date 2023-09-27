@@ -16,12 +16,11 @@
     <p class="flex items-center text-4xl mb-4">{{ percentage }}%</p>
 
     <div class="flex h-full justify-center items-center flex-grow-1 mb-4">
-      <div
-        class="bg-gray-200 dark:bg-gray-900 w-full overflow-hidden h-4 flex rounded-full"
+      <ProgressBar
         :title="formattedValue"
-      >
-        <div :class="bgClass" :style="`width:${percentage}%`" />
-      </div>
+        :color="bgClass"
+        :value="percentage"
+      />
     </div>
   </LoadingCard>
 </template>

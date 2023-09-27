@@ -58,7 +58,7 @@ class AttachableController extends Controller
             Breadcrumb::make(Nova::__('Resources')),
             Breadcrumb::resource($resourceClass),
             Breadcrumb::resource($request->findResourceOrFail()),
-            Breadcrumb::make(__('Attach :resource', ['resource' => $relatedResourceClass::singularLabel()])),
+            Breadcrumb::make(Nova::__('Attach :resource', ['resource' => $relatedResourceClass::singularLabel()])),
         ]);
     }
 }

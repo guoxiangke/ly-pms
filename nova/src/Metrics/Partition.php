@@ -3,7 +3,6 @@
 namespace Laravel\Nova\Metrics;
 
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Query\Expression;
 use Illuminate\Support\Facades\DB;
 use Laravel\Nova\Util;
 
@@ -102,11 +101,7 @@ abstract class Partition extends Metric
     {
         $query = $model instanceof Builder ? $model : (new $model)->newQuery();
 
-        $wrappedColumn = $column instanceof Expression
-                ? (string) $column
-                : $query->getQuery()->getGrammar()->wrap(
-                    $column ?? $query->getModel()->getQualifiedKeyName()
-                );
+        $wrappedColumn = $query->getQuery()->getGrammar()->wrap($column ?? $query->getModel()->getQualifiedKeyName());
 
         $results = $query->select(
             $groupBy, DB::raw("{$function}({$wrappedColumn}) as aggregate")

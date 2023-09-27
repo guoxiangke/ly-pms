@@ -57,8 +57,8 @@ export default {
       const {
         data: { preview },
       } = await Nova.request().post(
-        `/nova-api/${this.resourceName}/field/${this.field.attribute}/preview`,
-        { value: value ?? 'Poop' }
+        `/nova-api/${this.resourceName}/field/${this.fieldAttribute}/preview`,
+        { value }
       )
 
       return preview

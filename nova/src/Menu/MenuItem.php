@@ -79,6 +79,13 @@ class MenuItem implements JsonSerializable
     public $target;
 
     /**
+     * The active menu callback.
+     *
+     * @var (callable(\Illuminate\Http\Request, \Laravel\Nova\URL):bool)|bool|null
+     */
+    public $activeMenuCallback;
+
+    /**
      * Construct a new Menu Item instance.
      *
      * @param  string  $name
@@ -101,6 +108,9 @@ class MenuItem implements JsonSerializable
         return static::make(
             $resourceClass::label()
         )->path('/resources/'.$resourceClass::uriKey())
+        ->activeWhen(function ($request, $url) {
+            return ! $request->routeIs('nova.pages.lens') ? $url->active() : false;
+        })
         ->canSee(function ($request) use ($resourceClass) {
             return $resourceClass::availableForNavigation($request) && $resourceClass::authorizedToViewAny($request);
         });
@@ -279,6 +289,34 @@ class MenuItem implements JsonSerializable
     }
 
     /**
+     * Determine the default active URL state.
+     *
+     * @param  (callable(\Illuminate\Http\Request, \Laravel\Nova\URL):bool)|bool  $activeMenuCallback
+     * @return $this
+     */
+    public function activeWhen($activeMenuCallback)
+    {
+        $this->activeMenuCallback = $activeMenuCallback;
+
+        return $this;
+    }
+
+    /**
+     * Determine the default active URL state.
+     *
+     * @param  (callable(\Illuminate\Http\Request, \Laravel\Nova\URL):bool)|bool  $activeMenuCallback
+     * @return $this
+     */
+    public function activeUnless($activeMenuCallback)
+    {
+        $this->activeMenuCallback = function ($request, $url) use ($activeMenuCallback) {
+            return value($activeMenuCallback, $request, $url) === false;
+        };
+
+        return $this;
+    }
+
+    /**
      * Prepare the menu for JSON serialization.
      *
      * @return array<string, mixed>
@@ -286,6 +324,10 @@ class MenuItem implements JsonSerializable
     public function jsonSerialize(): array
     {
         $url = URL::make($this->path, $this->external);
+
+        $activeMenuCallback = $this->activeMenuCallback ?? function ($request, $url) {
+            return $url->active();
+        };
 
         return [
             'name' => Nova::__($this->name),
@@ -296,7 +338,7 @@ class MenuItem implements JsonSerializable
             'method' => $this->method,
             'data' => $this->data,
             'headers' => $this->headers,
-            'active' => $url->active(),
+            'active' => value($activeMenuCallback, request(), $url),
             'badge' => $this->resolveBadge(),
         ];
     }

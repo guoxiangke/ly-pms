@@ -12,6 +12,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
 use JsonSerializable;
+use Laravel\Nova\Fields\HasAttachments;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Laravel\Nova\Menu\MenuItem;
@@ -249,9 +250,14 @@ abstract class Resource implements ArrayAccess, JsonSerializable, UrlRoutable
 
         return new static($model->replicate(
             $this->deletableFields(resolve(NovaRequest::class))
-                    ->map(function ($field) {
-                        return $field->attribute;
-                    })->all()
+                ->reject(function ($field) {
+                    $uses = trait_uses_recursive($field);
+
+                    /** @phpstan-ignore-next-line */
+                    return isset($uses[HasAttachments::class]) && $field->withFiles === false;
+                })
+                ->pluck('attribute')
+                ->all()
         ));
     }
 
@@ -383,7 +389,7 @@ abstract class Resource implements ArrayAccess, JsonSerializable, UrlRoutable
      */
     public static function createButtonLabel()
     {
-        return __('Create :resource', ['resource' => static::singularLabel()]);
+        return Nova::__('Create :resource', ['resource' => static::singularLabel()]);
     }
 
     /**
@@ -393,7 +399,7 @@ abstract class Resource implements ArrayAccess, JsonSerializable, UrlRoutable
      */
     public static function updateButtonLabel()
     {
-        return __('Update :resource', ['resource' => static::singularLabel()]);
+        return Nova::__('Update :resource', ['resource' => static::singularLabel()]);
     }
 
     /**

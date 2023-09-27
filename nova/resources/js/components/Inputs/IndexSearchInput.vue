@@ -1,5 +1,5 @@
 <template>
-  <div class="relative h-9 w-full md:w-1/3 md:flex-shrink-0 mb-6">
+  <div class="relative h-9 w-full md:w-1/3 md:flex-shrink-0">
     <Icon
       type="search"
       width="20"

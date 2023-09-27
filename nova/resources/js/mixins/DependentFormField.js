@@ -8,6 +8,7 @@ import isNil from 'lodash/isNil'
 import pickBy from 'lodash/pickBy'
 import FormField from './FormField'
 import { mapProps } from './propTypes'
+import filled from '../util/filled'
 import { escapeUnicode } from '../util/escapeUnicode'
 
 export default {
@@ -129,7 +130,7 @@ export default {
                 viaResource: this.viaResource,
                 viaResourceId: this.viaResourceId,
                 viaRelationship: this.viaRelationship,
-                field: this.field.attribute,
+                field: this.fieldAttribute,
                 component: this.field.dependentComponentKey,
               },
               identity
@@ -140,6 +141,7 @@ export default {
           }
         )
         .then(response => {
+          let previousValue = this.currentField.value
           let wasVisible = this.currentlyIsVisible
 
           this.syncedField = response.data
@@ -149,17 +151,26 @@ export default {
               this.syncedField.visible === true
                 ? 'field-shown'
                 : 'field-hidden',
-              this.field.attribute
+              this.fieldAttribute
             )
           }
 
           if (isNil(this.syncedField.value)) {
-            this.syncedField.value = this.field.value
+            this.syncedField.value = previousValue
           } else {
             this.setInitialValue()
           }
 
+          let emitChangesEvent = !this.syncedFieldValueHasNotChanged()
+
           this.onSyncedField()
+
+          if (
+            this.syncedField.dependentShouldEmitChangesEvent &&
+            emitChangesEvent
+          ) {
+            this.emitOnSyncedFieldValueChange()
+          }
         })
         .catch(e => {
           if (isCancel(e)) {
@@ -172,6 +183,20 @@ export default {
 
     onSyncedField() {
       //
+    },
+
+    emitOnSyncedFieldValueChange() {
+      this.emitFieldValueChange(this.field.attribute, this.currentField.value)
+    },
+
+    syncedFieldValueHasNotChanged() {
+      const value = this.currentField.value
+
+      if (filled(value)) {
+        return !filled(this.value)
+      }
+
+      return !isNil(value) && value?.toString() === this.value?.toString()
     },
   },
 
@@ -212,7 +237,7 @@ export default {
 
     currentFieldValues() {
       return {
-        [this.field.attribute]: this.value,
+        [this.fieldAttribute]: this.value,
       }
     },
 

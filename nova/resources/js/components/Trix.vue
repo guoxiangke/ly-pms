@@ -42,8 +42,6 @@ export default {
 
   methods: {
     initialize() {
-      this.$refs.theEditor.editor.insertHTML(this.value)
-
       if (this.disabled) {
         this.$refs.theEditor.setAttribute('contenteditable', false)
       }

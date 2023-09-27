@@ -4,6 +4,10 @@ namespace Laravel\Nova\Fields;
 
 use DateTimeZone;
 
+/**
+ * @phpstan-type TOptionValue string
+ * @phpstan-type TOptionLabel string
+ */
 class Timezone extends Select
 {
     /**

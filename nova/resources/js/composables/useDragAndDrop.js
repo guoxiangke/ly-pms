@@ -10,7 +10,7 @@ export function useDragAndDrop(emit) {
 
   const handleOnDrop = e => {
     files.value = e.dataTransfer.files
-    emit('change', e.dataTransfer.files)
+    emit('fileChanged', e.dataTransfer.files)
   }
 
   return {

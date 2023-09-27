@@ -37,7 +37,7 @@
         'px-2': index != 0 || shouldShowCheckboxes,
         'py-2': !shouldShowTight,
         'whitespace-nowrap': !field.wrapping,
-        'cursor-pointer': resource.authorizedToView && clickAction !== 'ignore',
+        'cursor-pointer': clickableRow,
       }"
       class="dark:bg-gray-800 group-hover:bg-gray-50 dark:group-hover:bg-gray-900"
     >
@@ -61,6 +61,7 @@
     >
       <div class="flex items-center justify-end space-x-0 text-gray-400">
         <InlineActionDropdown
+          v-if="shouldShowActionDropdown"
           :actions="availableActions"
           :endpoint="actionsEndpoint"
           :resource="resource"
@@ -81,7 +82,7 @@
           v-tooltip.click="__('View')"
           :aria-label="__('View')"
           :dusk="`${resource['id'].value}-view-button`"
-          :href="$url(`/resources/${resourceName}/${resource['id'].value}`)"
+          :href="viewURL"
           class="toolbar-button hover:text-primary-500 px-2 disabled:opacity-50 disabled:pointer-events-none"
           @click.stop
         >
@@ -90,25 +91,13 @@
 
         <!-- Edit Pivot Button -->
         <Link
-          v-if="
-            authorizedToUpdateAnyResources &&
-            (relationshipType == 'belongsToMany' ||
-              relationshipType == 'morphToMany')
-          "
+          v-if="authorizedToUpdateAnyResources && viaManyToMany"
           :as="!resource.authorizedToUpdate ? 'button' : 'a'"
           :disabled="!resource.authorizedToUpdate"
           v-tooltip.click="__('Edit Attached')"
           :aria-label="__('Edit Attached')"
           :dusk="`${resource['id'].value}-edit-attached-button`"
-          :href="
-            $url(
-              `/resources/${viaResource}/${viaResourceId}/edit-attached/${resourceName}/${resource['id'].value}`,
-              {
-                viaRelationship: viaRelationship,
-                viaPivotId: resource['id'].pivotValue,
-              }
-            )
-          "
+          :href="updateURL"
           class="toolbar-button hover:text-primary-500 px-2 disabled:opacity-50 disabled:pointer-events-none"
           @click.stop
         >
@@ -123,13 +112,7 @@
           v-tooltip.click="__('Edit')"
           :aria-label="__('Edit')"
           :dusk="`${resource['id'].value}-edit-button`"
-          :href="
-            $url(`/resources/${resourceName}/${resource['id'].value}/edit`, {
-              viaResource: viaResource,
-              viaResourceId: viaResourceId,
-              viaRelationship: viaRelationship,
-            })
-          "
+          :href="updateURL"
           class="toolbar-button hover:text-primary-500 px-2 disabled:opacity-50 disabled:pointer-events-none"
           @click.stop
         >
@@ -206,6 +189,7 @@
 <script>
 import filter from 'lodash/filter'
 import { Inertia } from '@inertiajs/inertia'
+import { mapGetters } from 'vuex'
 
 export default {
   emits: ['actionExecuted'],
@@ -266,13 +250,13 @@ export default {
     },
 
     handleKeydown(e) {
-      if (e.key === 'Meta') {
+      if (e.key === 'Meta' || e.key === 'Control') {
         this.commandPressed = true
       }
     },
 
     handleKeyup(e) {
-      if (e.key === 'Meta') {
+      if (e.key === 'Meta' || e.key === 'Control') {
         this.commandPressed = false
       }
     },
@@ -312,6 +296,9 @@ export default {
     },
 
     navigateToPreviewView(e) {
+      if (!this.resource.authorizedToView) {
+        return
+      }
       this.openPreviewModal()
     },
 
@@ -351,7 +338,19 @@ export default {
   },
 
   computed: {
+    ...mapGetters(['currentUser']),
+
     updateURL() {
+      if (this.viaManyToMany) {
+        return this.$url(
+          `/resources/${this.viaResource}/${this.viaResourceId}/edit-attached/${this.resourceName}/${this.resource.id.value}`,
+          {
+            viaRelationship: this.viaRelationship,
+            viaPivotId: this.resource.id.pivotValue,
+          }
+        )
+      }
+
       return this.$url(
         `/resources/${this.resourceName}/${this.resource.id.value}/edit`,
         {
@@ -374,6 +373,44 @@ export default {
 
     shouldShowTight() {
       return this.tableStyle === 'tight'
+    },
+
+    clickableRow() {
+      if (this.clickAction === 'edit') {
+        return this.resource.authorizedToUpdate
+      } else if (this.clickAction === 'select') {
+        return this.shouldShowCheckboxes
+      } else if (this.clickAction === 'ignore') {
+        return false
+      } else if (this.clickAction === 'detail') {
+        return this.resource.authorizedToView
+      } else if (this.clickAction === 'preview') {
+        return this.resource.authorizedToView
+      } else {
+        return this.resource.authorizedToView
+      }
+    },
+
+    shouldShowActionDropdown() {
+      return this.availableActions.length > 0 || this.userHasAnyOptions
+    },
+
+    shouldShowPreviewLink() {
+      return this.resource.authorizedToView && this.resource.previewHasFields
+    },
+
+    userHasAnyOptions() {
+      return (
+        this.resource.authorizedToReplicate ||
+        this.shouldShowPreviewLink ||
+        this.canBeImpersonated
+      )
+    },
+
+    canBeImpersonated() {
+      return (
+        this.currentUser.canImpersonate && this.resource.authorizedToImpersonate
+      )
     },
   },
 }

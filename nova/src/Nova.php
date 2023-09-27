@@ -21,6 +21,9 @@ use Laravel\Nova\Menu\Menu;
 use ReflectionClass;
 use Symfony\Component\Finder\Finder;
 
+/**
+ * @method static bool runsMigrations()
+ */
 class Nova
 {
     use AuthorizesRequests;
@@ -62,6 +65,13 @@ class Nova
      * @var (\Closure(\Illuminate\Console\Command):(array))|null
      */
     public static $createUserCommandCallback;
+
+    /**
+     * The callable that resolves the user's locale.
+     *
+     * @var (\Closure(\Illuminate\Http\Request):(?string))|null
+     */
+    public static $userLocaleCallback;
 
     /**
      * The callable that resolves the user's timezone.
@@ -171,7 +181,7 @@ class Nova
     /**
      * The initial path Nova should route to when visiting the base.
      *
-     * @var string
+     * @var string|(\Closure(\Illuminate\Http\Request):(string|null))
      */
     public static $initialPath = '/dashboards/main';
 
@@ -459,7 +469,7 @@ class Nova
             if (
                 is_subclass_of($resource, Resource::class) &&
                 ! (new ReflectionClass($resource))->isAbstract() &&
-                ! (is_subclass_of($resource, ActionResource::class))
+                ! is_subclass_of($resource, ActionResource::class)
             ) {
                 $resources[] = $resource;
             }
@@ -749,7 +759,6 @@ class Nova
      */
     public static function allAvailableDashboardCards(NovaRequest $request)
     {
-        /** @phpstan-ignore-next-line */
         return collect(static::$dashboards)
             ->filter
             ->authorize($request)
@@ -993,6 +1002,9 @@ class Nova
             $userId = Auth::guard(config('nova.guard'))->id() ?? null;
 
             static::$jsonVariables = [
+                'debug' => function () {
+                    return config('app.debug') || app()->environment('testing');
+                },
                 'logo' => static::logo(),
                 'brandColors' => static::brandColors(),
                 'brandColorsCSS' => static::brandColorsCSS(),
@@ -1021,7 +1033,10 @@ class Nova
                 'forgotPasswordPath' => config('nova.routes.forgot_password', false),
                 'resetPasswordPath' => config('nova.routes.reset_password', false),
                 'debounce' => static::$debounce * 1000,
-                'initialPath' => static::$initialPath,
+                'initialPath' => function ($request) {
+                    /** @phpstan-ignore-next-line */
+                    return value(static::$initialPath, $request) ?? '/dashboards/main';
+                },
                 'base' => static::path(),
                 'userId' => $userId,
                 'mainMenu' => function ($request) use ($userId) {
@@ -1053,7 +1068,9 @@ class Nova
     public static function checkLicenseValidity()
     {
         return Cache::remember('nova_valid_license_key', 3600, function () {
-            return true;
+            return rescue(function () {
+                return static::checkLicense()->status() == 204;
+            }, false);
         });
     }
 
@@ -1228,6 +1245,7 @@ class Nova
     public static function resourceInformation(Request $request)
     {
         return static::resourceCollection()->map(function ($resource) use ($request) {
+            /** @var class-string<\Laravel\Nova\Resource> $resource */
             return array_merge([
                 'uriKey' => $resource::uriKey(),
                 'label' => $resource::label(),
@@ -1305,7 +1323,7 @@ class Nova
     /**
      * Set the initial route path when visiting the base Nova url.
      *
-     * @param  string  $path
+     * @param  string|(\Closure(\Illuminate\Http\Request):(string|null))  $path
      * @return static
      */
     public static function initialPath($path)
@@ -1477,17 +1495,49 @@ class Nova
     }
 
     /**
+     * Set the callable that resolves the user's preferred locale.
+     *
+     * @param  (callable(\Illuminate\Http\Request):(?string))|null  $userLocaleCallback
+     * @return static
+     */
+    public static function userLocale($userLocaleCallback)
+    {
+        static::$userLocaleCallback = $userLocaleCallback;
+
+        return new static();
+    }
+
+    /**
+     * Resolve the user's preferred locale.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return string
+     */
+    public static function resolveUserLocale(Request $request)
+    {
+        $locale = null;
+
+        if (static::$userLocaleCallback) {
+            $locale = call_user_func(static::$userLocaleCallback, $request);
+        }
+
+        return str_replace('_', '-', $locale ?? app()->getLocale());
+    }
+
+    /**
      * Translate the given message.
      *
-     * @param  string|null  $key
-     * @param  array  $replace
+     * @param  \Laravel\Nova\Support\PendingTranslation|string|null  $key
+     * @param  array<string, string>  $replace
      * @param  string|null  $locale
-     * @return string|null
+     * @return \Laravel\Nova\Support\PendingTranslation&\Stringable
      */
     public static function __($key = null, $replace = [], $locale = null)
     {
-        return transform(__($key, $replace, $locale), function ($translation) use ($key) {
-            return is_string($translation) ? $translation : $key;
-        });
+        if ($key instanceof Support\PendingTranslation) {
+            return $key;
+        }
+
+        return new Support\PendingTranslation($key, $replace, $locale);
     }
 }

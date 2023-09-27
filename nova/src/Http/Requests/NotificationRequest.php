@@ -5,6 +5,7 @@ namespace Laravel\Nova\Http\Requests;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Laravel\Nova\Http\Resources\NotificationResource;
 use Laravel\Nova\Notifications\Notification;
+use Laravel\Nova\Nova;
 
 class NotificationRequest extends NovaRequest
 {
@@ -14,7 +15,7 @@ class NotificationRequest extends NovaRequest
     public function notifications()
     {
         return NotificationResource::collection(
-            Notification::whereNotifiableId($this->user()->getKey())
+            Notification::whereNotifiableId(Nova::user($this)->getKey())
                 ->latest()
                 ->take(100)
                 ->get()
@@ -24,7 +25,7 @@ class NotificationRequest extends NovaRequest
     public function unreadCount(): int
     {
         return Notification::unread()->whereNotifiableId(
-            $this->user()->getKey()
+            Nova::user($this)->getKey()
         )->count();
     }
 }

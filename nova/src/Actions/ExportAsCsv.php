@@ -180,8 +180,8 @@ class ExportAsCsv extends Action
         $this->actionFields->push(
             Select::make(Nova::__('Type'), 'writerType')->options(function () {
                 return [
-                    'csv' => __('CSV (.csv)'),
-                    'xlsx' => __('Excel (.xlsx)'),
+                    'csv' => Nova::__('CSV (.csv)'),
+                    'xlsx' => Nova::__('Excel (.xlsx)'),
                 ];
             })->default($default)->rules(['required', Rule::in(['csv', 'xlsx'])])
         );

@@ -8,7 +8,7 @@ use JsonSerializable;
 
 /**
  * @template TKey of int
- * @template TValue of \Laravel\Nova\Menu\MenuGroup|\Laravel\Nova\Menu\MenuItem|\Laravel\Nova\Menu\MenuList|array
+ * @template TValue of \Laravel\Nova\Menu\MenuGroup|\Laravel\Nova\Menu\MenuItem|\Laravel\Nova\Menu\MenuList|non-empty-array
  *
  * @extends \Illuminate\Support\Collection<TKey, TValue>
  */
@@ -18,7 +18,7 @@ class MenuCollection extends Collection
      * Filter menus should be displayed for the given request.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return static<int, \Laravel\Nova\Menu\MenuGroup|\Laravel\Nova\Menu\MenuItem|\Laravel\Nova\Menu\MenuList|array>
+     * @return static<int, TValue>
      */
     public function authorized(Request $request)
     {

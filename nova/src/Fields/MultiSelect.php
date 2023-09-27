@@ -6,7 +6,13 @@ use Illuminate\Support\Arr;
 use Laravel\Nova\Contracts\FilterableField;
 use Laravel\Nova\Fields\Filters\MultiSelectFilter;
 use Laravel\Nova\Http\Requests\NovaRequest;
+use Laravel\Nova\Util;
 
+/**
+ * @phpstan-type TOptionLabel \Stringable|string|array{label: string, group?: string}
+ * @phpstan-type TOptionValue string|int
+ * @phpstan-type TOption iterable<TOptionValue, TOptionLabel>
+ */
 class MultiSelect extends Field implements FilterableField
 {
     use FieldFilterable, SupportsDependentFields;
@@ -22,6 +28,8 @@ class MultiSelect extends Field implements FilterableField
      * The field's options callback.
      *
      * @var array<string|int, array<string, mixed>|string>|\Closure|callable|\Illuminate\Support\Collection|null
+     *
+     * @phpstan-var TOption|(callable(): (TOption))|(\Closure(): (TOption))|null
      */
     public $optionsCallback;
 
@@ -37,6 +45,8 @@ class MultiSelect extends Field implements FilterableField
      *
      * @param  array<string|int, array<string, mixed>|string>|\Closure|callable|\Illuminate\Support\Collection  $options
      * @return $this
+     *
+     * @phpstan-param TOption|(callable(): (TOption))|(\Closure(): (TOption)) $options
      */
     public function options($options)
     {
@@ -62,7 +72,7 @@ class MultiSelect extends Field implements FilterableField
      *
      * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
      * @param  string  $requestAttribute
-     * @param  object  $model
+     * @param  \Illuminate\Database\Eloquent\Model|\Laravel\Nova\Support\Fluent  $model
      * @param  string  $attribute
      * @return mixed
      */
@@ -119,9 +129,12 @@ class MultiSelect extends Field implements FilterableField
      * Serialize options for the field.
      *
      * @return array<int, array<string, mixed>>
+     *
+     * @phpstan-return array<int, array{group: string, label: string, value: TOptionValue}>
      */
     protected function serializeOptions()
     {
+        /** @var TOption $options */
         $options = value($this->optionsCallback);
 
         if (is_callable($options)) {
@@ -129,6 +142,8 @@ class MultiSelect extends Field implements FilterableField
         }
 
         return collect($options ?? [])->map(function ($label, $value) {
+            $value = Util::safeInt($value);
+
             return is_array($label) ? $label + ['value' => $value] : ['label' => $label, 'value' => $value];
         })->values()->all();
     }

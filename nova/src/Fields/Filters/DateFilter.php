@@ -31,6 +31,14 @@ class DateFilter extends Filter
         });
 
         if ($value->filter()->isNotEmpty()) {
+            if ($value[0] instanceof CarbonImmutable) {
+                $value[0] = $value[0]->startOfDay();
+            }
+
+            if ($value[1] instanceof CarbonImmutable) {
+                $value[1] = $value[1]->endOfDay();
+            }
+
             $this->field->applyFilter($request, $query, $value->all());
         }
 

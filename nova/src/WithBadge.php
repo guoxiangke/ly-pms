@@ -75,6 +75,7 @@ trait WithBadge
     {
         if (value($this->badgeCondition)) {
             if (is_callable($this->badgeCallback)) {
+                /** @var \Laravel\Nova\Badge|string|null $result */
                 $result = call_user_func($this->badgeCallback);
 
                 if (is_null($result)) {

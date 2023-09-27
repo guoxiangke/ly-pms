@@ -40,9 +40,10 @@ trait ResolvesFilters
     public function resolveFiltersFromFields(NovaRequest $request)
     {
         return collect(array_values($this->filter(
-            $this->filterableFields($request)->transform(function ($field) use ($request) {
-                return $field->resolveFilter($request);
-            })->filter()->all()
+            $this->filterableFields($request)
+                ->transform(function ($field) use ($request) {
+                    return $field->resolveFilter($request);
+                })->filter()->all()
         )));
     }
 

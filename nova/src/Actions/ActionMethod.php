@@ -15,8 +15,16 @@ class ActionMethod
      */
     public static function determine(Action $action, $model)
     {
+        if (! is_null($action->handleCallback)) {
+            return 'handleUsingCallback';
+        }
+
         $method = 'handleFor'.Str::plural(class_basename($model));
 
-        return method_exists($action, $method) ? $method : 'handle';
+        if (method_exists($action, $method)) {
+            return $method;
+        }
+
+        return 'handle';
     }
 }

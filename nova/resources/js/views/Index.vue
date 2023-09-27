@@ -32,20 +32,36 @@
     </Heading>
 
     <template v-if="!shouldBeCollapsed">
-      <div class="flex">
+      <div class="flex mb-6">
         <IndexSearchInput
-          :class="{ 'mb-6': !viaResource }"
-          v-if="
-            resourceInformation && resourceInformation.searchable && !viaHasOne
-          "
-          :searchable="
-            resourceInformation && resourceInformation.searchable && !viaHasOne
-          "
+          v-if="resourceInformation && resourceInformation.searchable"
+          :searchable="resourceInformation && resourceInformation.searchable"
           v-model:keyword="search"
           @update:keyword="search = $event"
         />
 
-        <div class="w-full flex items-center" :class="{ 'mb-6': !viaResource }">
+        <div
+          v-if="
+            availableStandaloneActions.length > 0 ||
+            authorizedToCreate ||
+            authorizedToRelate
+          "
+          class="inline-flex items-center space-x-2 ml-auto"
+        >
+          <!-- Action Dropdown -->
+          <ActionDropdown
+            v-if="availableStandaloneActions.length > 0"
+            @actionExecuted="() => fetchPolicies()"
+            :resource-name="resourceName"
+            :via-resource="viaResource"
+            :via-resource-id="viaResourceId"
+            :via-relationship="viaRelationship"
+            :relationship-type="relationshipType"
+            :actions="availableStandaloneActions"
+            :selected-resources="selectedResourcesForActionSelector"
+            trigger-dusk-attribute="index-standalone-action-dropdown"
+          />
+
           <!-- Create / Attach Button -->
           <CreateResourceButton
             :label="createButtonLabel"
@@ -55,10 +71,9 @@
             :via-resource-id="viaResourceId"
             :via-relationship="viaRelationship"
             :relationship-type="relationshipType"
-            :authorized-to-create="authorizedToCreate && !resourceIsFull"
+            :authorized-to-create="authorizedToCreate"
             :authorized-to-relate="authorizedToRelate"
-            class="flex-shrink-0 ml-auto"
-            :class="{ 'mb-6': viaResource }"
+            class="flex-shrink-0"
           />
         </div>
       </div>
@@ -85,6 +100,7 @@
           :clear-selected-filters="clearSelectedFilters"
           :close-delete-modal="closeDeleteModal"
           :currently-polling="currentlyPolling"
+          :current-page-count="resources.length"
           :delete-all-matching-resources="deleteAllMatchingResources"
           :delete-selected-resources="deleteSelectedResources"
           :filter-changed="filterChanged"
@@ -94,6 +110,7 @@
           :has-filters="hasFilters"
           :have-standalone-actions="haveStandaloneActions"
           :lenses="lenses"
+          :loading="resourceResponse && loading"
           :per-page-options="perPageOptions"
           :per-page="perPage"
           :pivot-actions="pivotActions"
@@ -104,6 +121,7 @@
           :restore-all-matching-resources="restoreAllMatchingResources"
           :restore-selected-resources="restoreSelectedResources"
           :select-all-matching-checked="selectAllMatchingResources"
+          @deselect="clearResourceSelections"
           :selected-resources="selectedResources"
           :selected-resources-for-action-selector="
             selectedResourcesForActionSelector
@@ -121,12 +139,14 @@
           :trashed-parameter="trashedParameter"
           :trashed="trashed"
           :update-per-page-changed="updatePerPageChanged"
-          :via-has-one="viaHasOne"
           :via-many-to-many="viaManyToMany"
           :via-resource="viaResource"
         />
 
-        <LoadingView :loading="loading">
+        <LoadingView
+          :loading="loading"
+          :variant="!resourceResponse ? 'default' : 'overlay'"
+        >
           <IndexErrorDialog
             v-if="resourceResponseError != null"
             :resource="resourceInformation"
@@ -135,7 +155,7 @@
 
           <template v-else>
             <IndexEmptyDialog
-              v-if="!resources.length"
+              v-if="!loading && !resources.length"
               :create-button-label="createButtonLabel"
               :singular-name="singularName"
               :resource-name="resourceName"
@@ -192,7 +212,7 @@
 </template>
 
 <script>
-import debounce from 'lodash/debounce'
+// this.$refs.selectControl.selectedIndex = 0
 import { CancelToken, isCancel } from 'axios'
 import {
   HasCards,
@@ -207,6 +227,7 @@ import {
   SupportsPolling,
 } from '@/mixins'
 import { minimum } from '@/util'
+import { mapActions } from 'vuex'
 
 export default {
   name: 'ResourceIndex',
@@ -237,34 +258,16 @@ export default {
   },
 
   data: () => ({
-    debouncer: null,
-    search: '',
     lenses: [],
     sortable: true,
     actionCanceller: null,
   }),
 
-  setup() {
-    //
-  },
-
   /**
    * Mount the component and retrieve its initial data.
    */
   async created() {
-    if (!this.resourceInformation) {
-      return
-    }
-
-    this.debouncer = debounce(
-      callback => callback(),
-      this.resourceInformation.debounce
-    )
-
-    this.$watch('search', newValue => {
-      this.search = newValue
-      this.performSearch()
-    })
+    if (!this.resourceInformation) return
 
     // Bind the keydown event listener when the router is visited if this
     // component is not a relation on a Detail page
@@ -297,6 +300,8 @@ export default {
   },
 
   methods: {
+    ...mapActions(['fetchPolicies']),
+
     /**
      * Handle the keydown event
      */
@@ -304,9 +309,9 @@ export default {
       // `c`
       if (
         this.authorizedToCreate &&
-        e.target.tagName != 'INPUT' &&
-        e.target.tagName != 'TEXTAREA' &&
-        e.target.contentEditable != 'true'
+        e.target.tagName !== 'INPUT' &&
+        e.target.tagName !== 'TEXTAREA' &&
+        e.target.contentEditable !== 'true'
       ) {
         Nova.visit(`/resources/${this.resourceName}/new`)
       }
@@ -367,8 +372,8 @@ export default {
       if (
         this.shouldBeCollapsed ||
         (!this.authorizedToCreate &&
-          this.relationshipType != 'belongsToMany' &&
-          this.relationshipType != 'morphToMany')
+          this.relationshipType !== 'belongsToMany' &&
+          this.relationshipType !== 'morphToMany')
       ) {
         return
       }
@@ -508,7 +513,15 @@ export default {
       this.toggleCollapse()
 
       if (!this.collapsed) {
-        await this.getResources()
+        if (!this.filterHasLoaded) {
+          await this.initializeFilters(null)
+          if (!this.hasFilters) {
+            await this.getResources()
+          }
+        } else {
+          await this.getResources()
+        }
+
         await this.getAuthorizationToRelate()
         await this.getActions()
         this.restartPolling()
@@ -535,6 +548,10 @@ export default {
      */
     shouldBeCollapsed() {
       return this.collapsed && this.viaRelationship != null
+    },
+
+    collapsedByDefault() {
+      return this.field?.collapsedByDefault ?? false
     },
 
     /**

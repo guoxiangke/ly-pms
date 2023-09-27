@@ -9,6 +9,7 @@
         :data-testid="`${field.uniqueKey}-search-filter`"
         @input="performSearch"
         @clear="handleClearSelection"
+        @shown="handleShowingActiveSearchInput"
         @selected="selectResource"
         :debounce="field.debounce"
         :value="selectedResource"
@@ -75,6 +76,8 @@ import debounce from 'lodash/debounce'
 import find from 'lodash/find'
 import isNil from 'lodash/isNil'
 import { PerformsSearches } from '@/mixins'
+import storage from '@/storage/ResourceSearchStorage'
+import filled from '@/util/filled'
 
 export default {
   emits: ['change'],
@@ -112,20 +115,18 @@ export default {
 
   created() {
     this.debouncedHandleChange = debounce(() => this.handleChange(), 500)
+
+    Nova.$on('filter-active', this.handleClosingInactiveSearchInputs)
   },
 
   beforeUnmount() {
+    Nova.$off('filter-active', this.handleClosingInactiveSearchInputs)
     Nova.$off('filter-reset', this.handleFilterReset)
   },
 
   watch: {
     selectedResource(resource) {
-      if (!isNil(resource) && resource !== '') {
-        this.selectedResourceId = resource.value
-      } else {
-        this.selectedResourceId = ''
-        this.getAvailableResources()
-      }
+      this.selectedResourceId = filled(resource) ? resource.value : ''
     },
 
     selectedResourceId() {
@@ -165,13 +166,15 @@ export default {
       let queryParams = this.queryParams
 
       if (!isNil(search)) {
-        queryParams.params.first = false
-        queryParams.params.current = null
-        queryParams.params.search = search
+        queryParams.first = false
+        queryParams.current = null
+        queryParams.search = search
       }
 
-      return Nova.request()
-        .get(`/nova-api/${this.filter.field.resourceName}/search`, queryParams)
+      return storage
+        .fetchAvailableResources(this.filter.field.resourceName, {
+          params: queryParams,
+        })
         .then(({ data: { resources, softDeletes, withTrashed } }) => {
           if (!this.isSearchable) {
             this.withTrashed = withTrashed
@@ -190,6 +193,18 @@ export default {
         this.availableResources,
         r => r.value == this.selectedResourceId
       )
+    },
+
+    handleShowingActiveSearchInput() {
+      Nova.$emit('filter-active', this.filterKey)
+    },
+
+    handleClosingInactiveSearchInputs(key) {
+      if (key !== this.filterKey) {
+        if (this.$refs.searchable) {
+          this.$refs.searchable.close()
+        }
+      }
     },
 
     /**
@@ -259,12 +274,10 @@ export default {
      */
     queryParams() {
       return {
-        params: {
-          current: this.selectedResourceId,
-          first: this.selectedResourceId && this.isSearchable,
-          search: this.search,
-          withTrashed: this.withTrashed,
-        },
+        current: this.selectedResourceId,
+        first: this.selectedResourceId && this.isSearchable,
+        search: this.search,
+        withTrashed: this.withTrashed,
       }
     },
   },

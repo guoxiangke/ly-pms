@@ -124,10 +124,9 @@ class DateTime extends Field implements FilterableField
     /**
      * Resolve the default value for the field.
      *
-     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
      * @return string
      */
-    protected function resolveDefaultValue(NovaRequest $request)
+    public function resolveDefaultValue(NovaRequest $request)
     {
         $value = parent::resolveDefaultValue($request);
 
@@ -165,7 +164,6 @@ class DateTime extends Field implements FilterableField
     /**
      * Make the field filter.
      *
-     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
      * @return \Laravel\Nova\Fields\Filters\Filter
      */
     protected function makeFilter(NovaRequest $request)
@@ -186,10 +184,10 @@ class DateTime extends Field implements FilterableField
             if (! is_null($min) && ! is_null($max)) {
                 return $query->whereBetween($attribute, [$min, $max]);
             } elseif (! is_null($min)) {
-                return $query->whereDate($attribute, '>=', $min);
+                return $query->where($attribute, '>=', $min);
             }
 
-            return $query->whereDate($attribute, '<=', $max);
+            return $query->where($attribute, '<=', $max);
         };
     }
 

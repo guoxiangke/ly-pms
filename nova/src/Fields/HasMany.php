@@ -5,6 +5,8 @@ namespace Laravel\Nova\Fields;
 use Illuminate\Http\Request;
 use Laravel\Nova\Contracts\ListableField;
 use Laravel\Nova\Contracts\RelatableField;
+use Laravel\Nova\Exceptions\HelperNotSupported;
+use Laravel\Nova\Exceptions\NovaException;
 use Laravel\Nova\Panel;
 
 /**
@@ -12,6 +14,21 @@ use Laravel\Nova\Panel;
  */
 class HasMany extends Field implements ListableField, RelatableField
 {
+    use Collapsable;
+
+    /**
+     * Add help text to the metric.
+     *
+     * @param  string  $text
+     * @return $this
+     *
+     * @throws HelperNotSupported
+     */
+    public function help($text)
+    {
+        throw NovaException::helperNotSupported(__METHOD__, __CLASS__);
+    }
+
     /**
      * The field's component.
      *
@@ -145,6 +162,8 @@ class HasMany extends Field implements ListableField, RelatableField
     public function jsonSerialize(): array
     {
         return array_merge([
+            'collapsable' => $this->collapsable,
+            'collapsedByDefault' => $this->collapsedByDefault,
             'hasManyRelationship' => $this->hasManyRelationship,
             'relatable' => true,
             'perPage' => $this->resourceClass::$perPageViaRelationship,

@@ -67,7 +67,7 @@ export default {
         this.value = cm.getValue()
 
         if (this.field) {
-          this.emitFieldValueChange(this.field.attribute, this.value)
+          this.emitFieldValueChange(this.fieldAttribute, this.value)
         }
       })
     },

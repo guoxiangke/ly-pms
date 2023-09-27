@@ -3,6 +3,7 @@
 namespace Laravel\Nova\Testing\Browser\Pages;
 
 use Laravel\Dusk\Browser;
+use Laravel\Nova\Testing\Browser\Components\Modals\CreateRelationModalComponent;
 
 class Update extends Page
 {
@@ -45,10 +46,10 @@ class Update extends Page
     {
         $browser->whenAvailable("@{$uriKey}-inline-create", function ($browser) use ($fieldCallback) {
             $browser->click('')
-                ->elsewhereWhenAvailable('.modal[data-modal-open=true]', function ($browser) use ($fieldCallback) {
+                ->elsewhereWhenAvailable(new CreateRelationModalComponent(), function ($browser) use ($fieldCallback) {
                     $fieldCallback($browser);
 
-                    $browser->create()->pause(250);
+                    $browser->confirm()->pause(250);
                 });
         });
     }

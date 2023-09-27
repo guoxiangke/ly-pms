@@ -14,8 +14,10 @@
   ],
   "require": {
     "php": "^7.3|^8.0",
-    "brick/money": "^0.5.0|^0.6.0|^0.7.0",
+    "brick/money": "^0.5.0|^0.6.0|^0.7.0|^0.8.0",
     "doctrine/dbal": "^2.13.3|^3.1.2",
+    "illuminate/support": "^8.83.4|^9.3.1|^10.0",
+    "inertiajs/inertia-laravel": "^0.4.5|^0.5.2|^0.6.0",
     "laravel/ui": "^3.3|^4.0",
     "nesbot/carbon": "^2.53.1",
     "rap2hpoutre/fast-excel": "^3.2|^4.1|^5.0",
@@ -27,13 +29,13 @@
     "ext-json": "*"
   },
   "require-dev": {
-    "laravel/nova-dusk-suite": "dev-fixes-5194",
-    "laravel/pint": "^1.0",
-    "laravel/scout": "^9.4",
+    "laravel/nova-dusk-suite": "8.4.x-dev|9.4.x-dev|10.4.x-dev",
+    "laravel/pint": "^1.6",
+    "laravel/scout": "^9.8|^10.0",
     "mockery/mockery": "^1.4.4",
-    "nunomaduro/larastan": "^1.0.1|^2.0",
-    "orchestra/testbench-dusk": "^6.24|^7.0",
-    "phpunit/phpunit": "^9.5.10",
+    "nunomaduro/larastan": "^1.0.1|^2.5.1",
+    "orchestra/testbench-dusk": "^6.24|^7.21|^8.0",
+    "phpunit/phpunit": "^9.6|^10.1",
     "predis/predis": "^1.1.9|^2.0"
   },
   "autoload": {
@@ -61,7 +63,8 @@
   },
   "config": {
     "allow-plugins": {
-      "composer/package-versions-deprecated": true
+      "composer/package-versions-deprecated": true,
+      "php-http/discovery": true
     },
     "preferred-install": {
       "laravel/nova-dusk-suite": "source",
@@ -77,18 +80,21 @@
       "./vendor/bin/testbench-dusk package:discover"
     ],
     "dusk:dev-assets": [
-      "npm ci",
       "TAILWIND_MODE=build npm run dev",
       "./vendor/bin/testbench-dusk nova:publish --force"
     ],
     "dusk:assets": [
-      "npm ci",
       "TAILWIND_MODE=build npm run prod",
       "./vendor/bin/testbench-dusk nova:publish --force"
     ],
     "dusk:test": [
       "./vendor/bin/testbench-dusk package:dusk-purge",
       "./vendor/bin/phpunit -c phpunit.dusk.xml"
+    ],
+    "test:local": [
+      "./vendor/bin/testbench-dusk package:dusk-purge",
+      "./vendor/bin/phpunit -c phpunit.xml --group date-field,datetime-field,external-network --testdox",
+      "./vendor/bin/phpunit -c phpunit.dusk.xml --group date-field,datetime-field,external-network --testdox"
     ],
     "dusk:filter": [
       "./vendor/bin/testbench-dusk package:dusk-purge && ./vendor/bin/phpunit -c phpunit.dusk.xml --filter"
@@ -105,5 +111,5 @@
   ],
   "minimum-stability": "dev",
   "prefer-stable": true,
-  "version": "4.19.6"
+  "version": "4.27.12"
 }

@@ -3,6 +3,7 @@
 namespace Laravel\Nova\Testing\Browser\Pages;
 
 use Laravel\Dusk\Browser;
+use Laravel\Nova\Testing\Browser\Components\FormComponent;
 use Laravel\Nova\Testing\Browser\Components\IndexComponent;
 
 class Index extends Page
@@ -28,15 +29,22 @@ class Index extends Page
      * Create the related resource.
      *
      * @param  \Laravel\Dusk\Browser  $browser
+     * @param  \Closure|null  $fieldCallback
      * @return void
      *
      * @throws \Facebook\WebDriver\Exception\TimeOutException
      */
-    public function runCreate(Browser $browser)
+    public function runCreate(Browser $browser, $fieldCallback = null)
     {
         $browser->within(new IndexComponent($this->resourceName), function ($browser) {
             $browser->waitFor('@create-button')->click('@create-button');
         })->on(new Create($this->resourceName));
+
+        if (! is_null($fieldCallback)) {
+            $browser->within(new FormComponent(), function ($browser) use ($fieldCallback) {
+                call_user_func($fieldCallback, $browser);
+            });
+        }
     }
 
     /**

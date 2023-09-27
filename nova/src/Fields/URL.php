@@ -2,6 +2,8 @@
 
 namespace Laravel\Nova\Fields;
 
+use Laravel\Nova\Exceptions\NovaException;
+
 class URL extends Text
 {
     /**
@@ -38,5 +40,15 @@ class URL extends Text
         $this->displayedAs = $this->name;
 
         parent::resolve($resource, $attribute);
+    }
+
+    /**
+     * Allow the field to be copyable to the clipboard inside Nova.
+     *
+     * @return $this
+     */
+    public function copyable()
+    {
+        throw NovaException::helperNotSupported(__METHOD__, __CLASS__);
     }
 }

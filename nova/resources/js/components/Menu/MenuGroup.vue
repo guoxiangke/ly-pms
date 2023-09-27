@@ -50,5 +50,11 @@ export default {
       this.toggleCollapse()
     },
   },
+
+  computed: {
+    collapsedByDefault() {
+      return this.item?.collapsedByDefault ?? false
+    },
+  },
 }
 </script>

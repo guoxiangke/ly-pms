@@ -66,6 +66,13 @@ class Tag extends Field
     public $withPreview = false;
 
     /**
+     * Indicates if Nova should preload the tags.
+     *
+     * @var bool
+     */
+    public $preload = false;
+
+    /**
      * Create a new field.
      *
      * @param  string  $name
@@ -89,31 +96,33 @@ class Tag extends Field
      *
      * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
      * @param  string  $requestAttribute
-     * @param  object  $model
+     * @param  \Illuminate\Database\Eloquent\Model|\Laravel\Nova\Support\Fluent  $model
      * @param  string  $attribute
      * @return \Closure
      */
     protected function fillAttributeFromRequest(NovaRequest $request, $requestAttribute, $model, $attribute)
     {
-        return function () use ($model, $attribute, $request) {
+        return function () use ($model, $attribute, $request, $requestAttribute) {
             $model->{$attribute}()->sync(
-                $this->prepareRelations($request, $attribute)
+                $this->prepareRelations($request, $requestAttribute)
             );
         };
     }
 
     /**
+     * Prepare relation values from request.
+     *
      * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
-     * @param  string  $attribute
+     * @param  string  $requestAttribute
      * @return array<int, string>
      */
-    protected function prepareRelations(NovaRequest $request, string $attribute)
+    protected function prepareRelations(NovaRequest $request, string $requestAttribute)
     {
-        if (! $request->filled($attribute)) {
+        if (! $request->filled($requestAttribute)) {
             return [];
         }
 
-        return collect(json_decode($request->{$attribute}, true))
+        return collect(json_decode($request[$requestAttribute], true))
             ->pluck('value')
             ->filter()
             ->all();
@@ -161,6 +170,18 @@ class Tag extends Field
     }
 
     /**
+     * Preload all options for the field on load.
+     *
+     * @return $this
+     */
+    public function preload()
+    {
+        $this->preload = true;
+
+        return $this;
+    }
+
+    /**
      * Transform the result from resource.
      *
      * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
@@ -187,6 +208,7 @@ class Tag extends Field
         /** @phpstan-ignore-next-line */
         return with(app(NovaRequest::class), function ($request) {
             return array_merge([
+                'preload' => $this->preload,
                 'style' => $this->style,
                 'belongsToManyRelationship' => $this->manyToManyRelationship,
                 'resourceName' => $this->resourceName,

@@ -24,6 +24,7 @@ class ImpersonateController extends Controller
             return $this->stopImpersonating($request, $impersonator);
         }
 
+        /** @var class-string<\Illuminate\Contracts\Auth\Authenticatable&\Illuminate\Database\Eloquent\Model> $userModel */
         $userModel = with(Nova::modelInstanceForKey($request->input('resource')), function ($model) {
             return ! is_null($model) ? get_class($model) : Util::userModel();
         });
@@ -32,14 +33,15 @@ class ImpersonateController extends Controller
 
         $currentUser = Nova::user($request);
 
+        /** @var \Illuminate\Contracts\Auth\Authenticatable&\Illuminate\Database\Eloquent\Model $user */
         $user = $userModel::findOrFail($request->input('resourceId'));
 
         // Now that we're guaranteed to be a 'real' user, we'll make sure we're
         // actually trying to impersonate someone besides ourselves, as that
         // would be unnecessary.
         if (! $currentUser->is($user)) {
-            abort_unless((optional($currentUser)->canImpersonate() ?? false), 403);
-            abort_unless((optional($user)->canBeImpersonated() ?? false), 403);
+            abort_unless(optional($currentUser)->canImpersonate() ?? false, 403);
+            abort_unless(optional($user)->canBeImpersonated() ?? false, 403);
 
             $impersonator->impersonate(
                 $request,

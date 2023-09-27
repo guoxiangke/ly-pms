@@ -75,7 +75,7 @@ abstract class ComponentGeneratorCommand extends Command
      */
     protected function executeCommand($command, $path)
     {
-        $process = (Process::fromShellCommandline($command, $path))->setTimeout(null);
+        $process = Process::fromShellCommandline($command, $path)->setTimeout(null);
 
         if ('\\' !== DIRECTORY_SEPARATOR && file_exists('/dev/tty') && is_readable('/dev/tty')) {
             $process->setTty(true);
@@ -105,7 +105,7 @@ abstract class ComponentGeneratorCommand extends Command
     {
         $composer = json_decode(file_get_contents(base_path('composer.json')), true);
 
-        $composer['require'][$this->component()] = '*';
+        $composer['require'][$this->component()] = '@dev';
 
         file_put_contents(
             base_path('composer.json'),

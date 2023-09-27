@@ -51,7 +51,7 @@ class ResourceCreateController extends Controller
             }, function ($breadcrumbs) use ($resourceClass) {
                 return $breadcrumbs->push(Breadcrumb::resource($resourceClass));
             })->push(
-                Breadcrumb::make(__('Create :resource', ['resource' => $resourceClass::singularLabel()]))
+                Breadcrumb::make(Nova::__('Create :resource', ['resource' => $resourceClass::singularLabel()]))
             )->all()
         );
     }

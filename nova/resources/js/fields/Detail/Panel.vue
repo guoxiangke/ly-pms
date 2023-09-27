@@ -18,7 +18,7 @@
       <p
         v-if="panel.helpText && !collapsed"
         class="text-gray-500 text-sm font-semibold italic"
-        :class="panel.helpText ? 'mt-2' : 'mt-3'"
+        :class="panel.helpText ? 'mt-1' : 'mt-3'"
         v-html="panel.helpText"
       />
     </slot>
@@ -82,6 +82,10 @@ export default {
   computed: {
     localStorageKey() {
       return `nova.panels.${this.panel.name}.collapsed`
+    },
+
+    collapsedByDefault() {
+      return this.panel?.collapsedByDefault ?? false
     },
 
     /**

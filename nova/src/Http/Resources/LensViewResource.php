@@ -19,7 +19,7 @@ class LensViewResource extends Resource
     {
         $lens = $this->authorizedLensForRequest($request);
 
-        $query = $request->newQuery();
+        $query = $request->newSearchQuery();
 
         if ($request->resourceSoftDeletes()) {
             (new ApplySoftDeleteConstraint)->__invoke($query, $request->trashed);
@@ -32,7 +32,7 @@ class LensViewResource extends Resource
         }
 
         return [
-            'name' => $request->lens()->name(),
+            'name' => $lens->name(),
             'resources' => $request->toResources($paginator->getCollection()),
             'prev_page_url' => $paginator->previousPageUrl(),
             'next_page_url' => $paginator->nextPageUrl(),

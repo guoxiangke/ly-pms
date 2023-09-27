@@ -54,7 +54,11 @@
               :field="field"
               :show-help-text="true"
               :form-unique-id="formUniqueId"
-              mode="modal"
+              :mode="
+                action.modalStyle === 'fullscreen'
+                  ? 'action-fullscreen'
+                  : 'action-modal'
+              "
               :sync-endpoint="syncEndpoint"
               @field-changed="onUpdateFormStatus"
             />
@@ -150,13 +154,13 @@ export default {
       })
     },
 
-    handlePreventModalAbandonmentOnClose() {
+    handlePreventModalAbandonmentOnClose(event) {
       this.handlePreventModalAbandonment(
         () => {
           this.$emit('close')
         },
         () => {
-          e.stopPropagation()
+          event.stopPropagation()
         }
       )
     },

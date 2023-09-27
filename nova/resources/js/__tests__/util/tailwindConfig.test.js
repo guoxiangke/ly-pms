@@ -22,6 +22,7 @@ it('generates Tailwind colors', () => {
         700: 'rgba(var(--colors-primary-700))',
         800: 'rgba(var(--colors-primary-800))',
         900: 'rgba(var(--colors-primary-900))',
+        950: 'rgba(var(--colors-primary-950))',
       },
     })
   )

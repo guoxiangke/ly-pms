@@ -17,7 +17,7 @@
           :shown-via-new-relation-modal="false"
           :form-unique-id="formUniqueId"
           @field-changed="$emit('field-changed')"
-          @file-deleted="$emit('update-last-retrieved-at-timestamp')"
+          @file-deleted="handleFileDeleted"
           @file-upload-started="$emit('file-upload-started')"
           @file-upload-finished="$emit('file-upload-finished')"
           :show-help-text="showHelpText"
@@ -66,6 +66,12 @@ export default {
 
   mixins: [HandlesValidationErrors, FormField],
 
+  provide() {
+    return {
+      removeFile: this.removeFile,
+    }
+  },
+
   props: {
     ...mapProps([
       'resourceName',
@@ -111,9 +117,17 @@ export default {
       this.field.fill = this.fill
     },
 
+    removeFile(attribute) {
+      const { resourceName, resourceId } = this
+
+      Nova.request().delete(
+        `/nova-api/${resourceName}/${resourceId}/field/${attribute}`
+      )
+    },
+
     fill(formData) {
       if (this.isEditing && this.isVisible) {
-        tap(new InlineFormData(this.field.attribute, formData), form => {
+        tap(new InlineFormData(this.fieldAttribute, formData), form => {
           each(this.availableFields, field => {
             field.fill(form)
           })
@@ -154,7 +168,8 @@ export default {
           field.resourceName === this.field.from.viaResource &&
           field.relationshipType === 'belongsTo' &&
           (this.editMode === 'create' ||
-            field.belongsToId == this.field.from.viaResourceId)
+            field.belongsToId.toString() ===
+              this.field.from.viaResourceId.toString())
         ) {
           field.visible = false
           field.fill = () => {}
@@ -162,13 +177,14 @@ export default {
           field.relationshipType === 'morphTo' &&
           (this.editMode === 'create' ||
             (field.resourceName === this.field.from.viaResource &&
-              field.morphToId == this.field.from.viaResourceId))
+              field.morphToId.toString() ===
+                this.field.from.viaResourceId.toString()))
         ) {
           field.visible = false
           field.fill = () => {}
         }
 
-        field.validationKey = `${this.field.attribute}.${field.validationKey}`
+        field.validationKey = `${this.fieldAttribute}.${field.validationKey}`
 
         return field
       })
@@ -184,6 +200,10 @@ export default {
 
     showEditForm() {
       this.isEditing = true
+    },
+
+    handleFileDeleted() {
+      this.$emit('update-last-retrieved-at-timestamp')
     },
   },
 

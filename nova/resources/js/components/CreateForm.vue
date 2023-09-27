@@ -79,9 +79,9 @@
 
 <script>
 import each from 'lodash/each'
+import isNil from 'lodash/isNil'
 import tap from 'lodash/tap'
 import {
-  Errors,
   HandlesFormRequest,
   HandlesUploads,
   InteractsWithResourceInformation,
@@ -90,7 +90,12 @@ import {
 import { mapActions, mapMutations } from 'vuex'
 
 export default {
-  emits: ['resource-created', 'create-cancelled', 'update-form-status'],
+  emits: [
+    'resource-created',
+    'resource-created-and-adding-another',
+    'create-cancelled',
+    'update-form-status',
+  ],
 
   mixins: [
     HandlesFormRequest,
@@ -163,7 +168,7 @@ export default {
 
     this.getFields()
 
-    this.mode == 'form' ? this.allowLeavingForm() : this.allowLeavingModal()
+    this.mode === 'form' ? this.allowLeavingForm() : this.allowLeavingModal()
   },
 
   methods: {
@@ -259,9 +264,13 @@ export default {
           if (this.submittedViaCreateResource) {
             this.$emit('resource-created', { id, redirect })
           } else {
+            window.scrollTo(0, 0)
+
+            this.$emit('resource-created-and-adding-another', { id })
+
             // Reset the form by refetching the fields
             this.getFields()
-            this.validationErrors = new Errors()
+            this.resetErrors()
             this.submittedViaCreateAndAddAnother = false
             this.submittedViaCreateResource = false
             this.isWorking = false
@@ -315,6 +324,10 @@ export default {
           })
         })
 
+        if (!isNil(this.fromResourceId)) {
+          formData.append('fromResourceId', this.fromResourceId)
+        }
+
         formData.append('viaResource', this.viaResource)
         formData.append('viaResourceId', this.viaResourceId)
         formData.append('viaRelationship', this.viaRelationship)
@@ -355,11 +368,11 @@ export default {
     },
 
     shownViaNewRelationModal() {
-      return this.mode == 'modal'
+      return this.mode === 'modal'
     },
 
     inFormMode() {
-      return this.mode == 'form'
+      return this.mode === 'form'
     },
 
     canAddMoreResources() {

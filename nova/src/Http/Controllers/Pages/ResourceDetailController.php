@@ -5,6 +5,7 @@ namespace Laravel\Nova\Http\Controllers\Pages;
 use Illuminate\Routing\Controller;
 use Inertia\Inertia;
 use Laravel\Nova\Http\Requests\ResourceDetailRequest;
+use Laravel\Nova\Http\Resources\DetailViewResource;
 use Laravel\Nova\Menu\Breadcrumb;
 use Laravel\Nova\Menu\Breadcrumbs;
 use Laravel\Nova\Nova;
@@ -19,8 +20,6 @@ class ResourceDetailController extends Controller
      */
     public function __invoke(ResourceDetailRequest $request)
     {
-        abort_unless($request->findModelQuery()->exists(), 404);
-
         $resourceClass = $request->resource();
 
         return Inertia::render('Nova.Detail', [
@@ -35,15 +34,18 @@ class ResourceDetailController extends Controller
      *
      * @param  \Laravel\Nova\Http\Requests\ResourceDetailRequest  $request
      * @return \Laravel\Nova\Menu\Breadcrumbs
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      */
     protected function breadcrumbs(ResourceDetailRequest $request)
     {
-        $resource = $request->findResourceOrFail();
+        $resource = DetailViewResource::make()->authorizedResourceForRequest($request);
 
         return Breadcrumbs::make([
             Breadcrumb::make(Nova::__('Resources')),
             Breadcrumb::resource($request->resource()),
-            Breadcrumb::make(__(':resource Details: :title', [
+            Breadcrumb::make(Nova::__(':resource Details: :title', [
                 'resource' => $resource::singularLabel(),
                 'title' => $resource->title(),
             ])),

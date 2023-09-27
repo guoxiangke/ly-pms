@@ -50,7 +50,7 @@ class Breadcrumb implements JsonSerializable
     {
         if ($resourceClass instanceof Resource && $resourceClass->model()->exists === true) {
             return static::make(
-                __(':resource Details: :title', [
+                Nova::__(':resource Details: :title', [
                     'resource' => $resourceClass::singularLabel(),
                     'title' => $resourceClass->title(),
                 ])

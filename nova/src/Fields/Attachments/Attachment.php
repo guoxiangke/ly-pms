@@ -1,6 +1,6 @@
 <?php
 
-namespace Laravel\Nova\Trix;
+namespace Laravel\Nova\Fields\Attachments;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
@@ -16,7 +16,7 @@ class Attachment extends Model
      *
      * @var string
      */
-    protected $table = 'nova_trix_attachments';
+    protected $table = 'nova_field_attachments';
 
     /**
      * The attributes that aren't mass assignable.

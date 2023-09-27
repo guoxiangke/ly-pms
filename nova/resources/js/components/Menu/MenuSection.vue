@@ -109,6 +109,12 @@ export default {
     },
   },
 
-  computed: mapGetters(['mainMenuShown']),
+  computed: {
+    ...mapGetters(['mainMenuShown']),
+
+    collapsedByDefault() {
+      return this.item?.collapsedByDefault ?? false
+    },
+  },
 }
 </script>

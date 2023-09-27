@@ -26,6 +26,7 @@ class LensController extends Controller
             'breadcrumbs' => $this->breadcrumbs($request),
             'resourceName' => $request->route('resource'),
             'lens' => $lens->uriKey(),
+            'searchable' => $lens::searchable(),
         ]);
     }
 

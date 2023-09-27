@@ -1,8 +1,9 @@
 <template>
   <div
-    class="-mt-2 -mx-6"
+    class="-mx-6"
     :class="{
       'border-t border-gray-100 dark:border-gray-700': index !== 0,
+      '-mt-2': index === 0,
     }"
   >
     <div class="w-full py-4 px-6">

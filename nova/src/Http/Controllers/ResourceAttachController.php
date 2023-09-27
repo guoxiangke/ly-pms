@@ -129,7 +129,7 @@ class ResourceAttachController extends Controller
             $parentKey = $request->findModelOrFail()->{$parentKeyName};
         }
 
-        if ($relatedKeyName !== ($request->newRelatedResource()::newModel())->getKeyName()) {
+        if ($relatedKeyName !== $request->newRelatedResource()::newModel()->getKeyName()) {
             $relatedKey = $request->findRelatedModelOrFail()->{$relatedKeyName};
         }
 

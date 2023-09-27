@@ -104,12 +104,10 @@ button.sidebar-section-title {
   @apply appearance-none inline-block align-middle select-none flex-shrink-0 h-4 w-4 text-primary-500 bg-white dark:bg-gray-900 rounded;
   -webkit-print-color-adjust: exact;
   color-adjust: exact;
-  display: inline-block;
-  vertical-align: middle;
-  background-origin: border-box;
-
   @apply border border-gray-300 focus:border-primary-300;
   @apply dark:border-gray-700 dark:focus:border-gray-500;
+  @apply disabled:bg-gray-300 dark:disabled:bg-gray-700 disabled:cursor-not-allowed;
+  @apply enabled:hover:cursor-pointer;
 }
 
 .checkbox:focus,
@@ -135,15 +133,6 @@ button.sidebar-section-title {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-}
-
-.checkbox:disabled {
-  @apply bg-gray-50 dark:bg-gray-700;
-  cursor: not-allowed;
-}
-
-.checkbox:hover:not(:disabled) {
-  cursor: pointer;
 }
 
 html.dark .fake-checkbox-indeterminate,
@@ -233,6 +222,10 @@ html.dark .checkbox:checked {
   @apply bg-white dark:bg-gray-900 border border-white px-3 text-gray-600 dark:text-gray-400 rounded;
   @apply dark:focus:bg-gray-900 focus:outline-none focus:ring ring-primary-100 dark:ring-gray-700;
   @apply text-sm;
+}
+
+input[type='search'] {
+  @apply pr-2;
 }
 
 .dark .form-input,
@@ -1073,6 +1066,7 @@ trix-toolbar .trix-button-row .trix-button-group .trix-button.trix-active {
   border-bottom: none;
 }
 
+/*rtl:begin:ignore*/
 /* CodeMirror Styles
 ---------------------------------------------------------------------------- */
 .CodeMirror {
@@ -1106,7 +1100,8 @@ trix-toolbar .trix-button-row .trix-button-group .trix-button.trix-active {
 }
 
 .CodeMirror-cursor {
-  @apply dark:border-l-white;
+  border-left: 1px solid black;
+  @apply dark:border-white;
 }
 
 .cm-fat-cursor .CodeMirror-cursor {
@@ -1129,6 +1124,7 @@ trix-toolbar .trix-button-row .trix-button-group .trix-button.trix-active {
 .cm-s-default .cm-url {
   @apply text-gray-500 dark:text-primary-400;
 }
+/*rtl:end:ignore*/
 
 /* NProgress Styles
 ---------------------------------------------------------------------------- */

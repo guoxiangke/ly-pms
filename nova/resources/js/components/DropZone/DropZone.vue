@@ -16,7 +16,7 @@
         <FilePreviewBlock
           v-for="(file, index) in files"
           :file="file"
-          @removed="handleRemove"
+          @removed="() => handleRemove(index)"
           :rounded="rounded"
           :dusk="$attrs.dusk"
         />
@@ -55,9 +55,10 @@
 
 <script setup>
 import { ref } from 'vue'
-import { useLocalization } from '@/mixins/Localization'
+import { useLocalization } from '@/composables/useLocalization'
+import { useDragAndDrop } from '@/composables/useDragAndDrop'
 
-const emit = defineEmits(['change', 'fileRemoved'])
+const emit = defineEmits(['fileChanged', 'fileRemoved'])
 const { __ } = useLocalization()
 
 const props = defineProps({
@@ -68,27 +69,27 @@ const props = defineProps({
   disabled: { type: Boolean, default: false },
 })
 
-const startedDrag = ref(false)
+const { startedDrag, handleOnDragEnter, handleOnDragLeave } =
+  useDragAndDrop(emit)
+
 const demFiles = ref([])
 const fileInput = ref()
 
 const handleClick = () => fileInput.value.click()
-const handleOnDragEnter = () => (startedDrag.value = true)
-const handleOnDragLeave = () => (startedDrag.value = false)
 
 const handleOnDrop = e => {
   demFiles.value = props.multiple
     ? e.dataTransfer.files
     : [e.dataTransfer.files[0]]
 
-  emit('change', demFiles.value)
+  emit('fileChanged', demFiles.value)
 }
 
 const handleChange = () => {
   demFiles.value = props.multiple
     ? fileInput.value.files
     : [fileInput.value.files[0]]
-  emit('change', demFiles.value)
+  emit('fileChanged', demFiles.value)
   fileInput.value.files = null
 }
 

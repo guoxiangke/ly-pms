@@ -106,10 +106,20 @@ export default {
   methods: {
     async attempt() {
       const { message } = await this.form.post(Nova.url('/password/reset'))
-      Nova.success(message)
+      const redirect = { url: Nova.url('/'), remote: true }
+
       Cookies.set('token', Math.random().toString(36), { expires: 365 })
 
-      Nova.visit('/')
+      Nova.$toasted.show(message, {
+        action: {
+          onClick: () => Nova.visit(redirect),
+          text: this.__('Reload'),
+        },
+        duration: null,
+        type: 'success',
+      })
+
+      setTimeout(() => Nova.visit(redirect), 5000)
     },
   },
 }

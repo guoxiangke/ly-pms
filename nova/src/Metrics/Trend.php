@@ -6,7 +6,6 @@ use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use DateTime;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Query\Expression;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -497,12 +496,11 @@ abstract class Trend extends RangedMetric
             $startingDate = $this->getAggregateStartingDate($request, $unit, $timezone),
             $endingDate = CarbonImmutable::now($timezone),
             $unit,
-            $request->twelveHourTime === 'true'
+            $request->twelveHourTime === 'true',
+            $request->range
         );
 
-        $wrappedColumn = $column instanceof Expression
-                ? (string) $column
-                : $query->getQuery()->getGrammar()->wrap($column);
+        $wrappedColumn = $query->getQuery()->getGrammar()->wrap($column);
 
         $results = $query
                 ->select(DB::raw("{$expression} as date_result, {$function}({$wrappedColumn}) as aggregate"))
@@ -515,15 +513,15 @@ abstract class Trend extends RangedMetric
                 ->orderBy('date_result')
                 ->get();
 
+        $possibleDateKeys = array_keys($possibleDateResults);
+
         $results = array_merge($possibleDateResults, $results->mapWithKeys(function ($result) use ($request, $unit) {
             return [$this->formatAggregateResultDate(
                 $result->date_result, $unit, $request->twelveHourTime === 'true'
             ) => round($result->aggregate, $this->roundingPrecision, $this->roundingMode)];
+        })->reject(function ($value, $key) use ($possibleDateKeys) {
+            return ! in_array($key, $possibleDateKeys);
         })->all());
-
-        if (count($results) > $request->range) {
-            array_shift($results);
-        }
 
         return $this->result(Arr::last($results))->trend(
             $results
@@ -595,22 +593,22 @@ abstract class Trend extends RangedMetric
 
             case 'day':
                 return with(Carbon::createFromFormat('Y-m-d', $result), function ($date) {
-                    return __($date->format('F')).' '.$date->format('j').', '.$date->format('Y');
+                    return Nova::__($date->format('F')).' '.$date->format('j').', '.$date->format('Y');
                 });
 
             case 'hour':
                 return with(Carbon::createFromFormat('Y-m-d H:00', $result), function ($date) use ($twelveHourTime) {
                     return $twelveHourTime
-                            ? __($date->format('F')).' '.$date->format('j').' - '.$date->format('g:00 A')
-                            : __($date->format('F')).' '.$date->format('j').' - '.$date->format('G:00');
+                            ? Nova::__($date->format('F')).' '.$date->format('j').' - '.$date->format('g:00 A')
+                            : Nova::__($date->format('F')).' '.$date->format('j').' - '.$date->format('G:00');
                 });
 
             case 'minute':
             default:
                 return with(Carbon::createFromFormat('Y-m-d H:i:00', $result), function ($date) use ($twelveHourTime) {
                     return $twelveHourTime
-                            ? __($date->format('F')).' '.$date->format('j').' - '.$date->format('g:i A')
-                            : __($date->format('F')).' '.$date->format('j').' - '.$date->format('G:i');
+                            ? Nova::__($date->format('F')).' '.$date->format('j').' - '.$date->format('g:i A')
+                            : Nova::__($date->format('F')).' '.$date->format('j').' - '.$date->format('G:i');
                 });
         }
     }
@@ -626,7 +624,7 @@ abstract class Trend extends RangedMetric
         [$year, $month] = explode('-', $result);
 
         return with(Carbon::create((int) $year, (int) $month, 1), function ($date) {
-            return __($date->format('F')).' '.$date->format('Y');
+            return Nova::__($date->format('F')).' '.$date->format('Y');
         });
     }
 
@@ -647,8 +645,8 @@ abstract class Trend extends RangedMetric
             Carbon::instance($isoDate)->endOfWeek(),
         ];
 
-        return __($startingDate->format('F')).' '.$startingDate->format('j').' - '.
-               __($endingDate->format('F')).' '.$endingDate->format('j');
+        return Nova::__($startingDate->format('F')).' '.$startingDate->format('j').' - '.
+               Nova::__($endingDate->format('F')).' '.$endingDate->format('j');
     }
 
     /**
@@ -658,18 +656,21 @@ abstract class Trend extends RangedMetric
      * @param  \Carbon\CarbonInterface  $endingDate
      * @param  string  $unit
      * @param  bool  $twelveHourTime
+     * @param  int  $possibleDateRange
      * @return array<string, int>
      */
     protected function getAllPossibleDateResults(CarbonInterface $startingDate, CarbonInterface $endingDate,
-        $unit, $twelveHourTime)
+        $unit, $twelveHourTime, $possibleDateRange)
     {
         $nextDate = Carbon::instance($startingDate);
 
-        $possibleDateResults[$this->formatPossibleAggregateResultDate(
-            $nextDate, $unit, $twelveHourTime
-        )] = 0;
+        do {
+            $possibleDateResults[
+                $this->formatPossibleAggregateResultDate(
+                    $nextDate, $unit, $twelveHourTime
+                )
+            ] = 0;
 
-        while ($nextDate->lt($endingDate)) {
             if ($unit === self::BY_MONTHS) {
                 $nextDate->addMonthWithOverflow();
             } elseif ($unit === self::BY_WEEKS) {
@@ -681,14 +682,14 @@ abstract class Trend extends RangedMetric
             } elseif ($unit === self::BY_MINUTES) {
                 $nextDate->addMinute();
             }
+        } while ($nextDate->lte($endingDate));
 
-            if ($nextDate->lte($endingDate)) {
-                $possibleDateResults[
-                    $this->formatPossibleAggregateResultDate(
-                        $nextDate, $unit, $twelveHourTime
-                    )
-                ] = 0;
-            }
+        if (count($possibleDateResults) < $possibleDateRange) {
+            $possibleDateResults[
+                $this->formatPossibleAggregateResultDate(
+                    $nextDate, $unit, $twelveHourTime
+                )
+            ] = 0;
         }
 
         return $possibleDateResults;
@@ -706,25 +707,25 @@ abstract class Trend extends RangedMetric
     {
         switch ($unit) {
             case 'month':
-                return __($date->format('F')).' '.$date->format('Y');
+                return Nova::__($date->format('F')).' '.$date->format('Y');
 
             case 'week':
-                return __($date->startOfWeek()->format('F')).' '.$date->startOfWeek()->format('j').' - '.
-                       __($date->endOfWeek()->format('F')).' '.$date->endOfWeek()->format('j');
+                return Nova::__($date->startOfWeek()->format('F')).' '.$date->startOfWeek()->format('j').' - '.
+                       Nova::__($date->endOfWeek()->format('F')).' '.$date->endOfWeek()->format('j');
 
             case 'day':
-                return __($date->format('F')).' '.$date->format('j').', '.$date->format('Y');
+                return Nova::__($date->format('F')).' '.$date->format('j').', '.$date->format('Y');
 
             case 'hour':
                 return $twelveHourTime
-                        ? __($date->format('F')).' '.$date->format('j').' - '.$date->format('g:00 A')
-                        : __($date->format('F')).' '.$date->format('j').' - '.$date->format('G:00');
+                        ? Nova::__($date->format('F')).' '.$date->format('j').' - '.$date->format('g:00 A')
+                        : Nova::__($date->format('F')).' '.$date->format('j').' - '.$date->format('G:00');
 
             case 'minute':
             default:
                 return $twelveHourTime
-                        ? __($date->format('F')).' '.$date->format('j').' - '.$date->format('g:i A')
-                        : __($date->format('F')).' '.$date->format('j').' - '.$date->format('G:i');
+                        ? Nova::__($date->format('F')).' '.$date->format('j').' - '.$date->format('g:i A')
+                        : Nova::__($date->format('F')).' '.$date->format('j').' - '.$date->format('G:i');
         }
     }
 

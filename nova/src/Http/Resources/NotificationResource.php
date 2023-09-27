@@ -24,6 +24,7 @@ class NotificationResource extends JsonResource
             'message' => data_get($this->resource->data, 'message'),
             'actionText' => data_get($this->resource->data, 'actionText'),
             'actionUrl' => data_get($this->resource->data, 'actionUrl'),
+            'openInNewTab' => data_get($this->resource->data, 'openInNewTab'),
             'icon' => data_get($this->resource->data, 'icon'),
             'type' => data_get($this->resource->data, 'type'),
             'iconClass' => data_get($this->resource->data, 'iconClass'),

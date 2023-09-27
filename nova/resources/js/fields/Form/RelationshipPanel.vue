@@ -22,7 +22,7 @@
       :form-unique-id="relationFormUniqueId"
       :mode="mode"
       @field-changed="$emit('field-changed')"
-      @file-deleted="$emit('update-last-retrieved-at-timestamp')"
+      @file-deleted="handleFileDeleted"
       @file-upload-started="$emit('file-upload-started')"
       @file-upload-finished="$emit('file-upload-finished')"
       :show-help-text="showHelpText"
@@ -43,66 +43,25 @@ export default {
     'update-last-retrieved-at-timestamp',
     'file-upload-started',
     'file-upload-finished',
+    'file-deleted',
   ],
 
   mixins: [BehavesAsPanel],
 
   props: {
-    shownViaNewRelationModal: {
-      type: Boolean,
-      default: false,
-    },
-
-    showHelpText: {
-      type: Boolean,
-      default: false,
-    },
-
-    panel: {
-      type: Object,
-      required: true,
-    },
-
-    name: {
-      default: 'Relationship Panel',
-    },
-
+    shownViaNewRelationModal: { type: Boolean, default: false },
+    showHelpText: { type: Boolean, default: false },
+    panel: { type: Object, required: true },
+    name: { default: 'Relationship Panel' },
     ...mapProps(['mode']),
-
-    fields: {
-      type: Array,
-      default: [],
-    },
-
-    formUniqueId: {
-      type: String,
-    },
-
-    validationErrors: {
-      type: Object,
-      required: true,
-    },
-
-    resourceName: {
-      type: String,
-      required: true,
-    },
-
-    resourceId: {
-      type: [Number, String],
-    },
-
-    viaResource: {
-      type: String,
-    },
-
-    viaResourceId: {
-      type: [Number, String],
-    },
-
-    viaRelationship: {
-      type: String,
-    },
+    fields: { type: Array, default: [] },
+    formUniqueId: { type: String },
+    validationErrors: { type: Object, required: true },
+    resourceName: { type: String, required: true },
+    resourceId: { type: [Number, String] },
+    viaResource: { type: String },
+    viaResourceId: { type: [Number, String] },
+    viaRelationship: { type: String },
   },
 
   data: () => ({
@@ -113,6 +72,12 @@ export default {
     if (!this.field.authorizedToCreate) {
       this.field.fill = () => {}
     }
+  },
+
+  methods: {
+    handleFileDeleted() {
+      this.$emit('update-last-retrieved-at-timestamp')
+    },
   },
 
   computed: {

@@ -5,6 +5,8 @@
     placement="top-start"
     theme="plain"
     @show="fetchOnce"
+    :show-group="`${resourceName}-${resourceId}-peek`"
+    :auto-hide="true"
   >
     <template #default>
       <slot />
@@ -16,13 +18,13 @@
           <Loader width="30" />
         </div>
 
-        <div v-else class="min-w-[20rem] max-w-2xl">
+        <div v-else class="min-w-[24rem] max-w-2xl">
           <div
             v-if="resourceFields.length > 0"
-            class="divide-y divide-gray-100 dark:divide-gray-800 rounded-lg py-1"
+            class="@container/peekable divide-y divide-gray-100 dark:divide-gray-800 rounded-lg py-1"
           >
             <component
-              class="-mx-0"
+              class="mx-0"
               :key="index"
               v-for="(field, index) in resourceFields"
               :index="index"

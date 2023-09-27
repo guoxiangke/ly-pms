@@ -6,7 +6,7 @@
     role="alertdialog"
     size="2xl"
   >
-    <LoadingCard
+    <LoadingView
       :loading="loading"
       class="mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden"
     >
@@ -64,7 +64,7 @@
           </DefaultButton>
         </div>
       </ModalFooter>
-    </LoadingCard>
+    </LoadingView>
   </Modal>
 </template>
 

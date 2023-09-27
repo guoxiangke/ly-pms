@@ -57,8 +57,17 @@ export default {
   methods: {
     async attempt() {
       const { message } = await this.form.post(Nova.url('/password/email'))
-      Nova.success(message)
-      Nova.redirectToLogin()
+
+      Nova.$toasted.show(message, {
+        action: {
+          onClick: () => Nova.redirectToLogin(),
+          text: this.__('Reload'),
+        },
+        duration: null,
+        type: 'success',
+      })
+
+      setTimeout(() => Nova.redirectToLogin(), 5000)
     },
   },
 

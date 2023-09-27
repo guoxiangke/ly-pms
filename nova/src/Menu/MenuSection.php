@@ -5,6 +5,7 @@ namespace Laravel\Nova\Menu;
 use Illuminate\Support\Traits\Macroable;
 use JsonSerializable;
 use Laravel\Nova\AuthorizedToSee;
+use Laravel\Nova\Fields\Collapsable;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Laravel\Nova\Makeable;
 use Laravel\Nova\URL;
@@ -19,6 +20,7 @@ class MenuSection implements JsonSerializable
     use Makeable;
     use WithBadge;
     use Macroable;
+    use Collapsable;
 
     /**
      * The menu's component.
@@ -40,13 +42,6 @@ class MenuSection implements JsonSerializable
      * @var \Laravel\Nova\Menu\MenuCollection
      */
     public $items;
-
-    /**
-     * The menu's collapsable state.
-     *
-     * @var bool
-     */
-    public $collapsable = false;
 
     /**
      * the menu's icon.
@@ -156,16 +151,6 @@ class MenuSection implements JsonSerializable
     }
 
     /**
-     * Set the menu section as collapsable.
-     *
-     * @return $this
-     */
-    public function collapsible()
-    {
-        return $this->collapsable();
-    }
-
-    /**
      * Set icon to the menu.
      *
      * @param  string  $icon
@@ -194,6 +179,7 @@ class MenuSection implements JsonSerializable
             'component' => 'menu-section',
             'items' => $this->items->authorized($request)->withoutEmptyItems()->all(),
             'collapsable' => $this->collapsable,
+            'collapsedByDefault' => $this->collapsedByDefault,
             'icon' => $this->icon,
             'path' => (string) $url,
             'active' => optional($url)->active() ?? false,

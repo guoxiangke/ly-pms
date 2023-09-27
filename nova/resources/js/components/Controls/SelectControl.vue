@@ -7,9 +7,9 @@
       class="w-full block form-control form-select"
       ref="selectControl"
       :class="{
-        'form-control-sm': size == 'sm',
-        'form-control-xs': size == 'xs',
-        'form-control-xxs': size == 'xxs',
+        'form-control-sm': size === 'sm',
+        'form-control-xs': size === 'xs',
+        'form-control-xxs': size === 'xxs',
         'form-select-bordered': bordered,
         ...selectClasses,
       }"

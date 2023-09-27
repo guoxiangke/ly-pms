@@ -41,9 +41,10 @@ class HeaderComponent extends Component
     public function showNotificationPanel(Browser $browser, $notificationCallback = null)
     {
         $browser->closeCurrentDropdown()
-                ->click('@notifications-dropdown')
-                ->elsewhereWhenAvailable('@notifications-content', $notificationCallback ?? function ($browser) {
-                });
+            ->click('@notifications-dropdown')
+            ->elsewhereWhenAvailable('@notifications-content', $notificationCallback ?? function ($browser) {
+                //
+            });
     }
 
     /**

@@ -34,7 +34,12 @@ export default {
     },
 
     async deleteNotification({ state, dispatch }, id) {
-      await Nova.request().delete(`/nova-api/nova-notifications/${id}/delete`)
+      await Nova.request().delete(`/nova-api/nova-notifications/${id}`)
+      dispatch('fetchNotifications')
+    },
+
+    async deleteAllNotifications({ state, dispatch }, id) {
+      await Nova.request().delete(`/nova-api/nova-notifications`)
       dispatch('fetchNotifications')
     },
 

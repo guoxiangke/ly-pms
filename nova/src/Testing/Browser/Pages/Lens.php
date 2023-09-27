@@ -13,12 +13,14 @@ class Lens extends Index
      *
      * @param  string  $resourceName
      * @param  string  $lens
+     * @param  array  $queryParams
      * @return void
      */
-    public function __construct($resourceName, $lens)
+    public function __construct($resourceName, $lens, $queryParams = [])
     {
         $this->lens = $lens;
         $this->resourceName = $resourceName;
+        $this->queryParams = $queryParams;
 
         $this->setNovaPage("/resources/{$this->resourceName}/lens/{$this->lens}");
     }

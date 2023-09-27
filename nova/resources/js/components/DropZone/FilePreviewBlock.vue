@@ -11,15 +11,20 @@
       />
 
       <div
-        class="bg-gray-50 relative aspect-square flex items-center justify-center border-2 border-gray-200 dark:border-gray-700 overflow-hidden rounded-lg"
+        class="bg-gray-50 dark:bg-gray-700 relative aspect-square flex items-center justify-center border-2 border-gray-200 dark:border-gray-700 overflow-hidden rounded-lg"
       >
         <!-- Upload Overlay -->
         <div
           v-if="file.processing"
           class="absolute inset-0 flex items-center justify-center"
         >
-          <Loader class="text-white z-10" />
-          <div class="bg-primary-900 opacity-75 absolute inset-0" />
+          <ProgressBar
+            :title="uploadingLabel"
+            class="mx-4"
+            color="bg-green-500"
+            :value="uploadingPercentage"
+          />
+          <div class="bg-primary-900 opacity-5 absolute inset-0" />
         </div>
 
         <!-- Image Preview -->
@@ -43,11 +48,30 @@
 
 <script setup>
 import { useFilePreviews } from '@/composables/useFilePreviews'
-import { toRef } from 'vue'
+import { useLocalization } from '@/composables/useLocalization'
+import { computed, toRef } from 'vue'
+
+const { __ } = useLocalization()
 const emit = defineEmits(['removed'])
 const props = defineProps({
   file: { type: Object },
   removable: { type: Boolean, default: true },
+})
+
+const uploadingLabel = computed(() => {
+  if (props.file.processing) {
+    return __('Uploading') + ' (' + props.file.progress + '%)'
+  }
+
+  return props.file.name
+})
+
+const uploadingPercentage = computed(() => {
+  if (props.file.processing) {
+    return props.file.progress
+  }
+
+  return 100
 })
 
 const { previewUrl, isImage } = useFilePreviews(toRef(props, 'file'))

@@ -25,7 +25,18 @@ class Column
     }
 
     /**
-     * Create Column Search.
+     * Create Column instance for raw expression value.
+     *
+     * @param  string  $column
+     * @return mixed
+     */
+    public static function raw($column)
+    {
+        return new static(new Expression($column));
+    }
+
+    /**
+     * Create Column instance from raw expression or fluent string.
      *
      * @param  \Illuminate\Database\Query\Expression|string  $column
      * @return mixed

@@ -77,17 +77,17 @@ export default {
 
   watch: {
     theme(theme) {
-      if (theme == 'light') {
+      if (theme === 'light') {
         localStorage.novaTheme = 'light'
         document.documentElement.classList.remove('dark')
       }
 
-      if (theme == 'dark') {
+      if (theme === 'dark') {
         localStorage.novaTheme = 'dark'
         document.documentElement.classList.add('dark')
       }
 
-      if (theme == 'system') {
+      if (theme === 'system') {
         localStorage.removeItem('novaTheme')
         this.applyColorScheme()
       }
@@ -96,7 +96,6 @@ export default {
 
   methods: {
     applyColorScheme() {
-      console.log(Nova.config('themeSwitcherEnabled'))
       if (Nova.config('themeSwitcherEnabled')) {
         if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
           document.documentElement.classList.add('dark')

@@ -3,10 +3,12 @@
 namespace Laravel\Nova\Testing\Browser\Pages;
 
 use Laravel\Dusk\Browser;
+use Laravel\Nova\Testing\Browser\Components\Controls\RelationSelectControlComponent;
+use Laravel\Nova\Testing\Browser\Concerns\InteractsWithInlineCreateRelation;
 
 trait InteractsWithRelations
 {
-    use HasSearchable;
+    use HasSearchable, InteractsWithInlineCreateRelation;
 
     /**
      * Select for the given value for a relationship attribute.
@@ -18,8 +20,8 @@ trait InteractsWithRelations
      */
     public function selectRelation(Browser $browser, $attribute, $value = null)
     {
-        $browser->whenAvailable('select[dusk="'.$attribute.'"]', function (Browser $browser) use ($value) {
-            $browser->select('', $value);
+        $browser->whenAvailable(new RelationSelectControlComponent($attribute), function (Browser $browser) use ($value) {
+            $browser->assertSelectHasOption('', $value)->select('', $value);
         });
     }
 
@@ -41,7 +43,6 @@ trait InteractsWithRelations
      *
      * @param  \Laravel\Dusk\Browser  $browser
      * @param  string  $attribute
-     * @param  string  $search
      * @return void
      */
     public function resetSearchRelation(Browser $browser, $attribute)
@@ -55,6 +56,8 @@ trait InteractsWithRelations
      * @param  \Laravel\Dusk\Browser  $browser
      * @param  string  $attribute
      * @return void
+     *
+     * @deprecated
      */
     public function selectFirstRelation(Browser $browser, $attribute)
     {
@@ -70,7 +73,7 @@ trait InteractsWithRelations
      */
     public function firstSearchableResult(Browser $browser, $attribute)
     {
-        $this->selectFirstRelation($browser, $attribute);
+        $this->selectFirstSearchResult($browser, $attribute);
     }
 
     /**
@@ -79,6 +82,8 @@ trait InteractsWithRelations
      * @param  \Laravel\Dusk\Browser  $browser
      * @param  string  $attribute
      * @return void
+     *
+     * @deprecated
      */
     public function closeSearchableResult(Browser $browser, $attribute)
     {
@@ -119,8 +124,8 @@ trait InteractsWithRelations
             "@{$resourceName}-with-trashed-checkbox",
             function (Browser $browser) {
                 $browser->waitFor('input[type="checkbox"]')
-                        ->check('input[type="checkbox"]')
-                        ->pause(250);
+                    ->check('input[type="checkbox"]')
+                    ->pause(250);
             }
         );
     }
@@ -135,46 +140,7 @@ trait InteractsWithRelations
     public function withoutTrashedRelation(Browser $browser, $resourceName)
     {
         $browser->waitForTrashedRelation($resourceName)
-                ->uncheck('[dusk="'.$resourceName.'-with-trashed-checkbox"] input[type="checkbox"]')
-                ->pause(250);
-    }
-
-    /**
-     * Run the inline relation.
-     *
-     * @param  \Laravel\Dusk\Browser  $browser
-     * @param  string  $uriKey
-     * @param  callable  $fieldCallback
-     * @return void
-     *
-     * @throws \Facebook\WebDriver\Exception\TimeOutException
-     */
-    public function showInlineCreate(Browser $browser, $uriKey, callable $fieldCallback)
-    {
-        $browser->whenAvailable("@{$uriKey}-inline-create", function ($browser) use ($fieldCallback) {
-            $browser->click('')
-                ->elsewhereWhenAvailable('.modal[data-modal-open=true]', function ($browser) use ($fieldCallback) {
-                    $fieldCallback($browser);
-                });
-        });
-    }
-
-    /**
-     * Run the inline create relation.
-     *
-     * @param  \Laravel\Dusk\Browser  $browser
-     * @param  string  $uriKey
-     * @param  callable  $fieldCallback
-     * @return void
-     *
-     * @throws \Facebook\WebDriver\Exception\TimeOutException
-     */
-    public function runInlineCreate(Browser $browser, $uriKey, callable $fieldCallback)
-    {
-        $this->showInlineCreate($browser, $uriKey, function ($browser) use ($fieldCallback) {
-            $fieldCallback($browser);
-
-            $browser->click('@create-button')->pause(750);
-        });
+            ->uncheck('[dusk="'.$resourceName.'-with-trashed-checkbox"] input[type="checkbox"]')
+            ->pause(250);
     }
 }

@@ -52,7 +52,7 @@
           <div class="ml-auto flex items-center">
             <!-- Actions Menu -->
             <DetailActionDropdown
-              v-if="resource"
+              v-if="shouldShowActionDropdown"
               :resource="resource"
               :actions="actions"
               :via-resource="viaResource"
@@ -118,24 +118,13 @@ import {
   mapProps,
 } from '@/mixins'
 import { minimum } from '@/util'
-import { mapActions } from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 
 export default {
   props: {
-    shouldOverrideMeta: {
-      type: Boolean,
-      default: false,
-    },
-
-    showViewLink: {
-      type: Boolean,
-      default: false,
-    },
-
-    shouldEnableShortcut: {
-      type: Boolean,
-      default: false,
-    },
+    shouldOverrideMeta: { type: Boolean, default: false },
+    showViewLink: { type: Boolean, default: false },
+    shouldEnableShortcut: { type: Boolean, default: false },
 
     ...mapProps([
       'resourceName',
@@ -282,21 +271,27 @@ export default {
     /**
      * Get the available actions for the resource.
      */
-    getActions() {
+    async getActions() {
       this.actions = []
 
-      return Nova.request()
-        .get('/nova-api/' + this.resourceName + '/actions', {
-          params: {
-            resourceId: this.resourceId,
-            editing: true,
-            editMode: 'create',
-            display: 'detail',
-          },
-        })
-        .then(response => {
-          this.actions = response.data.actions
-        })
+      try {
+        const response = await Nova.request().get(
+          '/nova-api/' + this.resourceName + '/actions',
+          {
+            params: {
+              resourceId: this.resourceId,
+              editing: true,
+              editMode: 'create',
+              display: 'detail',
+            },
+          }
+        )
+
+        this.actions = response.data?.actions
+      } catch (error) {
+        console.log(error)
+        Nova.error(this.__('Unable to load actions for this resource'))
+      }
     },
 
     /**
@@ -318,11 +313,35 @@ export default {
   },
 
   computed: {
+    ...mapGetters(['currentUser']),
+
+    canBeImpersonated() {
+      return (
+        this.currentUser.canImpersonate && this.resource.authorizedToImpersonate
+      )
+    },
+
+    shouldShowActionDropdown() {
+      return (
+        this.resource && (this.actions.length > 0 || this.canModifyResource)
+      )
+    },
+
+    canModifyResource() {
+      return (
+        this.resource.authorizedToReplicate ||
+        this.canBeImpersonated ||
+        (this.resource.authorizedToDelete && !this.resource.softDeleted) ||
+        (this.resource.authorizedToRestore && this.resource.softDeleted) ||
+        this.resource.authorizedToForceDelete
+      )
+    },
+
     /**
      * Determine whether this is a detail view for an Action Event
      */
     isActionDetail() {
-      return this.resourceName == 'action-events'
+      return this.resourceName === 'action-events'
     },
 
     /**

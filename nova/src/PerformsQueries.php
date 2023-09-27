@@ -168,7 +168,7 @@ trait PerformsQueries
 
         if (empty($orderings)) {
             return empty($query->getQuery()->orders) && ! static::usesScout()
-                        ? $query->latest($query->getModel()->getQualifiedKeyName())
+                        ? static::defaultOrderings($query)
                         : $query;
         }
 
@@ -177,6 +177,17 @@ trait PerformsQueries
         }
 
         return $query;
+    }
+
+    /**
+     * Apply the default orderings for the given resource.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Relations\Relation  $query
+     * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Relations\Relation
+     */
+    public static function defaultOrderings($query)
+    {
+        return $query->latest($query->getModel()->getQualifiedKeyName());
     }
 
     /**

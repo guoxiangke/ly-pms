@@ -4,7 +4,7 @@
     :checked="isChecked"
     @input="updateCheckedState(option.value, $event.target.checked)"
   >
-    {{ labelFor(option) }}
+    <span>{{ labelFor(option) }}</span>
   </CheckboxWithLabel>
 </template>
 

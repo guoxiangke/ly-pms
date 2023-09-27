@@ -248,7 +248,7 @@ class BelongsTo extends Field implements FilterableField, RelatableField
      * Hydrate the given attribute on the model based on the incoming request.
      *
      * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
-     * @param  object  $model
+     * @param  \Illuminate\Database\Eloquent\Model|\Laravel\Nova\Support\Fluent  $model
      * @return void
      */
     public function fill(NovaRequest $request, $model)
@@ -270,7 +270,7 @@ class BelongsTo extends Field implements FilterableField, RelatableField
      * Hydrate the given attribute on the model based on the incoming request.
      *
      * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
-     * @param  object  $model
+     * @param  \Illuminate\Database\Eloquent\Model|\Laravel\Nova\Support\Fluent  $model
      * @return mixed
      */
     public function fillForAction(NovaRequest $request, $model)
@@ -287,7 +287,7 @@ class BelongsTo extends Field implements FilterableField, RelatableField
      *
      * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
      * @param  string  $requestAttribute
-     * @param  object  $model
+     * @param  \Illuminate\Database\Eloquent\Model|\Laravel\Nova\Support\Fluent  $model
      * @param  string  $attribute
      * @return mixed
      */
@@ -412,6 +412,18 @@ class BelongsTo extends Field implements FilterableField, RelatableField
         $this->filledCallback = $callback;
 
         return $this;
+    }
+
+    /**
+     * Set the value for the field.
+     *
+     * @param  mixed  $value
+     * @return void
+     */
+    public function setValue($value)
+    {
+        $this->belongsToId = Util::safeInt($value);
+        $this->value = $value;
     }
 
     /**

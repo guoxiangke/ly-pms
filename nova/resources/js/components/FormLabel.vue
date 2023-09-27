@@ -1,5 +1,5 @@
 <template>
-  <label :for="labelFor" class="inline-block pt-2 leading-tight">
+  <label :for="labelFor" class="inline-block leading-tight">
     <slot />
   </label>
 </template>

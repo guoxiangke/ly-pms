@@ -213,7 +213,7 @@ class Badge extends Field implements FilterableField, Unfillable
     /**
      * Resolve the display label for the Badge.
      *
-     * @param  string  $value
+     * @param  string|int  $value
      * @return string
      */
     protected function resolveLabelFor($value)
@@ -244,6 +244,7 @@ class Badge extends Field implements FilterableField, Unfillable
     public function serializeForFilter()
     {
         return transform(parent::jsonSerialize(), function ($field) {
+            /** @phpstan-ignore-next-line */
             $options = collect($this->map)->keys()->transform(function ($value) {
                 return ['value' => $value, 'label' => $this->resolveLabelFor($value)];
             })->all();

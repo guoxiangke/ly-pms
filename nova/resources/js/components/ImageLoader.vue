@@ -19,7 +19,7 @@
 
 <script setup>
 import { computed, ref } from 'vue'
-import { useLocalization } from '@/mixins/Localization'
+import { useLocalization } from '@/composables/useLocalization'
 
 const { __ } = useLocalization()
 

@@ -2,7 +2,6 @@
 
 namespace Laravel\Nova\Fields;
 
-use Illuminate\Database\Eloquent\Relations\Relation;
 use Laravel\Nova\Http\Requests\NovaRequest;
 
 trait Peekable
@@ -62,7 +61,7 @@ trait Peekable
      */
     public function hasFieldsToPeekAt(NovaRequest $request)
     {
-        if (! $request->isPresentationRequest()) {
+        if (! $request->isPresentationRequest() && ! $request->isResourcePreviewRequest()) {
             return false;
         }
 
@@ -84,6 +83,7 @@ trait Peekable
             return $this->morphToResource;
         }
 
+        /** @phpstan-ignore-next-line */
         return $this->belongsToResource;
     }
 }

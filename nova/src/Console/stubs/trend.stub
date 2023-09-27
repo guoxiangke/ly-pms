@@ -4,6 +4,7 @@ namespace {{ namespace }};
 
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Laravel\Nova\Metrics\Trend;
+use Laravel\Nova\Nova;
 
 class {{ class }} extends Trend
 {
@@ -26,9 +27,9 @@ class {{ class }} extends Trend
     public function ranges()
     {
         return [
-            30 => __('30 Days'),
-            60 => __('60 Days'),
-            90 => __('90 Days'),
+            30 => Nova::__('30 Days'),
+            60 => Nova::__('60 Days'),
+            90 => Nova::__('90 Days'),
         ];
     }
 

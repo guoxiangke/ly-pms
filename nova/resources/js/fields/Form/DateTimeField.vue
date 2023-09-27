@@ -69,7 +69,7 @@ export default {
      * On save, populate our form data
      */
     fill(formData) {
-      this.fillIfVisible(formData, this.field.attribute, this.value || '')
+      this.fillIfVisible(formData, this.fieldAttribute, this.value || '')
 
       if (this.currentlyIsVisible && filled(this.value)) {
         let isoDate = DateTime.fromISO(this.value, { zone: this.timezone })
@@ -92,11 +92,11 @@ export default {
 
         this.value = isoDate.setZone(Nova.config('timezone')).toString()
       } else {
-        this.value = ''
+        this.value = this.fieldDefaultValue()
       }
 
       if (this.field) {
-        this.emitFieldValueChange(this.field.attribute, this.value)
+        this.emitFieldValueChange(this.fieldAttribute, this.value)
       }
     },
   },

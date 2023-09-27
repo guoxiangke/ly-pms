@@ -14,6 +14,7 @@ use Laravel\Nova\Http\Controllers\DashboardCardController;
 use Laravel\Nova\Http\Controllers\DashboardController;
 use Laravel\Nova\Http\Controllers\DashboardMetricController;
 use Laravel\Nova\Http\Controllers\DetailMetricController;
+use Laravel\Nova\Http\Controllers\FieldAttachmentController;
 use Laravel\Nova\Http\Controllers\FieldController;
 use Laravel\Nova\Http\Controllers\FieldDestroyController;
 use Laravel\Nova\Http\Controllers\FieldDownloadController;
@@ -32,6 +33,7 @@ use Laravel\Nova\Http\Controllers\LensResourceRestoreController;
 use Laravel\Nova\Http\Controllers\MetricController;
 use Laravel\Nova\Http\Controllers\MorphableController;
 use Laravel\Nova\Http\Controllers\MorphedResourceAttachController;
+use Laravel\Nova\Http\Controllers\NotificationDeleteAllController;
 use Laravel\Nova\Http\Controllers\NotificationDeleteController;
 use Laravel\Nova\Http\Controllers\NotificationIndexController;
 use Laravel\Nova\Http\Controllers\NotificationReadAllController;
@@ -55,7 +57,6 @@ use Laravel\Nova\Http\Controllers\ScriptController;
 use Laravel\Nova\Http\Controllers\SearchController;
 use Laravel\Nova\Http\Controllers\SoftDeleteStatusController;
 use Laravel\Nova\Http\Controllers\StyleController;
-use Laravel\Nova\Http\Controllers\TrixAttachmentController;
 use Laravel\Nova\Http\Controllers\UpdateFieldController;
 use Laravel\Nova\Http\Controllers\UpdatePivotFieldController;
 
@@ -73,10 +74,10 @@ Route::delete('impersonate', [ImpersonateController::class, 'stopImpersonating']
 // Fields...
 Route::get('/{resource}/field/{field}', FieldController::class);
 Route::post('/{resource}/field/{field}/preview', FieldPreviewController::class);
-Route::post('/{resource}/trix-attachment/{field}', [TrixAttachmentController::class, 'store']);
-Route::delete('/{resource}/trix-attachment/{field}', [TrixAttachmentController::class, 'destroyAttachment']);
-Route::get('/{resource}/trix-attachment/{field}/draftId', [TrixAttachmentController::class, 'draftId']);
-Route::delete('/{resource}/trix-attachment/{field}/{draftId}', [TrixAttachmentController::class, 'destroyPending']);
+Route::post('/{resource}/field-attachment/{field}', [FieldAttachmentController::class, 'store']);
+Route::delete('/{resource}/field-attachment/{field}', [FieldAttachmentController::class, 'destroyAttachment']);
+Route::get('/{resource}/field-attachment/{field}/draftId', [FieldAttachmentController::class, 'draftId']);
+Route::delete('/{resource}/field-attachment/{field}/{draftId}', [FieldAttachmentController::class, 'destroyPending']);
 Route::get('/{resource}/creation-fields', CreationFieldController::class);
 Route::get('/{resource}/{resourceId}/update-fields', UpdateFieldController::class);
 Route::get('/{resource}/{resourceId}/creation-pivot-fields/{relatedResource}', CreationPivotFieldController::class);
@@ -97,7 +98,8 @@ Route::get('/dashboards/cards/{dashboard}', DashboardCardController::class);
 Route::get('/nova-notifications', NotificationIndexController::class);
 Route::post('/nova-notifications/read-all', NotificationReadAllController::class);
 Route::post('/nova-notifications/{notification}/read', NotificationReadController::class);
-Route::delete('/nova-notifications/{notification}/delete', NotificationDeleteController::class);
+Route::delete('/nova-notifications/', NotificationDeleteAllController::class);
+Route::delete('/nova-notifications/{notification}', NotificationDeleteController::class);
 
 // Actions...
 Route::get('/{resource}/actions', [ActionController::class, 'index']);

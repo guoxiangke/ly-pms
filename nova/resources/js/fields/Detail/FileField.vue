@@ -52,7 +52,7 @@ export default {
      */
     download() {
       const { resourceName, resourceId } = this
-      const attribute = this.field.attribute
+      const attribute = this.fieldAttribute
 
       let link = document.createElement('a')
       link.href = `/nova-api/${resourceName}/${resourceId}/download/${attribute}`

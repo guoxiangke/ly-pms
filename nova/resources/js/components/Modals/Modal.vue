@@ -1,5 +1,5 @@
 <template>
-  <teleport to="#modals">
+  <teleport to="body">
     <template v-if="show">
       <div
         v-bind="defaultAttributes"
@@ -15,7 +15,7 @@
         :aria-modal="show"
       >
         <div
-          class="relative mx-auto z-20"
+          class="@container/modal relative mx-auto z-20"
           :class="contentClasses"
           ref="modalContent"
         >
@@ -121,7 +121,7 @@ export default {
 
     closeOnEscape(event) {
       if (event.key === 'Escape' && this.show === true) {
-        this.$emit('close-via-escape')
+        this.$emit('close-via-escape', event)
       }
     },
   },

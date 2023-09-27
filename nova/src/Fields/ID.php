@@ -39,6 +39,19 @@ class ID extends Field
     }
 
     /**
+     * Create a new hidden ID field.
+     *
+     * @param  string  $name
+     * @param  string  $attribute
+     * @param  callable|null  $resolveCallback
+     * @return \Laravel\Nova\Fields\Hidden
+     */
+    public static function hidden($name = 'ID', $attribute = 'id', callable $resolveCallback = null)
+    {
+        return Hidden::make($name, $attribute, $resolveCallback);
+    }
+
+    /**
      * Create a new, resolved ID field for the given resource.
      *
      * @param  \Laravel\Nova\Resource  $resource

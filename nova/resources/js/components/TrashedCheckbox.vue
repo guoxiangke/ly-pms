@@ -6,9 +6,7 @@
       :checked="withTrashed"
       @input="toggleWithTrashed"
     >
-      <slot>
-        {{ __('With Trashed') }}
-      </slot>
+      <span>{{ __('With Trashed') }}</span>
     </CheckboxWithLabel>
   </div>
 </template>

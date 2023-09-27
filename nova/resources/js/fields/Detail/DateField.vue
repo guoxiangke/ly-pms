@@ -1,12 +1,10 @@
 <template>
   <PanelItem :index="index" :field="field">
     <template #value>
-      <p>
-        <span v-if="fieldHasValue">
-          {{ formattedDate }}
-        </span>
-        <span v-else>&mdash;</span>
+      <p v-if="fieldHasValue || usesCustomizedDisplay" :title="field.value">
+        {{ formattedDate }}
       </p>
+      <p v-else>&mdash;</p>
     </template>
   </PanelItem>
 </template>
@@ -26,9 +24,9 @@ export default {
         return this.field.displayedAs
       }
 
-      return DateTime.fromISO(this.field.value, {
-        setZone: Nova.config('userTimezone') || Nova.config('timezone'),
-      }).toLocaleString({
+      let isoDate = DateTime.fromISO(this.field.value)
+
+      return isoDate.toLocaleString({
         year: 'numeric',
         month: '2-digit',
         day: '2-digit',

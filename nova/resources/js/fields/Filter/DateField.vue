@@ -31,6 +31,7 @@
 </template>
 
 <script>
+import { DateTime } from 'luxon'
 import debounce from 'lodash/debounce'
 import omit from 'lodash/omit'
 import filled from '@/util/filled'
@@ -83,13 +84,19 @@ export default {
     setCurrentFilterValue() {
       let [startValue, endValue] = this.filter.currentValue || [null, null]
 
-      this.startValue = startValue
-      this.endValue = endValue
+      this.startValue = filled(startValue)
+        ? this.fromDateTimeISO(startValue).toISODate()
+        : null
+      this.endValue = filled(endValue)
+        ? this.fromDateTimeISO(endValue).toISODate()
+        : null
     },
 
     validateFilter(startValue, endValue) {
-      startValue = filled(startValue) ? startValue : null
-      endValue = filled(endValue) ? endValue : null
+      startValue = filled(startValue)
+        ? this.toDateTimeISO(startValue, 'start')
+        : null
+      endValue = filled(endValue) ? this.toDateTimeISO(endValue, 'end') : null
 
       return [startValue, endValue]
     },
@@ -106,6 +113,16 @@ export default {
     handleFilterReset() {
       this.$refs.startField.value = ''
       this.$refs.endField.value = ''
+
+      this.setCurrentFilterValue()
+    },
+
+    fromDateTimeISO(value) {
+      return DateTime.fromISO(value)
+    },
+
+    toDateTimeISO(value, range) {
+      return DateTime.fromISO(value).toISODate()
     },
   },
 

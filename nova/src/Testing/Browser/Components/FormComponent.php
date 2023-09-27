@@ -3,9 +3,12 @@
 namespace Laravel\Nova\Testing\Browser\Components;
 
 use Laravel\Dusk\Browser;
+use Laravel\Nova\Testing\Browser\Concerns\InteractsWithInlineCreateRelation;
 
 class FormComponent extends Component
 {
+    use InteractsWithInlineCreateRelation;
+
     protected $selector;
 
     protected $formUniqueId;
@@ -56,9 +59,9 @@ class FormComponent extends Component
     {
         tap($this->selector(), function ($selector) use ($browser) {
             $browser->pause(500)
-                    ->waitFor($selector)
-                    ->assertVisible($selector)
-                    ->scrollIntoView($selector);
+                ->waitFor($selector)
+                ->assertVisible($selector)
+                ->scrollIntoView($selector);
 
             $this->formUniqueId = $browser->attribute($selector, 'data-form-unique-id');
         });

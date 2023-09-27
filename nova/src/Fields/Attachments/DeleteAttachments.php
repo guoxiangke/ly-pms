@@ -1,6 +1,6 @@
 <?php
 
-namespace Laravel\Nova\Trix;
+namespace Laravel\Nova\Fields\Attachments;
 
 use Illuminate\Http\Request;
 
@@ -9,14 +9,21 @@ class DeleteAttachments
     /**
      * The field instance.
      *
-     * @var \Laravel\Nova\Fields\Trix
+     * @var \Laravel\Nova\Fields\Field&\Laravel\Nova\Contracts\Storable
      */
     public $field;
 
     /**
+     * The attachment model.
+     *
+     * @var class-string<\Laravel\Nova\Fields\Attachments\Attachment>
+     */
+    public static $model = Attachment::class;
+
+    /**
      * Create a new class instance.
      *
-     * @param  \Laravel\Nova\Fields\Trix  $field
+     * @param  \Laravel\Nova\Fields\Field&\Laravel\Nova\Contracts\Storable  $field
      * @return void
      */
     public function __construct($field)
@@ -33,7 +40,8 @@ class DeleteAttachments
      */
     public function __invoke(Request $request, $model)
     {
-        Attachment::where('attachable_type', $model->getMorphClass())
+        static::$model::query()
+                ->where('attachable_type', $model->getMorphClass())
                 ->where('attachable_id', $model->getKey())
                 ->get()
                 ->each

@@ -15,7 +15,7 @@
           @input="toggle($event, option)"
           :disabled="currentlyIsReadonly"
         >
-          {{ option.label }}
+          <span>{{ option.label }}</span>
         </CheckboxWithLabel>
       </div>
     </template>
@@ -27,13 +27,14 @@ import find from 'lodash/find'
 import isNil from 'lodash/isNil'
 import fromPairs from 'lodash/fromPairs'
 import map from 'lodash/map'
+import merge from 'lodash/merge'
 import { DependentFormField, HandlesValidationErrors } from '@/mixins'
 
 export default {
   mixins: [HandlesValidationErrors, DependentFormField],
 
   data: () => ({
-    value: [],
+    value: {},
   }),
 
   methods: {
@@ -41,7 +42,7 @@ export default {
      * Set the initial value for the field
      */
     setInitialValue() {
-      let values = this.currentField.value || {}
+      let values = merge(this.finalPayload, this.currentField.value || {})
 
       this.value = map(this.currentField.options, o => {
         return {
@@ -59,7 +60,7 @@ export default {
     fill(formData) {
       this.fillIfVisible(
         formData,
-        this.field.attribute,
+        this.fieldAttribute,
         JSON.stringify(this.finalPayload)
       )
     },
@@ -73,16 +74,14 @@ export default {
 
       if (this.field) {
         this.emitFieldValueChange(
-          this.field.attribute,
+          this.fieldAttribute,
           JSON.stringify(this.finalPayload)
         )
       }
     },
 
     onSyncedField() {
-      if (isNil(this.currentField.value)) {
-        this.setInitialValue()
-      }
+      this.setInitialValue()
     },
   },
 

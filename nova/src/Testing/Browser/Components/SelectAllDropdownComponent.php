@@ -59,11 +59,7 @@ class SelectAllDropdownComponent extends Component
      */
     public function assertSelectAllOnCurrentPageChecked(Browser $browser)
     {
-        $browser->click('')
-            ->elsewhereWhenAvailable('[dusk="select-all-button"]', function ($browser) {
-                $browser->assertChecked('input[type="checkbox"]');
-            })
-            ->closeCurrentDropdown();
+        $this->assertCheckboxIsIndeterminate($browser);
     }
 
     /**
@@ -74,11 +70,8 @@ class SelectAllDropdownComponent extends Component
      */
     public function assertSelectAllOnCurrentPageNotChecked(Browser $browser)
     {
-        $browser->click('')
-            ->elsewhereWhenAvailable('[dusk="select-all-button"]', function ($browser) {
-                $browser->assertNotChecked('input[type="checkbox"]');
-            })
-            ->closeCurrentDropdown();
+        $browser->assertPresent('span.fake-checkbox')
+            ->assertNotPresent('span.fake-checkbox.fake-checkbox-indeterminate');
     }
 
     /**
@@ -89,11 +82,7 @@ class SelectAllDropdownComponent extends Component
      */
     public function assertSelectAllMatchingChecked(Browser $browser)
     {
-        $browser->click('')
-            ->elsewhereWhenAvailable('[dusk="select-all-matching-button"]', function ($browser) {
-                $browser->assertChecked('input[type="checkbox"]');
-            })
-            ->closeCurrentDropdown();
+        $this->assertCheckboxIsChecked($browser);
     }
 
     /**
@@ -104,11 +93,20 @@ class SelectAllDropdownComponent extends Component
      */
     public function assertSelectAllMatchingNotChecked(Browser $browser)
     {
-        $browser->click('')
-            ->elsewhereWhenAvailable('[dusk="select-all-matching-button"]', function ($browser) {
-                $browser->assertNotChecked('input[type="checkbox"]');
-            })
-            ->closeCurrentDropdown();
+        $browser->assertPresent('span.fake-checkbox')
+            ->assertNotPresent('span.fake-checkbox.fake-checkbox-checked');
+    }
+
+    /**
+     * Assert on the total selected count text.
+     *
+     * @param  \Laravel\Dusk\Browser  $browser
+     * @param  int  $count
+     * @return void
+     */
+    public function assertSelectedCount(Browser $browser, $count)
+    {
+        $browser->assertSeeIn('span.font-bold', "{$count} selected");
     }
 
     /**
@@ -121,10 +119,9 @@ class SelectAllDropdownComponent extends Component
     public function assertSelectAllMatchingCount(Browser $browser, $count)
     {
         $browser->click('')
-            ->elsewhereWhenAvailable('@select-all-matching-button', function (Browser $browser) use ($count) {
-                $browser->assertSeeIn('span:nth-child(2)', $count);
-            })
-            ->closeCurrentDropdown();
+            ->elsewhereWhenAvailable('[dusk="select-all-matching-count"]', function ($browser) use ($count) {
+                $browser->assertSeeIn('', $count);
+            })->closeCurrentDropdown();
     }
 
     /**
@@ -151,12 +148,7 @@ class SelectAllDropdownComponent extends Component
      */
     public function unselectAllOnCurrentPage(Browser $browser)
     {
-        $browser->click('')
-            ->elsewhereWhenAvailable('[dusk="select-all-button"]', function ($browser) {
-                $browser->uncheck('input[type="checkbox"]');
-            })
-            ->pause(250)
-            ->closeCurrentDropdown();
+        $browser->click('button')->pause(250);
     }
 
     /**
@@ -183,12 +175,7 @@ class SelectAllDropdownComponent extends Component
      */
     public function unselectAllMatching(Browser $browser)
     {
-        $browser->click('')
-            ->elsewhereWhenAvailable('[dusk="select-all-matching-button"]', function ($browser) {
-                $browser->uncheck('input[type="checkbox"]');
-            })
-            ->pause(250)
-            ->closeCurrentDropdown();
+        $browser->click('button')->pause(250);
     }
 
     /**

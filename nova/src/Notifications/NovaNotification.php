@@ -2,8 +2,10 @@
 
 namespace Laravel\Nova\Notifications;
 
+use Laravel\Nova\Exceptions\HelperNotSupported;
 use Laravel\Nova\Makeable;
 use Laravel\Nova\Nova;
+use Laravel\Nova\URL;
 
 class NovaNotification extends \Illuminate\Notifications\Notification
 {
@@ -63,6 +65,13 @@ class NovaNotification extends \Illuminate\Notifications\Notification
      * @var \Laravel\Nova\URL|string|null
      */
     public $actionUrl;
+
+    /**
+     * Determine if URL should be open in new tab.
+     *
+     * @var bool
+     */
+    public $openInNewTab = false;
 
     /**
      * The notification's visual type.
@@ -126,6 +135,22 @@ class NovaNotification extends \Illuminate\Notifications\Notification
     }
 
     /**
+     * Set URL to open in new tab.
+     *
+     * @return $this
+     */
+    public function openInNewTab()
+    {
+        if ($this->actionUrl instanceof URL && $this->actionUrl->remote === true) {
+            $this->openInNewTab = true;
+        } else {
+            throw new HelperNotSupported(sprintf('The %s helper method is only applicable on remote URL.', __METHOD__));
+        }
+
+        return $this;
+    }
+
+    /**
      * Set the notification's visual type.
      *
      * @param  string  $type
@@ -151,6 +176,7 @@ class NovaNotification extends \Illuminate\Notifications\Notification
             'message' => $this->message,
             'actionText' => Nova::__($this->actionText),
             'actionUrl' => $this->actionUrl,
+            'openInNewTab' => $this->openInNewTab,
             'type' => $this->type,
             'iconClass' => static::$types[$this->type],
         ];

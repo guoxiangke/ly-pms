@@ -64,8 +64,7 @@ trait ResolvesActions
         $resource = $this->resource;
 
         $actions = $this->resolveActions($request)
-                    ->filter->shownOnIndex()
-                    ->filter->authorizedToSee($request);
+                    ->authorizedToSeeOnIndex($request);
 
         if (optional($resource)->exists === true) {
             return $actions->filter->authorizedToRun($request, $resource)->values();
@@ -101,8 +100,7 @@ trait ResolvesActions
     public function availableActionsOnDetail(NovaRequest $request)
     {
         return $this->resolveActions($request)
-                    ->filter->shownOnDetail()
-                    ->filter->authorizedToSee($request)
+                    ->authorizedToSeeOnDetail($request)
                     ->filter->authorizedToRun($request, $this->resource)
                     ->values();
     }
@@ -116,8 +114,7 @@ trait ResolvesActions
     public function availableActionsOnTableRow(NovaRequest $request)
     {
         return $this->resolveActions($request)
-                    ->filter->shownOnTableRow()
-                    ->filter->authorizedToSee($request)
+                    ->authorizedToSeeOnTableRow($request)
                     ->filter->authorizedToRun($request, $this->resource)
                     ->values();
     }
@@ -139,26 +136,30 @@ trait ResolvesActions
      * Get the "pivot" actions that are available for the given request.
      *
      * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
-     * @return \Illuminate\Support\Collection<int, \Laravel\Nova\Actions\Action>
+     * @return \Laravel\Nova\Actions\ActionCollection<int, \Laravel\Nova\Actions\Action>
      */
     public function availablePivotActions(NovaRequest $request)
     {
-        return $this->resolvePivotActions($request)->filter->authorizedToSee($request)->values();
+        return $this->resolvePivotActions($request)
+                    ->authorizedToSeeOnIndex($request)
+                    ->values();
     }
 
     /**
      * Get the "pivot" actions for the given request.
      *
      * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
-     * @return \Illuminate\Support\Collection<int, \Laravel\Nova\Actions\Action>
+     * @return \Laravel\Nova\Actions\ActionCollection<int, \Laravel\Nova\Actions\Action>
      */
     public function resolvePivotActions(NovaRequest $request)
     {
         if ($request->viaRelationship()) {
-            return collect(array_values($this->filter($this->getPivotActions($request))));
+            return ActionCollection::make(
+                array_values($this->filter($this->getPivotActions($request)))
+            )->each->showOnIndex();
         }
 
-        return collect();
+        return ActionCollection::make();
     }
 
     /**

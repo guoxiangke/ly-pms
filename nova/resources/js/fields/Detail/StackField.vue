@@ -9,7 +9,6 @@
         <component
           v-for="line in field.lines"
           :key="line.value"
-          :class="line.classes"
           :is="`index-${line.component}`"
           :field="line"
           :resourceName="resourceName"

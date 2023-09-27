@@ -8,6 +8,7 @@ use Laravel\Nova\Actions\ActionCollection;
 use Laravel\Nova\Http\Requests\ActionRequest;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Laravel\Nova\Nova;
+use Laravel\Nova\Resource;
 
 class ActionController extends Controller
 {
@@ -85,13 +86,13 @@ class ActionController extends Controller
     }
 
     /**
-     * Get available actions for request.
+     * Get the available actions for the request.
      *
      * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
      * @param  \Laravel\Nova\Resource  $resource
      * @return \Laravel\Nova\Actions\ActionCollection<int, \Laravel\Nova\Actions\Action>
      */
-    protected function availableActions(NovaRequest $request, $resource)
+    protected function availableActions(NovaRequest $request, Resource $resource)
     {
         switch ($request->display) {
             case 'index':

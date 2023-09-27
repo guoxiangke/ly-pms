@@ -57,6 +57,16 @@ trait Storable
     }
 
     /**
+     * Get the default disk for the field.
+     *
+     * @return string
+     */
+    public function getDefaultStorageDisk()
+    {
+        return config('nova.storage_disk', 'public');
+    }
+
+    /**
      * Get the path that the field is stored at on disk.
      *
      * @return string|null

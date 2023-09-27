@@ -4,10 +4,10 @@ namespace Laravel\Nova\Http\Requests;
 
 use Closure;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Fluent;
 use Laravel\Nova\Actions\ActionModelCollection;
 use Laravel\Nova\Fields\ActionFields;
 use Laravel\Nova\Fields\FieldCollection;
+use Laravel\Nova\Support\Fluent;
 
 /**
  * @property-read string|null $resources
@@ -131,10 +131,13 @@ class ActionRequest extends NovaRequest
     {
         return tap($this->newQueryWithoutScopes(), function ($query) {
             $resource = $this->resource();
+            $query->with($resource::$with);
 
-            $resource::indexQuery(
-                $this, $query->with($resource::$with)
-            );
+            if (! $this->allResourcesSelected() && $this->selectedResourceIds()->count() === 1) {
+                $resource::detailQuery($this, $query);
+            } else {
+                $resource::indexQuery($this, $query);
+            }
         });
     }
 
@@ -160,9 +163,11 @@ class ActionRequest extends NovaRequest
      */
     protected function mapChunk($chunk)
     {
-        return ActionModelCollection::make($this->isPivotAction()
-                    ? $chunk->map->pivot
-                    : $chunk);
+        return ActionModelCollection::make(
+            $this->isPivotAction()
+                ? $chunk->map->{$this->pivotRelation()->getPivotAccessor()}
+                : $chunk
+        );
     }
 
     /**

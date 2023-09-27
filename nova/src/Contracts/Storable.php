@@ -12,6 +12,13 @@ interface Storable
     public function getStorageDisk();
 
     /**
+     * Get the default disk for the field.
+     *
+     * @return string
+     */
+    public function getDefaultStorageDisk();
+
+    /**
      * Get the dir that the field is stored at on disk.
      *
      * @return string|null

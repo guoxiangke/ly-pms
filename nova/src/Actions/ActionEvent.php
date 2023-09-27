@@ -11,7 +11,6 @@ use Laravel\Nova\Http\Requests\ActionRequest;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Laravel\Nova\Nova;
 use Laravel\Nova\Util;
-use Stringable;
 
 /**
  * @property \Illuminate\Database\Eloquent\Model $target
@@ -62,7 +61,21 @@ class ActionEvent extends Model
      */
     public function target()
     {
-        return $this->morphTo('target', 'target_type', 'target_id')->withTrashed();
+        $queryWithTrashed = function ($query) {
+            return $query->withTrashed();
+        };
+
+        return $this->morphTo('target', 'target_type', 'target_id')
+                    ->constrain(
+                        collect(Nova::$resources)
+                            ->filter(function ($resource) {
+                                return $resource::softDeletes();
+                            })->mapWithKeys(function ($resource) use ($queryWithTrashed) {
+                                return [$resource::$model => $queryWithTrashed];
+                            })->all()
+                    )->when(true, function ($query) use ($queryWithTrashed) {
+                        return $query->hasMacro('withTrashed') ? $queryWithTrashed($query) : $query;
+                    });
     }
 
     /**
@@ -476,15 +489,7 @@ class ActionEvent extends Model
     {
         return collect($attributes)
                 ->transform(function ($value) {
-                    if (is_object($value) && ($value instanceof Stringable || method_exists($value, '__toString'))) {
-                        return (string) $value;
-                    } elseif (is_object($value) || is_array($value)) {
-                        return rescue(function () use ($value) {
-                            return json_encode($value);
-                        }, $value);
-                    }
-
-                    return $value;
+                    return Util::hydrate($value);
                 })->all();
     }
 }

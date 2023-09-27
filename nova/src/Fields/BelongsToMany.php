@@ -28,7 +28,8 @@ class BelongsToMany extends Field implements DeletableContract, FilterableField,
         EloquentFilterable,
         FormatsRelatableDisplayValues,
         ManyToManyCreationRules,
-        Searchable;
+        Searchable,
+        Collapsable;
 
     /**
      * The field's component.
@@ -368,10 +369,18 @@ class BelongsToMany extends Field implements DeletableContract, FilterableField,
     protected function defaultFilterableCallback()
     {
         return function (NovaRequest $request, $query, $value, $attribute) {
-            $query->when($request->viaRelationship(), function ($query) use ($value) {
+            $viaRelationship = $request->viaRelationship() && $request->relationshipType === 'belongsToMany';
+
+            $query->when($viaRelationship, function ($query) use ($value) {
                 $query->whereKey($value);
-            }, function ($query) use ($attribute, $value) {
-                $query->whereRelation($this->manyToManyRelationship, $attribute, '=', $value);
+            }, function ($query) use ($request, $attribute, $value) {
+                if ($this->resourceClass::uriKey() !== $request->viaResource) {
+                    $query->whereHas($this->manyToManyRelationship, function ($query) use ($value) {
+                        $query->whereKey($value);
+                    });
+                } else {
+                    $query->whereRelation($this->manyToManyRelationship, $attribute, '=', $value);
+                }
             });
         };
     }
@@ -418,6 +427,8 @@ class BelongsToMany extends Field implements DeletableContract, FilterableField,
     {
         return with(app(NovaRequest::class), function ($request) {
             return array_merge([
+                'collapsable' => $this->collapsable,
+                'collapsedByDefault' => $this->collapsedByDefault,
                 'belongsToManyRelationship' => $this->manyToManyRelationship,
                 'relationshipType' => $this->relationshipType(),
                 'debounce' => $this->debounce,

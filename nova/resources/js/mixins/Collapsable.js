@@ -2,7 +2,11 @@ export default {
   data: () => ({ collapsed: false }),
 
   created() {
-    this.collapsed = JSON.parse(localStorage.getItem(this.localStorageKey))
+    const value = localStorage.getItem(this.localStorageKey)
+
+    if (value !== 'undefined') {
+      this.collapsed = JSON.parse(value) ?? this.collapsedByDefault
+    }
   },
 
   unmounted() {
@@ -27,6 +31,10 @@ export default {
 
     localStorageKey() {
       return `nova.navigation.${this.item.key}.collapsed`
+    },
+
+    collapsedByDefault() {
+      return false
     },
   },
 }

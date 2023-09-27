@@ -49,7 +49,7 @@ class ResourceReplicateController extends Controller
             Breadcrumb::make(Nova::__('Resources')),
             Breadcrumb::resource($resourceClass),
             Breadcrumb::resource($request->findResourceOrFail()),
-            Breadcrumb::make(__('Replicate :resource', ['resource' => $resourceClass::singularLabel()])),
+            Breadcrumb::make(Nova::__('Replicate :resource', ['resource' => $resourceClass::singularLabel()])),
         ]);
     }
 }

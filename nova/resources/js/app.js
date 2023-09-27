@@ -17,10 +17,12 @@ import find from 'lodash/find'
 import isNil from 'lodash/isNil'
 import fromPairs from 'lodash/fromPairs'
 import isString from 'lodash/isString'
+import omit from 'lodash/omit'
 import Toasted from 'toastedjs'
 import Emitter from 'tiny-emitter'
 import Layout from '@/layouts/AppLayout'
 import CodeMirror from 'codemirror'
+import { Settings } from 'luxon'
 import 'codemirror/mode/markdown/markdown'
 import 'codemirror/mode/javascript/javascript'
 import 'codemirror/mode/php/php'
@@ -60,7 +62,6 @@ const { createApp, h } = window.Vue
 class Nova {
   constructor(config) {
     this.bootingCallbacks = []
-    this.bootedCallbacks = []
     this.appConfig = config
     this.useShortcuts = true
 
@@ -88,6 +89,15 @@ class Nova {
       duration: 6000,
     })
     this.$progress = NProgress
+    this.$router = Inertia
+
+    if (config.debug === true) {
+      this.$testing = {
+        timezone: timezone => {
+          Settings.defaultZoneName = timezone
+        },
+      }
+    }
   }
 
   /**
@@ -109,7 +119,6 @@ class Nova {
   }
 
   booted(callback) {
-    // this.bootedCallbacks.push(callback)
     callback(this.app, this.store)
   }
 
@@ -132,9 +141,6 @@ class Nova {
       setup: ({ el, App, props, plugin }) => {
         this.mountTo = el
         this.app = createApp({ render: () => h(App, props) })
-
-        // TODO: Only needed until Vue 3.3 https://vuejs.org/guide/components/provide-inject.html#working-with-reactivity
-        this.app.config.unwrapInjectedRef = true
 
         this.app.use(plugin)
         this.app.use(FloatingVue, {
@@ -295,7 +301,9 @@ class Nova {
    * Determine if Nova is missing the requested resource with the given uri key
    */
   missingResource(uriKey) {
-    return find(this.config('resources'), r => r.uriKey == uriKey) == undefined
+    return (
+      find(this.config('resources'), r => r.uriKey === uriKey) === undefined
+    )
   }
 
   /**
@@ -434,18 +442,26 @@ class Nova {
    * Visit page using Inertia visit or window.location for remote.
    */
   visit(path, options) {
+    options = options || {}
+    const openInNewTab = options?.openInNewTab || null
+
     if (isString(path)) {
-      Inertia.visit(this.url(path), options || {})
+      Inertia.visit(this.url(path), omit(options, ['openInNewTab']))
       return
     }
 
     if (isString(path.url) && path.hasOwnProperty('remote')) {
-      if (path.remote == true) {
-        window.location = path.url
+      if (path.remote === true) {
+        if (openInNewTab === true) {
+          window.open(path.url, '_blank')
+        } else {
+          window.location = path.url
+        }
+
         return
       }
 
-      Inertia.visit(path.url, options || {})
+      Inertia.visit(path.url, omit(options, ['openInNewTab']))
     }
   }
 

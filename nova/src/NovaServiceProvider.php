@@ -101,6 +101,7 @@ class NovaServiceProvider extends ServiceProvider
             Console\PartitionCommand::class,
             Console\ProgressCommand::class,
             Console\PublishCommand::class,
+            Console\RepeatableCommand::class,
             Console\ResourceCommand::class,
             Console\ResourceToolCommand::class,
             Console\StubPublishCommand::class,

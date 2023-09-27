@@ -2,6 +2,7 @@
 
 namespace Laravel\Nova\Http\Resources;
 
+use Laravel\Nova\Contracts\ListableField;
 use Laravel\Nova\Contracts\RelatableField;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\FieldCollection;
@@ -26,7 +27,10 @@ class DetailViewResource extends Resource
             $detail['fields'] = collect($detail['fields'])
                 ->when($request->viaResource, function ($fields) use ($request) {
                     return $fields->reject(function ($field) use ($request) {
-                        if (! $field instanceof RelatableField) {
+                        /** @var \Laravel\Nova\Fields\Field $field */
+                        if ($field instanceof ListableField) {
+                            return true;
+                        } elseif (! $field instanceof RelatableField) {
                             return false;
                         }
 
@@ -56,6 +60,7 @@ class DetailViewResource extends Resource
      * @return \Laravel\Nova\Resource
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      */
     public function authorizedResourceForRequest(ResourceDetailRequest $request)
     {

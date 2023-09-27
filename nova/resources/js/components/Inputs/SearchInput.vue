@@ -3,7 +3,6 @@
     v-bind="$attrs"
     :data-testid="dataTestid"
     :dusk="dataTestid"
-    :class="{ 'opacity-75': disabled }"
     ref="searchInputContainer"
   >
     <div class="relative">
@@ -16,7 +15,7 @@
         :class="{
           'ring dark:border-gray-500 dark:ring-gray-700': show,
           'form-input-border-error': error,
-          disabled,
+          'bg-gray-50 dark:bg-gray-700': disabled || readOnly,
         }"
         class="relative flex items-center form-control form-input-bordered form-select pr-6"
         :tabindex="show ? -1 : 0"
@@ -64,7 +63,7 @@
     >
       <!-- Search Input -->
       <input
-        :disabled="disabled"
+        :disabled="disabled || readOnly"
         v-model="search"
         ref="search"
         @keydown.enter.prevent="chooseSelected"
@@ -118,13 +117,20 @@ import { createPopper } from '@popperjs/core'
 import { mapProps } from '@/mixins'
 
 export default {
-  emits: ['clear', 'input', 'selected'],
+  emits: ['clear', 'input', 'shown', 'closed', 'selected'],
 
   inheritAttrs: false,
 
   props: {
     dataTestid: {},
-    disabled: { default: false },
+    disabled: {
+      type: Boolean,
+      default: false,
+    },
+    readOnly: {
+      type: Boolean,
+      default: false,
+    },
     value: {},
     data: {},
     trackBy: {},
@@ -201,7 +207,7 @@ export default {
   mounted() {
     document.addEventListener('keydown', this.handleEscape)
 
-    if (this.mode === 'modal') {
+    if (['modal', 'action-modal'].includes(this.mode)) {
       document.addEventListener('click', this.handleOutsideClick)
     }
   },
@@ -209,7 +215,7 @@ export default {
   beforeUnmount() {
     document.removeEventListener('keydown', this.handleEscape)
 
-    if (this.mode === 'modal') {
+    if (['modal', 'action-modal'].includes(this.mode)) {
       document.removeEventListener('click', this.handleOutsideClick)
     }
   },
@@ -227,14 +233,16 @@ export default {
     },
 
     open() {
-      if (!this.disabled) {
+      if (!this.disabled && !this.readOnly) {
         this.show = true
         this.search = ''
+        this.$emit('shown')
       }
     },
 
     close() {
       this.show = false
+      this.$emit('closed')
     },
 
     clear() {
@@ -255,7 +263,7 @@ export default {
 
     updateScrollPosition() {
       this.$nextTick(() => {
-        if (this.$refs.selected) {
+        if (this.$refs.selected && this.$refs.selected[0]) {
           if (
             this.$refs.selected[0].offsetTop >
             this.$refs.container.scrollTop +

@@ -54,13 +54,13 @@ export default {
       return this.$emit('create-cancelled')
     },
 
-    handlePreventModalAbandonmentOnClose() {
+    handlePreventModalAbandonmentOnClose(event) {
       this.handlePreventModalAbandonment(
         () => {
           this.$emit('create-cancelled')
         },
         () => {
-          e.stopPropagation()
+          event.stopPropagation()
         }
       )
     },

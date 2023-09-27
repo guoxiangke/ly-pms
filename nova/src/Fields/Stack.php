@@ -104,6 +104,16 @@ class Stack extends Field
     }
 
     /**
+     * Get field lines.
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    public function fields()
+    {
+        return collect($this->lines)->whereInstanceOf(Field::class);
+    }
+
+    /**
      * Ensure that each line for the field is resolvable.
      *
      * @return void

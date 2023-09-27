@@ -1,8 +1,7 @@
 <template>
   <div v-if="shouldShowButtons">
     <!-- Attach Related Models -->
-    <component
-      :is="component"
+    <ButtonInertiaLink
       class="flex-shrink-0"
       v-if="shouldShowAttachButton"
       dusk="attach-button"
@@ -10,8 +9,8 @@
         $url(
           `/resources/${viaResource}/${viaResourceId}/attach/${resourceName}`,
           {
-            viaRelationship: viaRelationship,
-            polymorphic: relationshipType == 'morphToMany' ? '1' : '0',
+            viaRelationship,
+            polymorphic: relationshipType === 'morphToMany' ? '1' : '0',
           }
         )
       "
@@ -24,13 +23,12 @@
           {{ __('Attach') }}
         </span>
       </slot>
-    </component>
+    </ButtonInertiaLink>
 
     <!-- Create Related Models -->
-    <component
-      :is="component"
-      class="flex-shrink-0"
+    <ButtonInertiaLink
       v-else-if="shouldShowCreateButton"
+      class="flex-shrink-0 h-9 px-4 focus:outline-none ring-primary-200 dark:ring-gray-600 focus:ring text-white dark:text-gray-800 inline-flex items-center font-bold"
       dusk="create-button"
       :href="
         $url(`/resources/${resourceName}/new`, {
@@ -47,70 +45,49 @@
       <span class="inline-block md:hidden">
         {{ __('Create') }}
       </span>
-    </component>
+    </ButtonInertiaLink>
   </div>
 </template>
 
-<script>
-export default {
-  props: {
-    type: {
-      type: String,
-      default: 'button',
-      validator: val => ['button', 'outline-button'].includes(val),
-    },
+<script setup>
+import { useLocalization } from '@/composables/useLocalization'
+import { computed } from 'vue'
 
-    label: {},
-    singularName: {},
-    resourceName: {},
-    viaResource: {},
-    viaResourceId: {},
-    viaRelationship: {},
-    relationshipType: {},
-    authorizedToCreate: {},
-    authorizedToRelate: {},
-    alreadyFilled: {
-      type: Boolean,
-      default: false,
-    },
+const { __ } = useLocalization()
+
+const props = defineProps({
+  type: {
+    type: String,
+    default: 'button',
+    validator: val => ['button', 'outline-button'].includes(val),
   },
+  label: {},
+  singularName: {},
+  resourceName: {},
+  viaResource: {},
+  viaResourceId: {},
+  viaRelationship: {},
+  relationshipType: {},
+  authorizedToCreate: {},
+  authorizedToRelate: {},
+  alreadyFilled: { type: Boolean, default: false },
+})
 
-  computed: {
-    component() {
-      return {
-        button: 'ButtonInertiaLink',
-        'outline-button': 'OutlineButtonInertiaLink',
-      }[this.type]
-    },
+const shouldShowAttachButton = computed(() => {
+  return (
+    (props.relationshipType === 'belongsToMany' ||
+      props.relationshipType === 'morphToMany') &&
+    props.authorizedToRelate
+  )
+})
 
-    /**
-     * Determine if any buttons should be displayed.
-     */
-    shouldShowButtons() {
-      return this.shouldShowAttachButton || this.shouldShowCreateButton
-    },
+const shouldShowCreateButton = computed(() => {
+  return (
+    props.authorizedToCreate && props.authorizedToRelate && !props.alreadyFilled
+  )
+})
 
-    /**
-     * Determine if the attach button should be displayed.
-     */
-    shouldShowAttachButton() {
-      return (
-        (this.relationshipType == 'belongsToMany' ||
-          this.relationshipType == 'morphToMany') &&
-        this.authorizedToRelate
-      )
-    },
-
-    /**
-     * Determine if the create button should be displayed.
-     */
-    shouldShowCreateButton() {
-      return (
-        this.authorizedToCreate &&
-        this.authorizedToRelate &&
-        !this.alreadyFilled
-      )
-    },
-  },
-}
+const shouldShowButtons = computed(() => {
+  return shouldShowAttachButton || shouldShowCreateButton
+})
 </script>

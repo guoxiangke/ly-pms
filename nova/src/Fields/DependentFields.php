@@ -2,15 +2,22 @@
 
 namespace Laravel\Nova\Fields;
 
-use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Laravel\Nova\Http\Requests\NovaRequest;
+use Laravel\Nova\Support\UndefinedValue;
 
 /**
  * @property array $fieldDependencies
  */
 trait DependentFields
 {
+    /**
+     * Determine of should emit change event.
+     *
+     * @var bool
+     */
+    protected $dependentShouldEmitChangesEvent = false;
+
     /**
      * Resolve the dependent component key.
      *
@@ -40,10 +47,32 @@ trait DependentFields
      */
     public function syncDependsOn(NovaRequest $request)
     {
-        $this->value = null;
-        $this->defaultCallback = null;
+        $this->value = new UndefinedValue();
+        $this->defaultCallback = function () {
+            return new UndefinedValue();
+        };
 
-        return $this->applyDependsOn($request);
+        $this->applyDependsOn($request);
+
+        $value = with($this->value, function ($value) use ($request) {
+            if ($value instanceof UndefinedValue && $this->requestShouldResolveDefaultValue($request)) {
+                $this->value = null;
+
+                return $this->resolveDefaultValue($request);
+            }
+
+            return $value;
+        });
+
+        $this->dependentShouldEmitChangesEvent = ! $value instanceof UndefinedValue;
+
+        if ($value instanceof UndefinedValue) {
+            $this->value = null;
+        } else {
+            $this->value = ! is_null($value) ? $value : '';
+        }
+
+        return $this;
     }
 
     /**
@@ -55,23 +84,8 @@ trait DependentFields
     public function applyDependsOn(NovaRequest $request)
     {
         $this->fieldDependencies = collect($this->fieldDependencies ?? [])
-            ->map(function ($dependsOn) use ($request) {
-                $mixin = $dependsOn['mixin'];
-
-                if (is_string($mixin) && class_exists($mixin)) {
-                    $mixin = new $mixin();
-                }
-
-                return [
-                    'mixin' => $mixin,
-                    'attributes' => $dependsOn['attributes'],
-                    'formData' => FormData::onlyFrom($request, $dependsOn['attributes']),
-                ];
-            })
-            ->each(function ($dependsOn) use ($request) {
-                $dependsOn['mixin'](
-                    $this, $request, $dependsOn['formData']
-                );
+            ->map(function (Dependent $dependent) use ($request) {
+                return $dependent->handle($this, $request);
             })->all();
 
         return $this;
@@ -85,10 +99,30 @@ trait DependentFields
      */
     protected function getDependentsAttributes(NovaRequest $request)
     {
-        return collect($this->fieldDependencies ?? [])->map(function ($dependsOn) {
-            return collect($dependsOn['attributes'])->mapWithKeys(function ($attribute) use ($dependsOn) {
-                return [$attribute => optional(Arr::get($dependsOn, 'formData'))->get($attribute)];
-            })->all();
-        })->first() ?? null;
+        /** @var \Illuminate\Support\Collection<string, mixed> $attributes */
+        $attributes = collect($this->fieldDependencies ?? [])->map(function (Dependent $dependent) {
+            return $dependent->getAttributes();
+        })->collapse();
+
+        if ($attributes->isNotEmpty()) {
+            return $attributes->all();
+        }
+
+        return null;
+    }
+
+    /**
+     * Serialize dependent field.
+     *
+     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
+     * @return array<string, mixed>
+     */
+    protected function serializeDependentField(NovaRequest $request): array
+    {
+        return [
+            'dependentComponentKey' => $this->dependentComponentKey(),
+            'dependsOn' => $this->getDependentsAttributes($request),
+            'dependentShouldEmitChangesEvent' => $this->dependentShouldEmitChangesEvent,
+        ];
     }
 }

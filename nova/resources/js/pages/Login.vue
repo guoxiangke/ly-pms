@@ -52,7 +52,7 @@
           :checked="form.remember"
           @input="() => (form.remember = !form.remember)"
         >
-          {{ __('Remember me') }}
+          <span>{{ __('Remember me') }}</span>
         </CheckboxWithLabel>
 
         <div
@@ -62,12 +62,6 @@
           <Link
             v-if="forgotPasswordPath === false"
             :href="$url('/password/reset')"
-            class="text-gray-500 font-bold no-underline"
-            v-text="__('Forgot your password?')"
-          />
-          <a
-            v-else
-            :href="forgotPasswordPath"
             class="text-gray-500 font-bold no-underline"
             v-text="__('Forgot your password?')"
           />
@@ -115,7 +109,7 @@ export default {
       try {
         const { redirect } = await this.form.post(Nova.url('/login'))
 
-        let path = '/'
+        let path = { url: Nova.url('/'), remote: true }
 
         if (redirect !== undefined && redirect !== null) {
           path = { url: redirect, remote: true }

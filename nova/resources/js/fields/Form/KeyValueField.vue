@@ -2,7 +2,9 @@
   <DefaultField
     :field="currentField"
     :errors="errors"
-    :full-width-content="mode === 'modal'"
+    :full-width-content="
+      fullWidthContent || ['modal', 'action-modal'].includes(mode)
+    "
     :show-help-text="showHelpText"
   >
     <template #field>
@@ -38,15 +40,13 @@
           currentField.canAddRow
         "
       >
-        <button
+        <InvertedButton
+          class="mt-3"
           @click="addRowAndSelect"
           :dusk="`${field.attribute}-add-key-value`"
-          type="button"
-          class="cursor-pointer focus:outline-none focus:ring ring-primary-200 dark:ring-gray-600 focus:ring-offset-4 dark:focus:ring-offset-gray-800 rounded-lg mx-auto text-primary-500 font-bold link-default mt-3 px-3 rounded-b-lg flex items-center"
         >
-          <Icon type="plus-circle" />
-          <span class="ml-1">{{ currentField.actionText }}</span>
-        </button>
+          {{ currentField.actionText }}
+        </InvertedButton>
       </div>
     </template>
   </DefaultField>
@@ -100,7 +100,7 @@ export default {
         value,
       }))
 
-      if (this.theData.length == 0) {
+      if (this.theData.length === 0) {
         this.addRow()
       }
     },
@@ -112,7 +112,7 @@ export default {
     fill(formData) {
       this.fillIfVisible(
         formData,
-        this.field.attribute,
+        this.fieldAttribute,
         JSON.stringify(this.finalPayload)
       )
     },
@@ -139,7 +139,7 @@ export default {
      */
     removeRow(id) {
       return tap(
-        findIndex(this.theData, row => row.id == id),
+        findIndex(this.theData, row => row.id === id),
         index => this.theData.splice(index, 1)
       )
     },

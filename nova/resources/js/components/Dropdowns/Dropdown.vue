@@ -11,22 +11,21 @@
     </button>
 
     <teleport to="body">
-      <div
-        v-show="show"
-        ref="menu"
-        class="relative"
-        :class="extraClasses"
-        :data-menu-open="show"
-        @click="handleClick"
-      >
-        <slot name="menu" />
-      </div>
-    </teleport>
+      <slot name="menuWrap" :handle-menu-click="handleClick" :is-shown="show">
+        <div
+          v-show="show"
+          ref="menu"
+          class="relative z-[99999]"
+          :data-menu-open="show"
+          @click="handleClick"
+        >
+          <slot name="menu" />
+        </div>
+      </slot>
 
-    <teleport to="#dropdowns">
       <div
         v-if="show"
-        class="z-[35] fixed inset-0"
+        class="z-[999] fixed inset-0"
         dusk="dropdown-overlay"
         @click="() => hideMenu()"
       />
@@ -42,30 +41,12 @@ export default {
   emits: ['menu-opened', 'menu-closed'],
 
   props: {
-    offset: {
-      type: [Number, String],
-      default: 5,
-    },
-
-    placement: {
-      type: String,
-      default: 'bottom-start',
-    },
-
-    boundary: {
-      type: String,
-      default: 'viewPort',
-    },
-
-    autoHide: {
-      type: Boolean,
-      default: true,
-    },
-
-    handleInternalClicks: {
-      type: Boolean,
-      default: true,
-    },
+    offset: { type: [Number, String], default: 5 },
+    placement: { type: String, default: 'bottom-start' },
+    boundary: { type: String, default: 'viewPort' },
+    autoHide: { type: Boolean, default: true },
+    handleInternalClicks: { type: Boolean, default: true },
+    triggerOverrideFunction: { type: Function },
   },
 
   data: () => ({
@@ -101,6 +82,11 @@ export default {
      * Show the dropdown menu.
      */
     showMenu() {
+      if (this.triggerOverrideFunction) {
+        this.triggerOverrideFunction()
+        return
+      }
+
       if (this.debouncedHideMenu) {
         this.debouncedHideMenu.cancel()
         this.debouncedHideMenu = null
@@ -141,10 +127,6 @@ export default {
   },
 
   computed: {
-    extraClasses() {
-      return ['z-40']
-    },
-
     resolvedPlacement() {
       if (!Nova.config('rtlEnabled')) {
         return this.placement

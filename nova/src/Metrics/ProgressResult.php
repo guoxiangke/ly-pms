@@ -170,7 +170,7 @@ class ProgressResult implements JsonSerializable
         return [
             'value' => $this->resolveTransformedValue($this->value),
             'target' => $this->resolveTransformedValue($target),
-            'percentage' => round(($this->value / $target) * 100, $this->roundingPrecision, $this->roundingMode),
+            'percentage' => $target !== 0 ? round(($this->value / $target) * 100, $this->roundingPrecision, $this->roundingMode) : 0,
             'prefix' => $this->prefix,
             'suffix' => $this->suffix,
             'suffixInflection' => $this->suffixInflection,

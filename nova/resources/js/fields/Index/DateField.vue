@@ -19,18 +19,14 @@ export default {
   props: ['resourceName', 'field'],
 
   computed: {
-    timezone() {
-      return Nova.config('userTimezone') || Nova.config('timezone')
-    },
-
     formattedDate() {
       if (this.field.usesCustomizedDisplay) {
         return this.field.displayedAs
       }
 
-      return DateTime.fromISO(this.field.value, {
-        setZone: this.timezone,
-      }).toLocaleString({
+      let isoDate = DateTime.fromISO(this.field.value)
+
+      return isoDate.toLocaleString({
         year: 'numeric',
         month: '2-digit',
         day: '2-digit',

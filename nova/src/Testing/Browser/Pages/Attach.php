@@ -3,6 +3,7 @@
 namespace Laravel\Nova\Testing\Browser\Pages;
 
 use Laravel\Dusk\Browser;
+use Laravel\Nova\Testing\Browser\Components\SearchInputComponent;
 
 class Attach extends Page
 {
@@ -40,6 +41,34 @@ class Attach extends Page
     }
 
     /**
+     * Create a new page instance for Belongs-to-Many.
+     *
+     * @param  string  $resourceName
+     * @param  string  $resourceId
+     * @param  string  $relation
+     * @param  string|null  $viaRelationship
+     * @return static
+     */
+    public static function belongsToMany($resourceName, $resourceId, $relation, $viaRelationship = null)
+    {
+        return new static($resourceName, $resourceId, $relation, $viaRelationship);
+    }
+
+    /**
+     * Create a new page instance for Morph-to-Many.
+     *
+     * @param  string  $resourceName
+     * @param  string  $resourceId
+     * @param  string  $relation
+     * @param  string|null  $viaRelationship
+     * @return static
+     */
+    public static function morphToMany($resourceName, $resourceId, $relation, $viaRelationship = null)
+    {
+        return new static($resourceName, $resourceId, $relation, $viaRelationship, true);
+    }
+
+    /**
      * Get the URL for the page.
      *
      * @return string
@@ -61,7 +90,21 @@ class Attach extends Page
      */
     public function selectAttachable(Browser $browser, $id)
     {
-        $this->selectRelation($browser, 'attachable-select', $id);
+        $this->selectRelation($browser, 'attachable', $id);
+    }
+
+    /**
+     * Select the attachable resource with the given ID.
+     *
+     * @param  \Laravel\Dusk\Browser  $browser
+     * @param  string|int  $id
+     * @return void
+     */
+    public function searchAttachable(Browser $browser, $id)
+    {
+        $browser->within(new SearchInputComponent($this->relation), function ($browser) use ($id) {
+            $browser->searchFirstRelation($id);
+        });
     }
 
     /**

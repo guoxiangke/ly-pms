@@ -61,7 +61,7 @@ class AttachedResourceUpdateController extends Controller
             Breadcrumb::make(Nova::__('Resources')),
             Breadcrumb::resource($resourceClass),
             Breadcrumb::resource($resource),
-            Breadcrumb::make(__('Update attached :resource: :title', [
+            Breadcrumb::make(Nova::__('Update attached :resource: :title', [
                 'resource' => $relatedResource::singularLabel(),
                 'title' => $relatedResource->title(),
             ])),

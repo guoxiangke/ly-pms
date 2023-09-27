@@ -27,6 +27,7 @@
 <script>
 import filter from 'lodash/filter'
 import { Collapsable } from '@/mixins'
+import filled from '@/util/filled'
 
 export default {
   mixins: [Collapsable],
@@ -75,7 +76,15 @@ export default {
     },
 
     localStorageKey() {
-      return `nova.cards.${this.resource}.${this.size}.collapsed`
+      let name = this.resourceName
+
+      if (filled(this.lens)) {
+        name = `${name}.${this.lens}`
+      } else if (filled(this.resourceId)) {
+        name = `${name}.${this.resourceId}`
+      }
+
+      return `nova.cards.${name}.collapsed`
     },
   },
 }

@@ -100,7 +100,7 @@ export default {
       if (!isNil(option) && option !== '') {
         this.value = option.value
       } else {
-        this.value = ''
+        this.value = this.fieldDefaultValue()
       }
     },
 
@@ -121,8 +121,8 @@ export default {
      * Clear the current selection for the field.
      */
     clearSelection() {
-      this.selectedOption = ''
-      this.value = ''
+      this.selectedOption = null
+      this.value = this.fieldDefaultValue()
 
       if (this.$refs.searchable) {
         this.$refs.searchable.close()
@@ -179,7 +179,10 @@ export default {
     filteredOptions() {
       return this.field.options.filter(option => {
         return (
-          option.label.toLowerCase().indexOf(this.search.toLowerCase()) > -1
+          option.label
+            .toString()
+            .toLowerCase()
+            .indexOf(this.search.toLowerCase()) > -1
         )
       })
     },

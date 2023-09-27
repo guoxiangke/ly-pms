@@ -9,9 +9,9 @@ class ApplySoftDeleteConstraint
     /**
      * Apply the trashed state constraint to the query.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  \Illuminate\Database\Eloquent\Builder|\Laravel\Scout\Builder  $query
      * @param  string  $withTrashed
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return \Illuminate\Database\Eloquent\Builder|\Laravel\Scout\Builder
      */
     public function __invoke($query, $withTrashed)
     {

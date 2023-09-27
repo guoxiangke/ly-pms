@@ -50,6 +50,7 @@ class NotExactlyAttached implements Rule
         $relation = $this->model->{$this->request->viaRelationship}();
 
         $pivot = $relation->newPivot();
+        $pivotAccessor = $relation->getPivotAccessor();
         $query = $relation->withoutGlobalScopes()
                         ->where($relation->getQualifiedRelatedPivotKeyName(), '=', $this->request->input($this->request->relatedResource));
 
@@ -71,7 +72,7 @@ class NotExactlyAttached implements Rule
         $attributes = $pivot->toArray();
 
         foreach ($query->cursor() as $result) {
-            $pivots = Arr::only($result->pivot->toArray(), array_keys($attributes));
+            $pivots = Arr::only($result->{$pivotAccessor}->toArray(), array_keys($attributes));
 
             if (array_diff_assoc(Arr::flatten($pivots), Arr::flatten($attributes)) === []) {
                 return false;

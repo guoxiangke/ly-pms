@@ -1,5 +1,10 @@
 <template>
-  <div ref="searchInputContainer" v-bind="$attrs">
+  <div
+    ref="searchInputContainer"
+    v-bind="$attrs"
+    :data-testid="dataTestid"
+    :dusk="dataTestid"
+  >
     <div class="relative">
       <!-- Search Input -->
       <input
@@ -47,6 +52,7 @@
           <div
             v-else
             v-for="(option, index) in options"
+            :dusk="`${dataTestid}-result-${index}`"
             @click.stop="choose(option)"
             :ref="el => setSelectedRef(index, el)"
             :key="getTrackedByKey(option)"
@@ -89,6 +95,7 @@ const emit = defineEmits(['clear', 'input', 'selected'])
 
 // Props
 const props = defineProps({
+  dataTestid: {},
   error: { type: Boolean, default: false },
   disabled: { type: Boolean, default: false },
   options: { type: Array, default: [] },

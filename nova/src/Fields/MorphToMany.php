@@ -25,7 +25,8 @@ class MorphToMany extends Field implements DeletableContract, ListableField, Piv
         DeterminesIfCreateRelationCanBeShown,
         FormatsRelatableDisplayValues,
         ManyToManyCreationRules,
-        Searchable;
+        Searchable,
+        Collapsable;
 
     /**
      * The field's component.
@@ -333,6 +334,8 @@ class MorphToMany extends Field implements DeletableContract, ListableField, Piv
     public function jsonSerialize(): array
     {
         return array_merge([
+            'collapsable' => $this->collapsable,
+            'collapsedByDefault' => $this->collapsedByDefault,
             'debounce' => $this->debounce,
             'relatable' => true,
             'morphToManyRelationship' => $this->manyToManyRelationship,

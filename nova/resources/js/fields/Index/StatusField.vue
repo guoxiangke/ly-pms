@@ -14,13 +14,17 @@
           type="check-circle"
         />
       </span>
-      {{ field.value }}
+      {{ fieldValue }}
     </Badge>
   </div>
 </template>
 
 <script>
+import { FieldValue } from '@/mixins'
+
 export default {
+  mixins: [FieldValue],
+
   props: ['resourceName', 'field'],
 
   computed: {

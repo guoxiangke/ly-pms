@@ -2,6 +2,8 @@
 
 namespace Laravel\Nova\Http\Requests;
 
+use Laravel\Nova\Query\Search;
+
 /**
  * @property-read string|null $lens
  */
@@ -31,6 +33,20 @@ trait InteractsWithLenses
 
             return $resource->availableLenses($this);
         });
+    }
+
+    /**
+     * Transform the request into a search query.
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function newSearchQuery()
+    {
+        $lens = $this->lens();
+
+        return $lens::searchable() && ! empty($this->search)
+            ? (new Search($this->newQuery(), $this->search))->handle($this->resource(), $lens->searchableColumns())
+            : $this->newQuery();
     }
 
     /**

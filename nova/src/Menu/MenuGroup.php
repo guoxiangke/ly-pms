@@ -4,6 +4,7 @@ namespace Laravel\Nova\Menu;
 
 use Illuminate\Support\Traits\Macroable;
 use Laravel\Nova\AuthorizedToSee;
+use Laravel\Nova\Fields\Collapsable;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Laravel\Nova\Makeable;
 
@@ -15,6 +16,7 @@ class MenuGroup implements \JsonSerializable
     use AuthorizedToSee;
     use Makeable;
     use Macroable;
+    use Collapsable;
 
     /**
      * The menu's component.
@@ -38,13 +40,6 @@ class MenuGroup implements \JsonSerializable
     public $items;
 
     /**
-     * The menu's collapsable state.
-     *
-     * @var bool
-     */
-    public $collapsable = false;
-
-    /**
      * Construct a new Menu Group instance.
      *
      * @param  string  $name
@@ -54,28 +49,6 @@ class MenuGroup implements \JsonSerializable
     {
         $this->name = $name;
         $this->items = new MenuCollection($items);
-    }
-
-    /**
-     * Set the menu group as collapsable.
-     *
-     * @return $this
-     */
-    public function collapsable()
-    {
-        $this->collapsable = true;
-
-        return $this;
-    }
-
-    /**
-     * Set the menu group as collapsable.
-     *
-     * @return $this
-     */
-    public function collapsible()
-    {
-        return $this->collapsable();
     }
 
     /**
@@ -104,6 +77,7 @@ class MenuGroup implements \JsonSerializable
             'name' => $this->name,
             'items' => $this->items->authorized($request)->withoutEmptyItems()->all(),
             'collapsable' => $this->collapsable,
+            'collapsedByDefault' => $this->collapsedByDefault,
             'key' => $this->key(),
         ];
     }

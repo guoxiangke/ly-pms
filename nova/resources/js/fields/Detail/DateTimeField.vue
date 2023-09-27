@@ -25,7 +25,7 @@ export default {
       }
 
       return DateTime.fromISO(this.field.value)
-        .setZone(Nova.config('userTimezone') || Nova.config('timezone'))
+        .setZone(this.timezone)
         .toLocaleString({
           year: 'numeric',
           month: '2-digit',
@@ -34,6 +34,10 @@ export default {
           minute: '2-digit',
           timeZoneName: 'short',
         })
+    },
+
+    timezone() {
+      return Nova.config('userTimezone') || Nova.config('timezone')
     },
   },
 }

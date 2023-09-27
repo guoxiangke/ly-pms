@@ -11,6 +11,8 @@ use Laravel\Nova\Panel;
  */
 class HasManyThrough extends HasMany implements ListableField, RelatableField
 {
+    use Collapsable;
+
     /**
      * The field's component.
      *
@@ -81,6 +83,8 @@ class HasManyThrough extends HasMany implements ListableField, RelatableField
     public function jsonSerialize(): array
     {
         return array_merge([
+            'collapsable' => $this->collapsable,
+            'collapsedByDefault' => $this->collapsedByDefault,
             'hasManyThroughRelationship' => $this->hasManyThroughRelationship,
             'relatable' => true,
             'perPage' => $this->resourceClass::$perPageViaRelationship,

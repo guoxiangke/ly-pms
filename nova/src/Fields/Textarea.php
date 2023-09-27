@@ -83,7 +83,7 @@ class Textarea extends Field implements FilterableField
      */
     public function showOnIndex($callback = true)
     {
-        throw NovaException::helperNotSupported(__FUNCTION__, static::class);
+        throw NovaException::helperNotSupported(__METHOD__, __CLASS__);
     }
 
     /**

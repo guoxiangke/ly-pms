@@ -160,3 +160,8 @@ Route::get('/redirect', function (Request $request) {
     InfluxQueue::dispatchAfterResponse($protocolLine);
     return redirect()->away($url, $status, $headers);
 });
+
+Route::get('/ip', function (Request $request) {
+    $ip = $request->header('x-forwarded-for')??$request->ip();
+    return [$ip,$request->ip()];
+});

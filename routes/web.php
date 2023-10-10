@@ -120,7 +120,8 @@ Route::get('/redirect', function (Request $request) {
     $url = $request->query('target');
     $status = 302;
     $headers = ['referer' => $url];
-    $ip = $request->header('x-forwarded-for')??$request->ip();
+    // $ip = $request->header('x-forwarded-for')??$request->ip();
+    $ip = $request->ip();
     $parts = parse_url($url); //$parts['host']
     // $paths = pathinfo($url); //mp3
     $url = strtok($url, '?'); //remove ?q=xxx

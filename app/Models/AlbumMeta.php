@@ -6,10 +6,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use use \Spatie\Tags\HasTags;
 use Laravel\Scout\Searchable;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class AlbumMeta extends Model
 {
     use HasFactory;
+    use SoftDeletes;
     use HasTags;
-    use Searchable;
+    // if(App::isProduction()) use Searchable;
 }

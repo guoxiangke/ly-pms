@@ -17,7 +17,7 @@ class LtsMetaSeeder extends Seeder
      */
     public function run(): void
     {
-        $category= [
+        $category = [
           0 => '启航课程',
           1 => '本科文凭课程',
           2 => '进深文凭课程',
@@ -26,15 +26,15 @@ class LtsMetaSeeder extends Seeder
 
         $json = Http::get("https://wechat.yongbuzhixi.com/api/lts33")->json();
         foreach ($json as $key => $item) {
-            $code = $item['code'];
-            Log::error(__CLASS__, [$item['code']]);
-            // unset($item['image']);
+            // 动态添加前缀 ma @see App\Models\LtsMeta::code()
+            $item['code'] =  "ma" . $item['code'];
 
             $filter = Arr::only($item, ['name', 'description', 'avatar', 'code', 'count','author','index']);
-            $model = LtsMeta::Create($filter);//compact('code'), 
+            $ltsMeta = LtsMeta::Create($filter);//compact('code'), 
             $categoryTitle = $category[$item['category']];
             $tag = Tag::findOrCreateFromString($categoryTitle, 'lts');
-            $model->attachTag($tag);
+            $ltsMeta->attachTag($tag);
+            Log::info(__METHOD__, [$categoryTitle, $filter]);
          }
     }
 }

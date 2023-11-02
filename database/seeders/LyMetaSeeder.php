@@ -43,7 +43,7 @@ class LyMetaSeeder extends Seeder
                 // cover images
                 // https://729lyprog.net/images/program_banners/bc_prog_banner.png
                 // https://cdn.ly.yongbuzhixi.com/images/programs/hp_prog_banner_sq.jpg
-                // $program['descripton'] = $item->find('.magazine-item-media img', 0)->getAttribute('data-src');
+                // $program['description'] = $item->find('.magazine-item-media img', 0)->getAttribute('data-src');
                 
                 $programAuthor = trim($item->find('.magazine-item-ct p', 0)->text());
                 $programAuthor = str_replace('主持：', '', $programAuthor);
@@ -61,14 +61,14 @@ class LyMetaSeeder extends Seeder
                     $this->save($program, $programAuthor, $tag);
                     $program['code'] = $code . '2';
                 }
-                $program['maker_id'] = 1;
+                $program['make_id'] = 1;
                 $this->save($program, $programAuthor, $tag);
 
                 // More about authors URL: 
                 foreach ($item->find('.magazine-item-ct p a') as $item){
                     $name = trim($item->getAttribute('title'));
-                    $descripton = $this->url . $item->getAttribute('href');
-                    Announcer::where("name" , $name)->update(["descripton" => $descripton]);
+                    $description = $this->url . $item->getAttribute('href');
+                    Announcer::where("name" , $name)->update(["description" => $description]);
                 }
             }
         }
@@ -77,9 +77,10 @@ class LyMetaSeeder extends Seeder
     private function save($program, $programAuthor, $tag)
     {
         //withoutGlobalScopes()->
-        $programModel = LyMeta::firstOrCreate(['code'=>$program['code']], $program);
+        $program['code'] = 'ma' . $program['code'];
+        $programModel = LyMeta::firstOrCreate(['code'=> $program['code']], $program);
         if($programModel->wasRecentlyCreated){
-            Log::info(__METHOD__, ["wasRecentlyCreated", $program]);
+            Log::info(__METHOD__, $program);
         }
         $programAuthors = explode('、', $programAuthor);
 

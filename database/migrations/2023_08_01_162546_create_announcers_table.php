@@ -13,10 +13,11 @@ return new class extends Migration
     {
         Schema::create('announcers', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('user_id')->nullable();
             $table->string('name')->unique();
             $table->string('avatar')->nullable();
             $table->date('birthday')->nullable();
-            $table->text('descripton')->nullable();
+            $table->text('description')->nullable();
             // $table->text('favlor')->nullable();
             // $table->text('testimony')->nullable();
             // $table->text('ministry')->nullable();

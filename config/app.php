@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\ServiceProvider;
 
 return [
+    'live_at' => env('LIVE_AT', '2023-09-18'),//LyItem->getIsOldAttribute
 
     /*
     |--------------------------------------------------------------------------
@@ -70,7 +71,8 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    // 'timezone' => 'UTC',
+    'timezone' => 'Asia/Hong_Kong',
 
     /*
     |--------------------------------------------------------------------------

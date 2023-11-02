@@ -11,15 +11,21 @@ use Laravel\Nova\Fields\Textarea;
 use Laravel\Nova\Fields\Image;
 use Laravel\Nova\Fields\BelongsToMany;
 use Laravel\Nova\Fields\BelongsTo;
+use Laravel\Nova\Fields\HasMany;
 
 use Spatie\TagsField\Tags;
+// use MichielKempen\NovaOrderField\Orderable;
+// use MichielKempen\NovaOrderField\OrderField;
+use App;
 
 class LtsMeta extends Resource
 {
+    // use Orderable;
+    // public static $defaultOrderField = 'weight';
     // public static function label() { return '良院'; }
     public static $priority = 2;
     public static $group = 'Metadata';
-    public static $perPageOptions = [200,400];
+    public static $perPageOptions = [300];
     /**
      * The model the resource corresponds to.
      *
@@ -53,29 +59,46 @@ class LtsMeta extends Resource
     {
         // https://docs.vapor.build/resources/storage.html
         // https://nova.laravel.com/docs/4.0/resources/fields.html#vapor-image-field
-        $image = app()->environment() == 'local' ? Image::class : VaporImage::class;
-        
-        return [
-            // ID::make()->sortable(),
+        $image = App::isLocal() ? Image::class : VaporImage::class;
+        $model =  $this;
+        $meta_fields = config('pms.ltsMeta.extraFields.text');
+        $addMetaFields = [];
+        foreach ($meta_fields as $filed) {
+            $addMetaFields[] = Text::make($filed['field_desc'], $filed['field'])
+                ->fillUsing(function ($request, $model, $attribute, $requestAttribute) {
+                    $model->setMeta($attribute, $request->input($attribute));
+                })
+                ->withMeta(["value" => $model->getMeta($filed['field'])])
+                ->placeholder($filed['placeholder']);
+        }
+
+        $defaultFields = [
+            ID::make()->sortable(),
+            // OrderField::make('weight'),
             Text::make('index')
                 ->sortable(),
             Text::make('avatar', function () {
                 return "<img width='100px' src='{$this->cover}' />";
             })->asHtml(),
-            Text::make('Name')
+            Text::make('LTS Program Title','Name')
                 ->sortable()
                 ->rules('required', 'max:255'),
-            Text::make('code')
+
+            Text::make('LTS Program Alias','code')
+                ->placeholder('良院课程代号')
                 ->sortable()
                 ->rules('required', 'max:12'),
-            Text::make('count')
+            Text::make('Number of Episode','count')
+                ->placeholder('节数')
                 ->sortable(),
             Tags::make('Category', 'Tags')
                 ->type('lts')
                 ->single(),
-            Text::make('author')
+            Text::make('Announcer','author')
                 ->sortable(),
-            Date::make('stop_at')->sortable(),
+            Date::make('Start Publishing Date','begin_at')->sortable(),
+            Date::make('Finish Publishing Date','stop_at')->sortable(),
+            Date::make('Production Date','made_at')->sortable(),//制作日期
             Image::make('avatar')
                 ->path('ly/lts')
                 ->storeAs(function (Request $request) {
@@ -84,11 +107,17 @@ class LtsMeta extends Resource
                 ->acceptedTypes('.jpg')
                 ->disableDownload()
                 ->onlyOnForms(),
-            Textarea::make('description')->hideFromIndex(),
+            Textarea::make('LTS Program Description','description')
+                ->placeholder('良院课程说明')
+                ->hideFromIndex(),
             Textarea::make('remark')->hideFromIndex(),
-            // Text::make('fields')->hideFromIndex()->rules('nullable', 'max:255'),
-
+            HasMany::make('lts_items','lts_items'),
+            // Production Centre
+            Tags::make('Production Centre')
+                ->type('production-centre')
+                ->single(),
         ];
+        return array_merge($defaultFields, $addMetaFields);
     }
 
     /**

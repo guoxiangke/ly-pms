@@ -21,7 +21,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::get('/categories', function (Request $request) {
     $query = <<<GQL
         {
-          data:tags{
+          data:tags_by_type(withType:"ly"){
             id
             name
             type
@@ -30,10 +30,10 @@ Route::get('/categories', function (Request $request) {
                 id
               name
               code
-              avatar
+              avatar:cover
               description
               begin_at
-              stop_at
+              end_at
             }
           }
         }
@@ -59,12 +59,11 @@ Route::get('/programs', function (Request $request) {
           data:ly_metas{
             id
             name
-            avatar
+            avatar:cover
             category
             alias:code
-            link:api_url
             begin_at
-            end_at:stop_at
+            end_at
             description
             announcers{
                 id
@@ -93,4 +92,61 @@ Route::get('/programs', function (Request $request) {
     $json = $response->getBody()->getContents();
     $body = json_decode($json, true);
     return ['data' => $body['data']['data']];
+});
+
+Route::get('/today', function (Request $request) {
+    return ItemResource::collection(Item::where('play_at', now()->format('Y-m-d 00:00:00'))->inRandomOrder()->get());
+});
+
+Route::get('/program/{code}', function (Request $request, $code) {
+    // $lyMeta = LyMeta::whereCode($code)->firstOrFail();
+
+    $query = <<<GQL
+        {
+          data:ly_meta_by_code(code: "$code") {
+            id
+            name
+            code
+            cover
+            description
+            begin_at
+            end_at
+            remark
+            category
+            ly_items {
+              data {
+                id
+                alias
+                description
+                play_at
+                mp3
+              }
+              paginatorInfo {
+                total
+                currentPage
+                hasMorePages
+              }
+            }
+          }
+        }
+    GQL;
+    $graphqlEndpoint = config('app.url') . '/graphql';
+    $client = new \GuzzleHttp\Client();
+    $response = $client->request('POST', $graphqlEndpoint, [
+      'headers' => [
+        'Content-Type' => 'application/json',
+      ],
+      'json' => [
+        'query' => $query
+      ]
+    ]);
+
+    $json = $response->getBody()->getContents();
+    $body = json_decode($json, true);
+    return ['data' => $body['data']['data']];
+});
+
+Route::get('/program/{code}/{date}', function (Request $request, $code, $date) {
+    $program = Program::whereAlias($code)->firstOrFail();
+    return ItemResource::collection(Item::where('program_id', $program->id)->where('play_at', $date)->get());
 });

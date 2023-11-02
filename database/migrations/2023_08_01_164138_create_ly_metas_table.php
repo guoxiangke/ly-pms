@@ -14,19 +14,22 @@ return new class extends Migration
         Schema::create('ly_metas', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('supervisor')->nullable()->comment('节目监制');
             $table->string('code')->unique();
-            $table->string('avatar')->nullable();
+            // $table->string('fields')->nullable();
+            // custom_fields:brief,email,sms_keyword,phone_open,
             $table->text('description')->nullable();
+            // RRULE:FREQ=WEEKLY;INTERVAL=1;WKST=MO;BYDAY=MO,TU,WE,TH,FR,SA,SU
+            // rule.toText() =>  every day
+            $table->string('rrule_by_day')->default("MO,TU,WE,TH,FR,SA,SU")->comment('播放规则rrule Not NULL!');
             $table->timestamp('begin_at')->nullable();
-            $table->timestamp('stop_at')->nullable();
-            $table->foreignId('maker_id')->nullable(); //Not NULL!
+            $table->timestamp('end_at')->nullable()->comment('停播日期');
+            $table->timestamp('unpublished_at')->nullable()->comment('下架日期，强制不显示');
+            $table->foreignId('make_id')->nullable();
+            $table->string('avatar')->nullable();
             $table->text('remark')->nullable()->comment('备注');
-            // $table->string('begin_at')->nullable()->comment('跳过片头 00:30');
             $table->softDeletes();
             $table->timestamps();
-            // $table->string('cron')->default("0 0 * * *"); // schedule_cron
-            // $table->string('fields')->nullable();
-            //custom_fields:brief,email,sms_keyword,phone_open,cbox_uri,
         });
     }
 

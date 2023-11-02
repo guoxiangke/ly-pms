@@ -19,9 +19,14 @@ type Query {
     ): [User!]! @paginate(defaultCount: 10)
 
 
-    "programs: [LyMeta!]! @all"
     ly_metas: [LyMeta!]! @all
     ly_meta(id: Int! @eq): LyMeta @find
+    ly_meta_by_code(code: String  @where(operator: "like")): LyMeta @find
+    ly_item(id: Int! @eq): LyItem @find
+
+    lts_metas: [LtsMeta!]! @all
+    lts_meta(id: Int! @eq): LtsMeta @find
+    lts_item(id: Int! @eq): LtsItem @find
 
     tags: [Tag!]! @all(model: "App\\Models\\Tag")
     tags_by_type(withType: String! @scope): [Tag!] @all(model: "App\\Models\\Tag")
@@ -64,15 +69,28 @@ type LyMeta {
   id: ID!
   name: String!
   code: String!
-  avatar: String
+  cover: String
   description: String
   begin_at: String
-  stop_at: String
+  end_at: String
   maker: Maker! @belongsTo
   remark: String
-  api_url: String!
   category: String!
   announcers: [Announcer!]! @belongsToMany
+
+  ly_items: [LyItem]! @hasMany(type: PAGINATOR, defaultCount: 31) @orderBy(column: "alias", direction: DESC)
+  ly_items_with_future: [LyItem]! @hasMany(type: PAGINATOR, defaultCount: 31)
+}
+
+type LyItem {
+  id: ID!
+  ly_meta_id: ID!
+  alias: String!
+  description: String
+  play_at: String
+  ly_meta: LyMeta! @belongsTo
+  mp3: String
+  path: String
 }
 
 type Announcer {
@@ -92,4 +110,30 @@ type Tag @model(class: "App\\Models\\Tag") {
   type: String
   order_column: Int
   ly_metas: [LyMeta!]
+}
+
+type LtsMeta {
+  id: ID!
+  name: String!
+  description: String
+  author: String
+  code: String!
+  count: Int!
+  index: Int!
+  stop_at: String
+  remark: String
+
+  cover: String!
+  category: String! 
+
+  lts_items: [LtsItem]! @hasMany @orderBy(column: "alias", direction: ASC)
+}
+
+type LtsItem {
+  id: ID!
+  lts_meta_id: ID!
+  alias: String!
+  description: String
+  play_at: String
+  lts_meta: LtsMeta! @belongsTo
 }

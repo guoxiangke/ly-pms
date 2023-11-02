@@ -5,11 +5,15 @@ namespace App\Nova;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Text;
-use Laravel\Nova\Fields\Textarea;
+// use Laravel\Nova\Fields\Trix;
+// use Laravel\Nova\Fields\Textarea;
+use Advoor\NovaEditorJs\NovaEditorJsField;
 use Laravel\Nova\Fields\Date;
 use Laravel\Nova\Fields\Image;
 use Laravel\Nova\Fields\BelongsToMany;
+use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Http\Requests\NovaRequest;
+
 
 class Announcer extends Resource
 {
@@ -26,7 +30,7 @@ class Announcer extends Resource
      *
      * @var string
      */
-    public static $title = 'id';
+    public static $title = 'name';
 
     /**
      * The columns that should be searched.
@@ -47,6 +51,7 @@ class Announcer extends Resource
     {
         return [
             ID::make()->sortable(),
+            BelongsTo::make('user'),
             Image::make('avatar')
                 // ->disk('s3')
                 ->path('ly/announcers')
@@ -62,7 +67,11 @@ class Announcer extends Resource
             Date::make('birthday'),
             
             BelongsToMany::make('LyMetas'),
-            Textarea::make('description')->hideFromIndex(),
+            NovaEditorJsField::make('description')->hideFromIndex(),
+
+            Date::make('begin_at')->sortable(),
+            Date::make('stop_at')->sortable(),
+            
         ];
     }
 

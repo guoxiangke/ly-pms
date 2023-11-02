@@ -12,8 +12,10 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
-        $schedule->command("youtube:get-item")->cron("0 * * * *");
+        $schedule->command('inspire')->hourly();
+        // $schedule->command("youtube:get-item")->cron("0 * * * *");
+        // # Automatically removing temporary uploads
+        $schedule->command('media-library:delete-old-temporary-uploads')->daily();
     }
 
     /**

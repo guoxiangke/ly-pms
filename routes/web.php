@@ -32,7 +32,7 @@ use Illuminate\Support\Facades\Log;
 use App\Jobs\InfluxQueue;
 use Carbon\Carbon;
 
-Route::get('/ly/audio/{year}/{code}/{day}.mp3', function (Request $request, $year, $code, $day) {
+Route::get('/storage/ly/audio/{year}/{code}/{day}.mp3', function (Request $request, $year, $code, $day) {
     $ymd = preg_replace('/\D+/', '', $day);
     $dt = Carbon::createFromFormat('ymd', $ymd);
     if(!$request->user){
@@ -40,8 +40,8 @@ Route::get('/ly/audio/{year}/{code}/{day}.mp3', function (Request $request, $yea
         if($dt > now()) return redirect(403); //403 Forbidden 
         
         // 未登录的人不可查看、收听 31天之外的节目, 但登录的主持人可以！
-        if($dt->diffInDays($now) > 31){//TODO Var 31 config("ly.max.show.days")=31
-            return redirect(401); // 401 Unauthorized    
+        if($dt->diffInDays(now()) > 31){//TODO Var 31 config("ly.max.show.days")=31
+            // return redirect(401); // 401 Unauthorized
         }
     }
 
@@ -78,7 +78,7 @@ Route::get('/ly/audio/{year}/{code}/{day}.mp3', function (Request $request, $yea
 });
 
 // LTS audio TODO : need test
-Route::get('/ly/audio/{code}/{day}.mp3', function (Request $request, $code, $day) {
+Route::get('/storage/ly/audio/{code}/{day}.mp3', function (Request $request, $code, $day) {
     $ip = $request->header('x-forwarded-for')??$request->ip();
     $domain =  'https://d3ml8yyp1h3hy5.cloudfront.net';
     // $domain =  'https://729lyprog.net';
@@ -125,6 +125,10 @@ Route::get('/redirect', function (Request $request) {
     $parts = parse_url($url); //$parts['host']
     // $paths = pathinfo($url); //mp3
     $url = strtok($url, '?'); //remove ?q=xxx
+    // Header may not contain more than a single header, new line detected
+    $url=str_replace(PHP_EOL, '', $url);
+    $url=str_replace('%0A', '', $url);// url encode /n
+    
     $target = basename($url); //cc201221.mp3
     
     $tags = [];
@@ -166,3 +170,8 @@ Route::get('/ip', function (Request $request) {
     $ip = $request->header('x-forwarded-for')??$request->ip();
     return [$ip,$request->ip()];
 });
+
+Route::mediaLibrary();
+use App\Http\Controllers\FileSubmissionController;
+Route::get('collection', [FileSubmissionController::class, 'create'])->name('blade.collection');
+Route::post('collection', [FileSubmissionController::class, 'store']);

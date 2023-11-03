@@ -54,10 +54,8 @@ class LyItem extends Model implements HasMedia
 
     public function getIsOldAttribute()
     {
-        // TODO change date for is_old in getIsOldAttribute() of Models/LyItem
-        $ymd = config('app.live_at', "2024-01-01");
-        $productionDate = Carbon::createFromFormat('Y-m-d', $ymd);
-        return $this->play_at < $productionDate;
+        // $productionLanchedDate
+        return $this->play_at <  Carbon::createFromFormat('Y-m-d', config('pms.launched_at'));
     }
 
 

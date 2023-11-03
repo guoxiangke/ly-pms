@@ -1,7 +1,8 @@
 <?php
 
-// config('pms.lyMeta.fields.text')
 return [
+	// launched_at 系统上线日期，全面启用ma+alias, for check LyItem is_old or new.
+    'launched_at' => env('LIVE_AT', now()->subDay()->format('y-m-d')),
 	'lyMeta'=>[
 		'extraFields' =>  [
 			'text' => [

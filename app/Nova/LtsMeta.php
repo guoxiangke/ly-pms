@@ -35,7 +35,6 @@ class LtsMeta extends Resource
      */
     public static $defaultSort = [
         'id' => 'asc',
-        'name' => 'desc'
     ];
     /**
      * Build an "index" query for the given resource.

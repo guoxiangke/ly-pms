@@ -30,6 +30,34 @@ class LyMeta extends Resource
     // public static $priority = 1;
     public static $group = 'Metadata';
     public static $perPageOptions = [300];
+    
+    // https://trungpv1601.github.io/2020/04/14/Laravel-Nova-Setting-a-default-sort-order-support-multi-columns/
+    /**
+     * Default Sort Columns variable
+     *
+     * @var array
+     */
+    public static $defaultSort = [
+        'id' => 'asc',
+        'name' => 'desc'
+    ];
+    /**
+     * Build an "index" query for the given resource.
+     *
+     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public static function indexQuery(NovaRequest $request, $query)
+    {
+        if (static::$defaultSort && empty($request->get('orderBy'))) {
+            $query->getQuery()->orders = [];
+            foreach (static::$defaultSort as $field => $order) {
+                $query->orderBy($field, $order);
+            }
+        }
+        return $query;
+    }
     /**
      * The model the resource corresponds to.
      *

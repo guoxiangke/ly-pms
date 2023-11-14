@@ -37,6 +37,6 @@ class LtsItem extends Model
         $code = preg_replace('/\d+/', '', $this->alias);
         $alias = $this->alias;
         // $year = $this->play_at->format('Y');
-        return "/ly/audio/{$code}/{$alias}.mp3"; 
+        return "/storage/ly/audio/{$code}/{$alias}.mp3"; 
     }
 }

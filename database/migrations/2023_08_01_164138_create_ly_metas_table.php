@@ -13,14 +13,10 @@ return new class extends Migration
     {
         Schema::create('ly_metas', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('name')->default('');//不可为空，但此处为了导入方便 @see SyncFromOpenQueue Program::chunk
             $table->string('supervisor')->nullable()->comment('节目监制');
             $table->string('code')->unique();
-            // $table->string('fields')->nullable();
-            // custom_fields:brief,email,sms_keyword,phone_open,
             $table->text('description')->nullable();
-            // RRULE:FREQ=WEEKLY;INTERVAL=1;WKST=MO;BYDAY=MO,TU,WE,TH,FR,SA,SU
-            // rule.toText() =>  every day
             $table->string('rrule_by_day')->default("MO,TU,WE,TH,FR,SA,SU")->comment('播放规则rrule Not NULL!');
             $table->timestamp('begin_at')->nullable();
             $table->timestamp('end_at')->nullable()->comment('停播日期');

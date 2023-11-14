@@ -1,6 +1,12 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use App\Models\LyMeta;
+use App\Models\LyItem;
+use App\Jobs\InfluxQueue;
+use Carbon\Carbon;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,10 +33,6 @@ Route::middleware([
     })->name('dashboard');
 });
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-use App\Jobs\InfluxQueue;
-use Carbon\Carbon;
 
 Route::get('/storage/ly/audio/{year}/{code}/{day}.mp3', function (Request $request, $year, $code, $day) {
     $ymd = preg_replace('/\D+/', '', $day);
@@ -46,8 +48,17 @@ Route::get('/storage/ly/audio/{year}/{code}/{day}.mp3', function (Request $reque
     }
 
     //√ 新旧目录设计 对调： year/code -> code/year
-    $tmpCode = $code;
-    if(is_numeric($code)) $tmpCode = $year;
+    if (is_numeric($code)) {
+        list($year, $code) = [$code, $year];
+    }
+    
+    //is_old code
+    if($dt <  Carbon::createFromFormat('Y-m-d', config('pms.launched_at'))){
+        // $code = substr($code, 2);
+        // $day = substr($day, 2);
+    }
+    // dd($code,$day);
+
 
     $ip = $request->header('x-forwarded-for')??$request->ip();
     $domain =  'https://d3ml8yyp1h3hy5.cloudfront.net'; //TODO config
@@ -56,12 +67,12 @@ Route::get('/storage/ly/audio/{year}/{code}/{day}.mp3', function (Request $reque
     
     $tags = [];
     // 一些直播的節目，直接使用官網的連結
-    if(in_array($tmpCode, ['cc','dy','gf'])){
-        $domain =  'https://lpyy729.net';
-    }
+    // if(in_array($tmpCode, ['cc','dy','gf'])){
+    //     $domain =  'https://lpyy729.net';
+    // }
     $tags['metric'] = 'lyOpen';
     $tags['host'] = $domain;
-    $tags['keyword'] = $tmpCode;
+    $tags['keyword'] = $code;
 
     $fields = [];
     $fields['count'] = 1;
@@ -105,12 +116,6 @@ Route::get('/storage/ly/audio/{code}/{day}.mp3', function (Request $request, $co
     ];
     InfluxQueue::dispatchAfterResponse($protocolLine);
     return redirect()->away("{$domain}/lts/${code}/${day}.mp3");
-});
-
-use App\Models\LyMeta;
-Route::get('/program/{lyMeta:code}', function (LyMeta $lyMeta) {
-    return view('program/playlist', compact('lyMeta'));
-    // dd($lyMeta->ly_items->toArray());
 });
 
 // http://127.0.0.1:8000/redirect?target=https://*.com/@fwdforward/7XFVL5o.m4a?metric=connect%26category=601%26bot=4
@@ -175,3 +180,15 @@ Route::mediaLibrary();
 use App\Http\Controllers\FileSubmissionController;
 Route::get('collection', [FileSubmissionController::class, 'create'])->name('blade.collection');
 Route::post('collection', [FileSubmissionController::class, 'store']);
+
+Route::get('/program/{lyMeta:code}', function (LyMeta $lyMeta) {
+    // dd($lyMeta->toArray(),$lyMeta->ly_items->first()->path);
+    $playlist = $lyMeta->ly_items;
+    return view('program/playlist', compact('lyMeta','playlist'));
+});
+Route::get('/share/{hashId}', function (LyMeta $lyMeta, $hashId) {
+    $lyItem = LyItem::findOrFail(LyItem::keyFromHashId($hashId));
+    $lyMeta = $lyItem->ly_meta;
+    $playlist = collect([$lyItem]);
+    return view('program/playlist', compact('lyMeta', 'playlist'));
+})->name('share.lyItem');

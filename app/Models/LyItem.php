@@ -14,9 +14,11 @@ use Carbon\Carbon;
 use App;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Deligoez\LaravelModelHashId\Traits\HasHashId;
 
 class LyItem extends Model implements HasMedia
 {
+    use HasHashId;
     use InteractsWithMedia;
     use HasFactory;
     use SoftDeletes;
@@ -54,7 +56,7 @@ class LyItem extends Model implements HasMedia
 
     public function getIsOldAttribute()
     {
-        // $productionLanchedDate
+        // production Lanched Date
         return $this->play_at <  Carbon::createFromFormat('Y-m-d', config('pms.launched_at'));
     }
 
@@ -79,10 +81,11 @@ class LyItem extends Model implements HasMedia
             $alias = substr($alias, 2);
         }
         $year = $this->play_at->format('Y');
+        $domain = config('app.url');
         if($this->is_old){
-            return "/ly/audio/{$year}/{$code}/{$alias}.mp3"; 
+            return $domain . "/storage/ly/audio/{$year}/{$code}/{$alias}.mp3"; 
         }else{
-            return "/ly/audio/{$code}/{$year}/{$alias}.mp3"; 
+            return $domain . "/storage/ly/audio/{$code}/{$year}/{$alias}.mp3"; 
         }
     }
     

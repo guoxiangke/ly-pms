@@ -2,7 +2,7 @@
 
 return [
 	// launched_at 系统上线日期，全面启用ma+alias, for check LyItem is_old or new.
-    'launched_at' => env('LIVE_AT', now()->subDay()->format('y-m-d')),
+    'launched_at' => env('LAUNCHED_AT', now()->subDays(5)->format('Y-m-d')),
 	'lyMeta'=>[
 		'extraFields' =>  [
 			'text' => [

@@ -26,6 +26,34 @@ class LtsMeta extends Resource
     public static $priority = 2;
     public static $group = 'Metadata';
     public static $perPageOptions = [300];
+    
+    // https://trungpv1601.github.io/2020/04/14/Laravel-Nova-Setting-a-default-sort-order-support-multi-columns/
+    /**
+     * Default Sort Columns variable
+     *
+     * @var array
+     */
+    public static $defaultSort = [
+        'id' => 'asc',
+        'name' => 'desc'
+    ];
+    /**
+     * Build an "index" query for the given resource.
+     *
+     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public static function indexQuery(NovaRequest $request, $query)
+    {
+        if (static::$defaultSort && empty($request->get('orderBy'))) {
+            $query->getQuery()->orders = [];
+            foreach (static::$defaultSort as $field => $order) {
+                $query->orderBy($field, $order);
+            }
+        }
+        return $query;
+    }
     /**
      * The model the resource corresponds to.
      *
@@ -74,13 +102,14 @@ class LtsMeta extends Resource
 
         $defaultFields = [
             ID::make()->sortable(),
-            // OrderField::make('weight'),
             Text::make('index')
-                ->sortable(),
+                ->sortable()
+                ->placeholder('微信编码')
+                ->hideFromIndex(),
             Text::make('avatar', function () {
                 return "<img width='100px' src='{$this->cover}' />";
             })->asHtml(),
-            Text::make('LTS Program Title','Name')
+            Text::make('LTS Program Title','name')
                 ->sortable()
                 ->rules('required', 'max:255'),
 

@@ -95,6 +95,12 @@ class LyMeta extends Model
             ->whereBetween('play_at', [now()->subDays(31), now()])
             ->orderBy('alias', 'DESC');
     }
+    
+    // Call to undefined method App\Models\LyMeta::lyItems()
+    public function lyitems(): HasMany
+    {
+        return $this->ly_items();
+    }
 
     // 后台显示，包含 明后天的及31天以外的节目
     public function ly_items_with_future(): HasMany

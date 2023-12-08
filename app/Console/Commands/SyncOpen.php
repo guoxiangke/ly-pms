@@ -3,7 +3,8 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Jobs\SyncFromOpenQueue;
+use App\Jobs\SyncItemQueue;
+use App\Jobs\SyncProgramQueue;
 
 class SyncOpen extends Command
 {
@@ -26,6 +27,7 @@ class SyncOpen extends Command
      */
     public function handle()
     {
-        SyncFromOpenQueue::dispatch();
+        SyncProgramQueue::dispatch();
+        SyncItemQueue::dispatch();
     }
 }

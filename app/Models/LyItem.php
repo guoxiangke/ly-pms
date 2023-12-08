@@ -15,6 +15,7 @@ use App;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Deligoez\LaravelModelHashId\Traits\HasHashId;
+use Illuminate\Support\Facades\Auth;
 
 class LyItem extends Model implements HasMedia
 {
@@ -89,12 +90,12 @@ class LyItem extends Model implements HasMedia
         }
     }
     
+    // √ hide if get 230930 when in 230926 in query. 
+    // 1.默认显示比当前日期小的节目。
+    // 2.不超过30听的数据 for 未登录的用户
+    // √ 404 if get mp3! @see routes/web.php 
     protected static function booted()
     {
-        //√ hide if get 230930 when in 230926 in query. 
-        // 1.默认显示比当前日期小的节目。
-        // 2.不超过30听的数据 for 未登录的用户
-        //√ 404 if get mp3! @see routes/web.php 
         static::addGlobalScope('ancient', function (Builder $builder) {
             if(is_null(Auth::user())){
                 //TODO Var 31 config("ly.max.show.days")=31
@@ -102,11 +103,6 @@ class LyItem extends Model implements HasMedia
             }else{
                 $builder->where('play_at', '<=', now());
             }
-        });
-
-        
-        static::addGlobalScope('ancient', function (Builder $builder) {
-            $builder->where('play_at', '<=', now());
         });
     }
 

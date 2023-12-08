@@ -10,7 +10,6 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
 use App\Models\Open\Item;
-use App\Models\Open\Program;
 use App\Models\LyMeta;
 use App\Models\LyItem;
 use App\Models\LtsMeta;
@@ -19,7 +18,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
-class SyncFromOpenQueue implements ShouldQueue
+class SyncItemQueue implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -36,51 +35,38 @@ class SyncFromOpenQueue implements ShouldQueue
      */
     public function handle(): void
     {
-        Item::chunk(200, function (Collection $items) {
+        $lastLyItem = LyItem::withoutGlobalScopes()->latest()->first();
+        if(!$lastLyItem){
+            $itemCollections = Item::where('id', '>', 0);
+        }else{
+            $lastAlias = substr($lastLyItem->alias, 2);
+            $lastItem = Item::where('alias',$lastAlias)->first();
+            $itemCollections = Item::where('id', '>', $lastItem->id);
+        }
+        $itemCollections->chunk(5000, function (Collection $items)  {
+            $counts = $items->count();
             foreach ($items as $item) {
                 if(Str::startsWith($item->alias, 'vsp'))  $item->alias = 'ma' . $item->alias;
                 if(Str::startsWith($item->alias, 'ma')){
                     $code = substr($item->alias, 0, strlen($item->alias)-2); //vhx1 vpd0
                     $ltsMeta = LtsMeta::firstOrCreate(['code'=>$code], ['name'=>'created by import ' . $code ,'count'=>0]);
-                    $update = [
+                    $newItem = LtsItem::updateOrCreate(['alias' => $item->alias], [
                         'lts_meta_id'=>$ltsMeta->id,
                         'play_at'=>$item->play_at,
                         'description'=>$item->description
-                    ];
-                    LtsItem::updateOrCreate(['alias' => $item->alias], $update);
-                    Log::debug(__CLASS__, [$item->id, $item->alias, $code]);
+                    ]);
+                    Log::debug(__CLASS__, ['LtsItem', $item->id, $newItem->id, $item->alias, $code]);
                 }else{
                     // cc230925
                     $code = 'ma' . preg_replace('/\d+/','',$item->alias);
                     $lyMeta = LyMeta::firstOrCreate(['code'=> $code], ['name'=>'created by import','unpublished_at'=>now()]);
-                    $update = [
+                    $newItem = LyItem::withoutGlobalScopes()->updateOrCreate(['alias' => 'ma' . $item->alias], [
                         'ly_meta_id'=>$lyMeta->id,
                         // 'play_at'=>$item->play_at,
                         'description'=>$item->description
-                    ];
-                    $alias = 'ma' . $item->alias;
-                    LyItem::updateOrCreate(['alias'=>$alias], $update);
-                    Log::debug(__CLASS__, [$item->id, $alias, $code]);
-                }
-            }
-        });
-
-
-        Program::chunk(200, function (Collection $programs) {
-            foreach ($programs as $program) {
-                if($program->end_at){
-                    $lyMeta = LyMeta::updateOrCreate(['code'=> 'ma'.$program->alias], [
-                        'unpublished_at' => now(), //'下架日期，强制不显示'
-                        'end_at' => $program->end_at, //'停播日期'
-                        'description' => $program->brief,
                     ]);
-
-                    $lyMeta->setMeta('program_phone_time', $program->phone_open);
-                    $lyMeta->setMeta('program_sms_keyword', $program->sms_keyword);
-                    $lyMeta->setMeta('program_email', $program->email);
-                    $lyMeta->setMeta('description_detail', $program->description);
+                    Log::debug(__CLASS__, ['LyItem', $item->id, $newItem->alias, $newItem->id, $newItem->wasRecentlyCreated]);
                 }
-                
             }
         });
 

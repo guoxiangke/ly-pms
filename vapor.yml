@@ -2,7 +2,7 @@ id: 50254
 name: PMS
 environments:
     production:
-        storage: 'ly-pms2023'
+        storage: ly-pms2023
         memory: 1024
         cli-memory: 512
         runtime: 'php-8.2:al2'
@@ -10,3 +10,11 @@ environments:
             - 'COMPOSER_MIRROR_PATH_REPOS=1 composer install --no-dev'
             - 'php artisan event:cache'
             - 'npm install --package-lock-only && npm ci && npm run build && rm -rf node_modules'
+    staging:
+        memory: 1024
+        cli-memory: 512
+        runtime: docker
+        build:
+            - 'COMPOSER_MIRROR_PATH_REPOS=1 composer install --no-dev'
+            - 'php artisan event:cache'
+            - 'npm ci && npm run build && rm -rf node_modules'

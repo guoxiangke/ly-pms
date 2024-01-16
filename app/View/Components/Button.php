@@ -8,6 +8,6 @@ class Button extends Component
 {
     public function render()
     {
-        return view('components2.button');
+        return view('components.button');
     }
 }

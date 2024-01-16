@@ -3,15 +3,15 @@
 <div class="media-library-field">
     <label class="media-library-label">Description</label>
     <input
-        dusk="media-library-extra-field"
         class="media-library-input"
         type="text"
-        {{ $mediaItem->livewireCustomPropertyAttributes('extra_field') }}
+        placeholder="提交后不可改动！"
+        {{ $mediaItem->livewireCustomPropertyAttributes('description') }}
     />
 
-    @error($mediaItem->customPropertyErrorName('extra_field'))
+    @error($mediaItem->customPropertyErrorName('description'))
     <span class="media-library-text-error">
-               {{ $message }}
-        </span>
+       {{ $message }}
+    </span>
     @enderror
 </div>

@@ -16,9 +16,12 @@
       <p>电邮：{{$lyMeta->getMeta('program_email')}}</p>
       <p>短信：{{$lyMeta->getMeta('program_email')}}（注明：{{$lyMeta->getMeta('program_sms')}}）</p>
     </details>
+    @if($playlist->count()===0)
+        <div>播放列表暂时为空，请耐心等待！</div>
+    @else
     <div >
-      @php 
-        $music =  $playlist->first();
+      @php
+        $music =  $playlist->firstOrFail();
       @endphp
       <audio class="hidden" id="audio" data-id="0" controls src='{{$music->path}}'></audio>
 
@@ -146,6 +149,7 @@
         </div>
       </div>
     </div>
+    @endif
 
   </main>
 

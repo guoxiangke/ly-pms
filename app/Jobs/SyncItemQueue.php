@@ -43,8 +43,7 @@ class SyncItemQueue implements ShouldQueue
             $lastItem = Item::where('alias',$lastAlias)->first();
             $itemCollections = Item::where('id', '>', $lastItem->id);
         }
-        $itemCollections->chunk(5000, function (Collection $items)  {
-            $counts = $items->count();
+        $itemCollections->chunk(1000, function (Collection $items)  {
             foreach ($items as $item) {
                 if(Str::startsWith($item->alias, 'vsp'))  $item->alias = 'ma' . $item->alias;
                 if(Str::startsWith($item->alias, 'ma')){

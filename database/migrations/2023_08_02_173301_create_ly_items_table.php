@@ -20,7 +20,8 @@ return new class extends Migration
             // Not NULL! compute from alias. But need query by date!
             $table->timestamp('play_at')->nullable();
             $table->string('mp3')->nullable()->comment('attachment_mp3 覆盖上传的音频mp3，用于更正音频');// versions-able:with Uploader Uid
-
+            $table->unsignedInteger('filesize')->nullable();
+            $table->string('playtime_string')->nullable();
             // TODO 
                 // warning: 请务必上传核听完成的节目
                 // 上传之后，队列处理ID3（logo 版权）（假设1h之后完成处理）&& （纠正错误功能）临时返回tempUrl以供当天当前1h内播放！

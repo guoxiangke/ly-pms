@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -25,12 +26,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        DB::whenQueryingForLongerThan(1, function (Connection $connection, QueryExecuted $event) {
-            Log::warning(__CLASS__,[$event->time, $event->sql]);
-        });
+        if(!App::environment('production')){
+            DB::whenQueryingForLongerThan(1, function (Connection $connection, QueryExecuted $event) {
+                Log::warning(__CLASS__,[$event->time, $event->sql]);
+            });
 
-        DB::listen(function($query) {
-            if($query->time > 500) Log::warning(__CLASS__, [$query->sql,$query->bindings,$query->time]);
-        });
+            DB::listen(function($query) {
+                if($query->time > 500) Log::warning(__CLASS__, [$query->sql,$query->bindings,$query->time]);
+            });
+        }
     }
 }

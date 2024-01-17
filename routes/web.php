@@ -59,8 +59,8 @@ Route::get('/storage/ly/audio/{year}/{code}/{day}.mp3', function (Request $reque
     
     //is_old code
     if($dt <  Carbon::createFromFormat('Y-m-d', config('pms.launched_at'))){
-        // $code = substr($code, 2);
-        // $day = substr($day, 2);
+        $code = substr($code, 2);
+        $day = substr($day, 2);
     }
     // dd($code,$day);
 

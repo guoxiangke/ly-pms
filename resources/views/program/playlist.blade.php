@@ -14,7 +14,7 @@
       <pre class="font-medium leading-7 text-slate-900">{{$lyMeta->getMeta('description_detail')}}
       </pre>
       <p>电邮：{{$lyMeta->getMeta('program_email')}}</p>
-      <p>短信：{{$lyMeta->getMeta('program_email')}}（注明：{{$lyMeta->getMeta('program_sms')}}）</p>
+      <p>短信：{{$lyMeta->getMeta('program_sms')}}（注明：{{$lyMeta->getMeta('program_sms_keyword')}}）</p>
     </details>
     @if($playlist->count()===0)
         <div>播放列表暂时为空，请耐心等待！</div>

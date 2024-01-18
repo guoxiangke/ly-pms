@@ -16,7 +16,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Illuminate\Support\Collection;
 use App;
+
 
 class LyMeta extends Model
 {
@@ -94,6 +97,16 @@ class LyMeta extends Model
         return $this->HasMany(LyItem::class)
             ->whereBetween('play_at', [now()->subDays(31), now()])
             ->orderBy('alias', 'DESC');
+    }
+
+    // $lyMeta->isLts
+    public function getIsLtsAttribute(){
+        return Str::startsWith($this->code, 'malts');
+    }
+    public function lts_items(): Collection
+    {
+        return LtsItem::with('lts_meta')->whereBetween('play_at', [now()->subDays(31), now()])
+            ->orderBy('play_at', 'DESC')->get()->filter(fn($ltsItem) => $ltsItem->lts_meta->ly_meta_id == $this->id);
     }
     
     // Call to undefined method App\Models\LyMeta::lyItems()

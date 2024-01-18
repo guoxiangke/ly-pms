@@ -108,6 +108,7 @@ class LtsMeta extends Resource
             Text::make('avatar', function () {
                 return "<img width='100px' src='{$this->cover}' />";
             })->asHtml(),
+            BelongsTo::make('lyMeta', 'ly_meta', 'App\Nova\LyMeta'),
             Text::make('LTS Program Title','name')
                 ->sortable()
                 ->rules('required', 'max:255'),

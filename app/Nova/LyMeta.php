@@ -105,7 +105,7 @@ class LyMeta extends Resource
         //     "进深文凭课程" => "ltshdp",
         //     "专辑课程" => "ltsnop",
         // ];
-        $isLts = in_array($this->code, ['maltsnp','maltsdp1','maltsdp2','maltshdp1','maltshdp2']);
+        $isLts = $this->isLts;
         $tags = [];
         // by 阮老师
             // 良院專輯在廣播節目表上按日期插在啟航（大部分）及本科良院內
@@ -242,8 +242,8 @@ class LyMeta extends Resource
                     ->onlyOnDetail(),
                 Date::make('lts_first_play_at')
                     ->fillUsing(function ($request, $model, $attribute, $requestAttribute) {
-                        $isDirty2 = $this->getMeta('lts_first_play_at') != $request->input('lts_first_play_at');
-                        if($isDirty2) {
+                        $isDirty = $this->getMeta('lts_first_play_at') != $request->input('lts_first_play_at');
+                        if($isDirty) {
                             $model->setMeta('lts_first_play_at', $request->input($attribute));
 
                                 $lts_first_play_at = $request->input($attribute);
@@ -254,6 +254,7 @@ class LyMeta extends Resource
                                 $count = 0;
                                 $ymd = $lts_first_play_at . " 00:00:00";
                                 $ltsMeta = LtsMeta::find($lts_first_play);
+                                $ltsMeta->update(['ly_meta_id' => $model->id]);
                                 foreach ($ltsMeta->lts_items as $key => $ltsItem) {
                                     // 从第N个节目开始更新
                                     if ($key + 1 >= $lts_first_play_index) {

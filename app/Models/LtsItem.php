@@ -8,9 +8,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App;
 use Laravel\Scout\Searchable;
+use Deligoez\LaravelModelHashId\Traits\HasHashId;
 
 class LtsItem extends Model
 {
+    use HasHashId;
     use HasFactory;
     use SoftDeletes;
     // if(App::isProduction()) use Searchable;
@@ -27,16 +29,13 @@ class LtsItem extends Model
         return $this->BelongsTo(LtsMeta::class);
     }
 
-    // /storage/ly/audio/{code}/{day}.mp3
     public function getPathAttribute(){
         // 纠正的mp3 临时播放链接：ly/corrections/ynf230915-1-20231019_03:21:01-14125824-mw231008.mp3
         if($this->mp3 && $this->updated_at->diffInHours() < 24){
             return $this->mp3;
         }
-        // /storage/ly/audio/{code}/{day}.mp3
         $code = preg_replace('/\d+/', '', $this->alias);
         $alias = $this->alias;
-        // $year = $this->play_at->format('Y');
         return "/storage/ly/audio/{$code}/{$alias}.mp3"; 
     }
 }

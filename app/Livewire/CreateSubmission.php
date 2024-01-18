@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\FileSubmission;
 use App\Models\LyMeta;
+use App\Models\LyItem;
 use Livewire\Component;
 use Spatie\MediaLibraryPro\Livewire\Concerns\WithMedia;
 use Spatie\MediaLibraryPro\Models\TemporaryUpload;
@@ -104,6 +105,7 @@ class CreateSubmission extends Component
         // get mp3 长度？
         $count = 0;
         $playtime_strings = [];
+        $filesizes = [];
         foreach ($this->files as $key => $file) {
             $key = 'files_'.++$count;
             if(!isset($file['oldUuid'])) continue; //只处理新文件！
@@ -119,6 +121,7 @@ class CreateSubmission extends Component
                 // "playtime_string" => "59:20"
                 // "audio"["channels"] => 1
                 $playtime_strings[$key] = $thisFileInfo['playtime_string'];
+                $filesizes[$key] = $thisFileInfo['filesize'];
 
                 // 验证，必须 64000 48000 mono
                 // "bitrate" => 64000
@@ -191,12 +194,17 @@ class CreateSubmission extends Component
         }
 
         // ✅验证通过后，更新 Description！  save description => lyItem
+        $links = '';
         foreach ($aliases as $key => $value) {
-            $lyItem = LyItem::firstOrCreate(['alias'=>$alias]); // todo: $playtime_strings[$key]
+            $lyItem = LyItem::firstOrCreate(['alias'=>$alias],[
+                'playtime_string' => $playtime_strings[$key],
+                'filesize' => $filesizes[$key],
+            ]);
             $description = $descriptions[$key];
             if($description && $lyItem->description != $description) {
                 $lyItem->update(compact('description'));
             }
+            $links .="\n" . route('nova.pages.detail',['resource'=>'ly-items','resourceId'=>$lyItem->id]);
         }
 
         $fileSubmission
@@ -204,7 +212,7 @@ class CreateSubmission extends Component
             ->withCustomProperties('extra_field')
             ->toMediaCollection('mp3');
         $this->messageTitle = "成功提交".count($aliases)."条记录，谢谢！";
-        $this->message = 'Your form has been submitted';
+        $this->message = 'Your form has been submitted.'.$links;
     }
 
     public function render()

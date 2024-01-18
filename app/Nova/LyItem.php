@@ -99,7 +99,8 @@ class LyItem extends Resource
             // TODO: 不要跳转，不要统计, aws直链
             // onlyOnDetail
             Audio::make('Mp3', function(){
-                return $this->path;
+                $domain = config('app.url');
+                return str_replace($domain.'/storage','',$this->path);
             })->disableDownload(),
             BelongsTo::make('Announcer', 'announcer', 'App\Nova\Announcer'),
 

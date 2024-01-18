@@ -5,9 +5,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Models\LyMeta;
 use App\Models\LyItem;
+use App\Models\LtsMeta;
+use App\Models\LtsItem;
 use App\Jobs\InfluxQueue;
 use Carbon\Carbon;
 use App\Livewire\CreateSubmission;
+use Illuminate\Support\Str;
 
 /*
 |--------------------------------------------------------------------------
@@ -129,13 +132,24 @@ Route::get('/ip', function (Request $request) {
 Route::get('/program/{lyMeta:code}', function (LyMeta $lyMeta) {
     // $isUnpublished '已下线，不可访问该播放列表'
     if($lyMeta->unpublished_at) abort(403);
-
-    $playlist = $lyMeta->ly_items;
-    return view('program/playlist', compact('lyMeta','playlist'));
+    if($lyMeta->isLts){
+        $playlist = $lyMeta->lts_items();
+    }else{
+        $playlist = $lyMeta->ly_items; 
+    }    
+    return view('program/playlist', compact('lyMeta', 'playlist'));
 });
-Route::get('/share/{hashId}', function (LyMeta $lyMeta, $hashId) {
-    $lyItem = LyItem::findOrFail(LyItem::keyFromHashId($hashId));
-    $lyMeta = $lyItem->ly_meta;
-    $playlist = collect([$lyItem]);
+
+Route::get('/share/{hashId}', function ($hashId) {
+    if(Str::startsWith($hashId, 'lts')){ //lts-item
+        $item = LtsItem::findOrFail(LtsItem::keyFromHashId($hashId));
+        $lyMeta = $item->lts_meta->ly_meta;
+    }
+    if(Str::startsWith($hashId, 'lyi')){ //ly-item
+        $item = LyItem::findOrFail(LyItem::keyFromHashId($hashId));
+        $lyMeta = $item->ly_meta;
+    }
+    
+    $playlist = collect([$item]);
     return view('program/playlist', compact('lyMeta', 'playlist'));
 })->name('share.lyItem');

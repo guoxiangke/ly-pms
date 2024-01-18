@@ -24,6 +24,7 @@ return new class extends Migration
             $table->timestamp('begin_at')->nullable()->comment('上架时间');
             $table->timestamp('stop_at')->nullable()->comment('课程下架时间');
             $table->timestamp('made_at')->nullable()->comment('制作日期');
+            $table->foreignId('ly_meta_id')->index()->nullable()->comment('上次上架分类hp、dp');
 
             $table->text('remark')->nullable()->comment('备注');
             $table->softDeletes();

@@ -10,6 +10,7 @@ use Laravel\Scout\Searchable;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -52,9 +53,21 @@ class LtsMeta extends Model
 
     public function lts_items(): HasMany
     {
-        return $this->HasMany(LtsItem::class)->orderBy('alias');
+        return $this->HasMany(LtsItem::class)->orderBy('alias', 'DESC');
     }
 
+    // FE显示，bu包含 明后天的及31天以外的节目
+    public function lts_items_without_future(): HasMany
+    {
+        return $this->HasMany(LtsItem::class)
+            ->whereBetween('play_at', [now()->subDays(31), now()])
+            ->orderBy('alias', 'DESC');
+    }
 
+    // ly_meta_id 最近一次上架 分类：进深、本科等
+    public function ly_meta(): BelongsTo
+    {
+        return $this->BelongsTo(LyMeta::class);
+    }
 
 }

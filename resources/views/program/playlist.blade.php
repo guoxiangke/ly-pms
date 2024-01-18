@@ -11,13 +11,12 @@
     <h1 class="text-2xl font-extrabold tracking-tight text-slate-900">{{$lyMeta->name}}</h1>
     <details>
       <summary class="cursor-pointer">{{$lyMeta->description}}</summary>
-      <pre class="font-medium leading-7 text-slate-900">{{$lyMeta->getMeta('description_detail')}}
-      </pre>
+      <pre class="font-medium leading-7 text-slate-900">{{$lyMeta->getMeta('description_detail')}}</pre>
       <p>电邮：{{$lyMeta->getMeta('program_email')}}</p>
-      <p>短信：{{$lyMeta->getMeta('program_sms')}}（注明：{{$lyMeta->getMeta('program_sms_keyword')}}）</p>
+      <p>短信：{{$lyMeta->getMeta('program_sms')}} @if($keyword = $lyMeta->getMeta('program_sms_keyword')) {{$keyword}} @endif</p>
     </details>
     @if($playlist->count()===0)
-        <div>播放列表暂时为空，请耐心等待！</div>
+        <div class="text-lg p-4 text-gray">播放列表暂时为空，请耐心等待...</div>
     @else
     <div >
       @php

@@ -58,11 +58,11 @@ class LyItem extends Resource
     {
         $model = $this;
         $file = App::isLocal() ? File::class : VaporFile::class;
-        return [
-            ID::make()->sortable(),
+        $reflection = new \ReflectionClass($file);
+        $className = $reflection->getName();
 
-            // obersive Mp3: 一更新，后台便去处理
-            $file::make('音频勘误', 'mp3')
+        $fileFeild = App::isLocal() ? [
+            File::make('音频勘误', 'mp3')
                 ->disk('public')
                 ->path('ly/corrections')
                 ->storeAs(function (Request $request){
@@ -76,9 +76,30 @@ class LyItem extends Resource
                     ];
                     return implode('-', $fileNameParts);
                 })
-                ->help('紧急情况下修正 音频错误时，上传新的mp3')
+                ->help('紧急情况下修正 音频错误时，上传新的mp3 '.$className)
                 ->acceptedTypes('.mp3')
-                ->disableDownload(),
+                ->disableDownload()] : [
+            VaporFile::make('音频勘误', 'mp3')
+                ->path('ly/corrections')
+                ->storeAs(function (Request $request){
+                    // 记录谁上传的，上传的时间
+                    $fileNameParts = [
+                        $this->alias,
+                        Auth::id(),
+                        now()->format('Ymd_H:i:s'),
+                        $request->mp3->getSize(),
+                        $request->mp3->getClientOriginalName(),
+                    ];
+                    return implode('-', $fileNameParts);
+                })
+                ->help('紧急情况下修正 音频错误时，上传新的mp3 '.$className)
+                ->acceptedTypes('.mp3')
+                ->disableDownload()];
+        return array_merge( [
+            ID::make()->sortable(),
+        ] , $fileFeild,
+        [
+            // obersive Mp3: 一更新，后台便去处理
             BelongsTo::make('LyMeta', 'ly_meta', 'App\Nova\LyMeta'),
 
             Text::make('description')
@@ -98,13 +119,10 @@ class LyItem extends Resource
             })->showOnIndex(),
             // TODO: 不要跳转，不要统计, aws直链
             // onlyOnDetail
-            Audio::make('Mp3', function(){
-                $domain = config('app.url');
-                return str_replace($domain.'/storage','',$this->path);
-            })->disableDownload(),
-            BelongsTo::make('Announcer', 'announcer', 'App\Nova\Announcer'),
+            Audio::make('Mp3', fn() => $this->novaPath)->disableDownload(),
+            // BelongsTo::make('Announcer', 'announcer', 'App\Nova\Announcer'),
 
-        ];
+        ]);
 
     }
 

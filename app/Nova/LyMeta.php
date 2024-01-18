@@ -241,6 +241,7 @@ class LyMeta extends Resource
                     ->asHtml()
                     ->onlyOnDetail(),
                 Date::make('lts_first_play_at')
+                    ->help('请更改时间')
                     ->fillUsing(function ($request, $model, $attribute, $requestAttribute) {
                         $isDirty = $this->getMeta('lts_first_play_at') != $request->input('lts_first_play_at');
                         if($isDirty) {

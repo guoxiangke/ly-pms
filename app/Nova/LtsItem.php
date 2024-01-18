@@ -53,26 +53,8 @@ class LtsItem extends Resource
      */
     public function fields(NovaRequest $request)
     {
-        $file = App::isLocal() ? File::class : VaporFile::class;
         return [
             ID::make()->sortable(),
-            $file::make('音频勘误', 'mp3')
-                ->disk('public')
-                ->path('lts/corrections')
-                ->storeAs(function (Request $request){
-                    // 记录谁上传的，上传的时间
-                    $fileNameParts = [
-                        $this->alias,
-                        Auth::id(),
-                        now()->format('Ymd_H:i:s'),
-                        $request->mp3->getSize(),
-                        $request->mp3->getClientOriginalName(),
-                    ];
-                    return implode('-', $fileNameParts);
-                })
-                ->help('紧急情况下修正 音频错误时，上传新的mp3')
-                ->acceptedTypes('.mp3')
-                ->disableDownload(),
             BelongsTo::make('ltsMeta', 'lts_meta', 'App\Nova\LtsMeta'),
             Text::make('alias')
                 ->sortable()
@@ -89,9 +71,7 @@ class LtsItem extends Resource
                 ->sortable()
                 ->rules('required', 'max:12'),
             Date::make('play_at')->sortable(),
-            Audio::make('Mp3', function(){
-                return $this->path;
-            })->disableDownload(),
+            Audio::make('Mp3', fn() => $this->novaPath)->disableDownload(),
         ];
     }
 

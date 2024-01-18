@@ -60,8 +60,8 @@ Route::get('/storage/ly/audio/{year}/{code}/{day}.mp3', function (Request $reque
         list($year, $code) = [$code, $year];
     }
     
-    //is_old code
-    if($dt <  Carbon::createFromFormat('Y-m-d', config('pms.launched_at'))){
+    //is_old code remove ma
+    if($dt >=  Carbon::createFromFormat('Y-m-d', config('pms.launched_at'))){
         $code = substr($code, 2);
         $day = substr($day, 2);
     }
@@ -96,7 +96,7 @@ Route::get('/storage/ly/audio/{year}/{code}/{day}.mp3', function (Request $reque
     return redirect()->away("{$domain}/ly/audio/${year}/${code}/${day}.mp3");
 });
 
-// LTS audio TODO : need test
+// LTS audio
 Route::get('/storage/ly/audio/{code}/{day}.mp3', function (Request $request, $code, $day) {
     $ip = $request->header('x-forwarded-for')??$request->ip();
     $domain =  'https://d3ml8yyp1h3hy5.cloudfront.net'; // TODO

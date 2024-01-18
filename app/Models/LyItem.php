@@ -89,6 +89,11 @@ class LyItem extends Model implements HasMedia
             return $domain . "/storage/ly/audio/{$code}/{$year}/{$alias}.mp3"; 
         }
     }
+
+    public function getNovaPathAttribute(){
+        $domain = config('app.url');
+        return str_replace($domain.'/storage', '', $this->path);
+    }
     
     // √ hide if get 230930 when in 230926 in query. 
     // 1.默认显示比当前日期小的节目。

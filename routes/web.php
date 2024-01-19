@@ -41,6 +41,9 @@ Route::middleware([
     Route::get('/file/submission', CreateSubmission::class);
 });
 
+Route::get('/storage/ly/corrections/{mp3}', function (Request $request, $mp3) {
+    return redirect()->away("https://ly-pms2023.s3.ap-east-1.amazonaws.com/ly/corrections/$mp3");
+});
 
 Route::get('/storage/ly/audio/{year}/{code}/{day}.mp3', function (Request $request, $year, $code, $day) {
     $ymd = preg_replace('/\D+/', '', $day);

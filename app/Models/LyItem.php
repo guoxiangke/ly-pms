@@ -69,8 +69,8 @@ class LyItem extends Model implements HasMedia
 
     public function getPathAttribute(){
         // 纠正的mp3 临时播放链接：ly/corrections/ynf230915-1-20231019_03:21:01-14125824-mw231008.mp3
-        if($this->mp3 && $this->updated_at->diffInHours() < 24){
-            return '/storage/'. $this->mp3;
+        if($this->mp3){
+            if($this->updated_at->diffInHours() < 24) return $this->mp3;
         }
         // OLD: /ly/audio/2023/ttb/ttb230726.mp3
         // New: /ly/audio/ttb/2023/ttb230726.mp3
@@ -92,11 +92,6 @@ class LyItem extends Model implements HasMedia
     public function getNovaPathAttribute(){
         $domain = config('app.url');
         return str_replace($domain.'/storage', '', $this->path);
-    }
-    
-    public function getVaporPathAttribute(){
-        $domain = config('app.url');
-        return 'https://ly-pms2023.s3.ap-east-1.amazonaws.com/' . str_replace($domain.'/storage', '', $this->path);
     }
     
     // √ hide if get 230930 when in 230926 in query. 

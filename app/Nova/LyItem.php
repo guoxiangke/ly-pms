@@ -109,7 +109,7 @@ class LyItem extends Resource
                 return !$this->is_future;
             })->showOnIndex(),
             // TODO: 不要跳转，不要统计, aws直链
-            App::isLocal() ? Audio::make('Mp3', fn() => $this->mp3?:$this->novaPath)->disableDownload()->onlyOnDetail() : Audio::make('Mp3', fn() => $this->mp3?$this->vaporPath:$this->novaPath)->disableDownload()->onlyOnDetail(),
+            App::isLocal() ? Audio::make('Mp3', fn() => $this->mp3?:$this->novaPath)->disableDownload()->onlyOnDetail() : Audio::make('Mp3', fn() => $this->mp3?$this->path:$this->novaPath)->disableDownload()->onlyOnDetail(),
         ]);
 
     }

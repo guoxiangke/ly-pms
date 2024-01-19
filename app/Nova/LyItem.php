@@ -87,8 +87,8 @@ class LyItem extends Resource
                         $this->alias,
                         Auth::id(),
                         now()->format('Ymd_H:i:s'),
-                        $request->mp3->getSize(),
-                        $request->mp3->getClientOriginalName(),
+                        // $request->mp3->getSize(),
+                        // $request->mp3->getClientOriginalName(),
                     ];
                     return implode('-', $fileNameParts);
                 })

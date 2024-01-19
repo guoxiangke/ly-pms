@@ -65,33 +65,24 @@ class LyItem extends Resource
             File::make('音频勘误', 'mp3')
                 ->disk('public')
                 ->path('ly/corrections')
-                ->storeAs(function (Request $request){
-                    // 记录谁上传的，上传的时间
-                    $fileNameParts = [
-                        $this->alias,
-                        Auth::id(),
-                        now()->format('Ymd_H:i:s'),
-                        $request->mp3->getSize(),
-                        $request->mp3->getClientOriginalName(),
-                    ];
-                    return implode('-', $fileNameParts);
-                })
+                ->storeAs(fn() => $this->alias . '.mp3')
+                // ->storeAs(function (Request $request){
+                //     // 记录谁上传的，上传的时间
+                //     $fileNameParts = [
+                //         $this->alias,
+                //         Auth::id(),
+                //         now()->format('Ymd_H:i:s'),
+                //         $request->mp3->getSize(),
+                //         $request->mp3->getClientOriginalName(),
+                //     ];
+                //     return implode('-', $fileNameParts);
+                // })
                 ->help('紧急情况下修正 音频错误时，上传新的mp3 '.$className)
                 ->acceptedTypes('.mp3')
                 ->disableDownload()] : [
             VaporFile::make('音频勘误', 'mp3')
                 ->path('ly/corrections')
-                ->storeAs(function (Request $request){
-                    // 记录谁上传的，上传的时间
-                    $fileNameParts = [
-                        $this->alias,
-                        Auth::id(),
-                        now()->format('Ymd_H:i:s'),
-                        // $request->mp3->getSize(),
-                        // $request->mp3->getClientOriginalName(),
-                    ];
-                    return implode('-', $fileNameParts);
-                })
+                ->storeAs(fn() => $this->alias . '.mp3')
                 ->help('紧急情况下修正 音频错误时，上传新的mp3 '.$className)
                 ->acceptedTypes('.mp3')
                 ->disableDownload()];
@@ -118,10 +109,7 @@ class LyItem extends Resource
                 return !$this->is_future;
             })->showOnIndex(),
             // TODO: 不要跳转，不要统计, aws直链
-            // onlyOnDetail
-            Audio::make('Mp3', fn() => $this->novaPath)->disableDownload(),
-            // BelongsTo::make('Announcer', 'announcer', 'App\Nova\Announcer'),
-
+            App::isLocal() ? Audio::make('Mp3', fn() => $this->mp3?:$this->novaPath)->disableDownload()->onlyOnDetail() : Audio::make('Mp3', fn() => $this->mp3?$this->vaporPath:$this->novaPath)->disableDownload()->onlyOnDetail(),
         ]);
 
     }

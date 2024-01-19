@@ -94,20 +94,25 @@ class LyItem extends Model implements HasMedia
         return str_replace($domain.'/storage', '', $this->path);
     }
     
+    public function getVaporPathAttribute(){
+        return 'https://ly-pms2023.s3.ap-east-1.amazonaws.com' . $this->mp3;
+    }
+    
     // √ hide if get 230930 when in 230926 in query. 
     // 1.默认显示比当前日期小的节目。
     // 2.不超过30听的数据 for 未登录的用户
     // √ 404 if get mp3! @see routes/web.php 
-    protected static function booted()
-    {
-        static::addGlobalScope('ancient', function (Builder $builder) {
-            if(is_null(Auth::user())){
-                //TODO Var 31 config("ly.max.show.days")=31
-                $builder->whereBetween('play_at', [now()->subDays(31), now()]);
-            }else{
-                $builder->where('play_at', '<=', now());
-            }
-        });
-    }
+    
+    // protected static function booted()
+    // {
+    //     static::addGlobalScope('ancient', function (Builder $builder) {
+    //         if(is_null(Auth::user())){
+    //             //TODO Var 31 config("ly.max.show.days")=31
+    //             $builder->whereBetween('play_at', [now()->subDays(31), now()]);
+    //         }else{
+    //             $builder->where('play_at', '<=', now());
+    //         }
+    //     });
+    // }
 
 }

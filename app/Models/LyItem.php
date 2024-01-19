@@ -95,7 +95,8 @@ class LyItem extends Model implements HasMedia
     }
     
     public function getVaporPathAttribute(){
-        return 'https://ly-pms2023.s3.ap-east-1.amazonaws.com' . $this->mp3;
+        $domain = config('app.url');
+        return 'https://ly-pms2023.s3.ap-east-1.amazonaws.com/' . str_replace($domain.'/storage', '', $this->path);
     }
     
     // √ hide if get 230930 when in 230926 in query. 

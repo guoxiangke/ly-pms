@@ -70,11 +70,10 @@ class LyItem extends Model implements HasMedia
     public function getPathAttribute(){
         // 纠正的mp3 临时播放链接：ly/corrections/ynf230915-1-20231019_03:21:01-14125824-mw231008.mp3
         if($this->mp3 && $this->updated_at->diffInHours() < 24){
-            return $this->mp3;
+            return '/storage/'. $this->mp3;
         }
         // OLD: /ly/audio/2023/ttb/ttb230726.mp3
         // New: /ly/audio/ttb/2023/ttb230726.mp3
-        // RAW: /ly/audio/ raw /ttb/2023/ttb230726.mp3
         $code = preg_replace('/\d+/', '', $this->alias);
         $alias = $this->alias;
         if($this->is_old) {

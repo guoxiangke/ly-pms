@@ -27,3 +27,6 @@ yarn-error.log
 /public/js/
 /public/mix-manifest.json
 /storage/debugbar/
+/caddy
+frankenphp
+frankenphp-worker.php

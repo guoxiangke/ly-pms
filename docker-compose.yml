@@ -1,0 +1,15 @@
+version: '3'
+services:
+  app:
+    image: guoxiangke/lypms
+    build:
+      context: .
+      dockerfile: uploader.Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8003:8000"
+    volumes:
+      - ./:/app/public
+      - ./docker/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
+    command: "php /app/public/artisan octane:start"
+

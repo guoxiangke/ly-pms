@@ -32,18 +32,18 @@
         "nuwave/lighthouse": "^6.15",
         "plank/laravel-metable": "^5.4",
         "spatie/laravel-activitylog": "^4.7",
-        "spatie/laravel-medialibrary-pro": "dev-production",
+        "spatie/laravel-medialibrary-pro": "^3.0.0",
         "spatie/laravel-permission": "^5.10",
         "spatie/nova-tags-field": "^4.0"
     },
     "repositories": [
         {
-            "type": "path",
-            "url": "./nova"
+            "type": "composer",
+            "url": "https://satis.spatie.be"
         },
         {
-            "type": "path",
-            "url": "./laravel-medialibrary-pro"
+            "type": "composer",
+            "url": "https://nova.laravel.com"
         }
     ],
     "require-dev": {

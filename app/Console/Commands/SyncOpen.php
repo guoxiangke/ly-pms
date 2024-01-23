@@ -41,7 +41,7 @@ class SyncOpen extends Command
             $itemCollections = Item::where('id', '>', 0);
         }else{
             $lastAlias = substr($lastLyItem->alias, 2);
-            $lastItem = Item::where('alias',$lastAlias)->first();
+            $lastItem = Item::where('alias',$lastAlias)->firstOrFail();
             $itemCollections = Item::where('id', '>', $lastItem->id);
         }
         // $itemCollections = Item::where('id', '>', 0);

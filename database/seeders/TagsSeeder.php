@@ -193,8 +193,8 @@ class TagsSeeder extends Seeder
         ];
         foreach ($sponsors as $name  => $slug) {
             $locale = app()->getLocale();
-            $tag = Tag::findOrCreateFromString($name,'sponsor-producer');
-            $slugs = '{"'.$locale.'":"sponsor-producer/'.$slug.'"}';//[$locale=>$slug];
+            $tag = Tag::findOrCreateFromString($name,'sponsor');
+            $slugs = '{"'.$locale.'":"sponsor/'.$slug.'"}';//[$locale=>$slug];
             $sql = "update tags set slug = '{$slugs}' where id = {$tag->id}";
             DB::update($sql);
         }

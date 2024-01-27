@@ -29,7 +29,7 @@ class LyMeta extends Resource
     // public static function label() { return '良友'; }
     // public static $priority = 1;
     public static $group = 'Metadata';
-    public static $perPageOptions = [300];
+    public static $perPageOptions = [50,100];
     
     // https://trungpv1601.github.io/2020/04/14/Laravel-Nova-Setting-a-default-sort-order-support-multi-columns/
     /**
@@ -140,18 +140,19 @@ class LyMeta extends Resource
                     $model->setMeta($attribute, $request->input($attribute));
                 })
                 ->withMeta(["value" => $model->getMeta($filed['field'])])
+                ->hideFromIndex()
                 ->placeholder($filed['placeholder']);
         }
 
         $defaultFields = [
-            ID::make()->sortable(),
-            Text::make('avatar', function () {
-                return "<img width='100px' src='{$this->cover}' />";
-            })->asHtml(),
+            // ID::make()->sortable(),
 
             Text::make('Program Title','name')
                 ->sortable()
                 ->hideFromIndex(),
+            Text::make('avatar', function () {
+                return "<img width='40px' src='{$this->cover}' />";
+            })->asHtml(),
 
             Text::make('Program Title', 'name')
                 ->rules('required', 'max:255')->displayUsing(function($name) {
@@ -168,10 +169,12 @@ class LyMeta extends Resource
 
             Tags::make('Program Category Title')
                 ->type('ly')
+                ->hideFromIndex()
                 ->single(),
-            Date::make('Program Start Date','begin_at')->sortable(),
+            Date::make('Program Start Date','begin_at')->sortable()->hideFromIndex(),
             Date::make('Program End Date','end_at')->sortable(),
-            Date::make('unpublished_at')->sortable(),
+            Date::make('unpublished_at')->sortable()->hideFromIndex(),
+            Text::make('Publish duration','counts_max_list')->placeholder('播放列表最多显示天数，31-255')->sortable()->hideFromIndex(),
             Textarea::make('Program Brief Description','description')->hideFromIndex(),
             Textarea::make('remark')->hideFromIndex(),
 
@@ -197,21 +200,27 @@ class LyMeta extends Resource
 
             Tags::make('Program Language')
                 ->type('program-language')
+                ->hideFromIndex()
                 ->single(),
             Tags::make('Program Format')
                 ->type('program-format')
+                ->hideFromIndex()
                 ->single(),
             Tags::make('Program Nature')
                 ->type('program-nature')
+                ->hideFromIndex()
                 ->single(),
             Tags::make('Target Audience')
                 ->type('target-audience')
+                ->hideFromIndex()
                 ->single(),
             Tags::make('Production Centre')
                 ->type('production-centre')
+                ->hideFromIndex()
                 ->single(),
-            Tags::make('Sponsor Producer')
+            Tags::make('Sponsor')
                 ->type('sponsor-producer')
+                ->hideFromIndex()
                 ->single(),
 
         ];

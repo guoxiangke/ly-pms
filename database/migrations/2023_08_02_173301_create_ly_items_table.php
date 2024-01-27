@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('ly_meta_id')->index()->nullable(); //Not NULL!
             $table->foreignId('announcer_id')->nullable()->comment('本次节目的主持人');
-            $table->string('alias')->unique(); // mavam101
+            $table->string('alias')->unique()->index(); // mavam101
             $table->text('description')->nullable()->comment('title:节目一句话描述，简体中文');
             // Not NULL! compute from alias. But need query by date!
             $table->timestamp('play_at')->nullable();

@@ -46,6 +46,7 @@ class LyItem extends Resource
      */
     public static $search = [
         'alias',
+        'description',
     ];
 
     /**

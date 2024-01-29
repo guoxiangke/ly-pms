@@ -9,7 +9,10 @@ use App\Models\Tag as TagModel;
 
 class Tag extends Resource
 {
+    public static $displayInNavigation = false;
+
     public static function label() { return 'Category'; }
+    
 	public static $perPageOptions = [100,500];
 
     public static $model = TagModel::class;

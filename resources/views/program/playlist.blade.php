@@ -10,7 +10,7 @@
     
     <details>
       <summary class="cursor-pointer text-2xl font-extrabold tracking-tight text-slate-900">{{$lyMeta->name}}<span class="text-sm font-medium ml-2 text-gray-500">{{$lyMeta->description}}</span></summary>
-      <div class="bg-gray-100 text-gray-600">
+      <div class="bg-gray-50 text-gray-600">
         <div class="p-2">
           <img src="{{$lyMeta->cover}}" style="float: right;" class="float-right w-36 h-36 ml-2">
           <div style="min-height: 150px;" >
@@ -37,7 +37,7 @@
         <div class="flex-auto">
           <div class="p-4 player-body">
             <p
-              class="playButton font-medium title" id="playButton">
+              class="playButton title" id="playButton">
               <svg id="playButton-play" class="cursor-pointer inline h-5 w-5 flex-none" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true">
                 <title>点击播放</title>
                 <svg class="h-5 w-5 flex-none inline -ml-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50"><path d="M 10 5.25 L 10 44.75 L 11.5 43.875 L 42.09375 25.875 L 43.5625 25 L 42.09375 24.125 L 11.5 6.125 Z M 12 8.75 L 39.59375 25 L 12 41.25 Z"/></svg>
@@ -109,10 +109,10 @@
                     </svg>
                   </div>
                   <div class="min-w-0 flex-auto">
-                    <p class="text-sm font-semibold leading-6 text-gray-900">
+                    <p class="text-base  leading-6 text-gray-900">
                       {{$lyMeta->name}}-{{$lyItem->play_at->format('Ymd')}}
                     </p>
-                    <p class="mt-1 flex text-xs leading-5 text-gray-500">
+                    <p class="mt-1 flex text-sm leading-5 text-gray-500">
                       <span class="relative truncate hover:underline">{{$lyItem->description}}</span>
                     </p>
                   </div>

@@ -95,8 +95,12 @@ class LyMeta extends Model
     public function ly_items(): HasMany
     {
         return $this->HasMany(LyItem::class)
-            ->whereBetween('play_at', [now()->subDays(31), now()])
+            ->whereBetween('play_at', [now()->subDays($this->max_list_count), now()])
             ->orderBy('alias', 'DESC');
+    }
+
+    public function getMaxListCountAttribute(){
+        return $maxCounts = $this->counts_max_list??31;
     }
 
     // $lyMeta->isLts
@@ -105,7 +109,7 @@ class LyMeta extends Model
     }
     public function lts_items(): Collection
     {
-        return LtsItem::with('lts_meta')->whereBetween('play_at', [now()->subDays(31), now()])
+        return LtsItem::with('lts_meta')->whereBetween('play_at', [now()->subDays($this->max_list_count), now()])
             ->orderBy('play_at', 'DESC')->get()->filter(fn($ltsItem) => $ltsItem->lts_meta->ly_meta_id == $this->id);
     }
     

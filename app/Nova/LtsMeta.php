@@ -25,7 +25,7 @@ class LtsMeta extends Resource
     // public static function label() { return '良院'; }
     public static $priority = 2;
     public static $group = 'Metadata';
-    public static $perPageOptions = [300];
+    public static $perPageOptions = [50,100];
     
     // https://trungpv1601.github.io/2020/04/14/Laravel-Nova-Setting-a-default-sort-order-support-multi-columns/
     /**
@@ -96,24 +96,24 @@ class LtsMeta extends Resource
                     $model->setMeta($attribute, $request->input($attribute));
                 })
                 ->withMeta(["value" => $model->getMeta($filed['field'])])
+                ->hideFromIndex()
                 ->placeholder($filed['placeholder']);
         }
 
         $defaultFields = [
-            ID::make()->sortable(),
+            // ID::make()->sortable(),
             Text::make('index')
                 ->sortable()
                 ->placeholder('微信编码')
                 ->hideFromIndex(),
             Text::make('avatar', function () {
-                return "<img width='100px' src='{$this->cover}' />";
+                return "<img width='40px' src='{$this->cover}' />";
             })->asHtml(),
-            BelongsTo::make('lyMeta', 'ly_meta', 'App\Nova\LyMeta'),
-            Text::make('LTS Program Title','name')
+            Text::make('LTS Subject Title','name')
                 ->sortable()
                 ->rules('required', 'max:255'),
 
-            Text::make('LTS Program Alias','code')
+            Text::make('LTS Subject Alias','code')
                 ->placeholder('良院课程代号')
                 ->sortable()
                 ->rules('required', 'max:12'),
@@ -124,10 +124,12 @@ class LtsMeta extends Resource
                 ->type('lts')
                 ->single(),
             Text::make('Announcer','author')
+                ->hideFromIndex()
                 ->sortable(),
-            Date::make('Start Publishing Date','begin_at')->sortable(),
-            Date::make('Finish Publishing Date','stop_at')->sortable(),
-            Date::make('Production Date','made_at')->sortable(),//制作日期
+            BelongsTo::make('lyMeta', 'ly_meta', 'App\Nova\LyMeta')->hideFromIndex(),
+            Date::make('Start Publishing Date','begin_at')->hideFromIndex()->sortable(),
+            Date::make('Finish Publishing Date','stop_at')->hideFromIndex()->sortable(),
+            Date::make('Production Date','made_at')->hideFromIndex()->sortable(),//制作日期
             Image::make('avatar')
                 ->path('ly/lts')
                 ->storeAs(function (Request $request) {
@@ -136,7 +138,7 @@ class LtsMeta extends Resource
                 ->acceptedTypes('.jpg')
                 ->disableDownload()
                 ->onlyOnForms(),
-            Textarea::make('LTS Program Description','description')
+            Textarea::make('LTS Subject Description','description')
                 ->placeholder('良院课程说明')
                 ->hideFromIndex(),
             Textarea::make('remark')->hideFromIndex(),
@@ -144,6 +146,7 @@ class LtsMeta extends Resource
             // Production Centre
             Tags::make('Production Centre')
                 ->type('production-centre')
+                ->hideFromIndex()
                 ->single(),
         ];
         return array_merge($defaultFields, $addMetaFields);

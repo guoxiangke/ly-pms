@@ -134,7 +134,9 @@ Route::get('/ip', function (Request $request) {
 
 Route::get('/program/{lyMeta:code}', function (LyMeta $lyMeta) {
     // $isUnpublished '已下线，不可访问该播放列表'
-    if($lyMeta->unpublished_at) abort(403);
+    // 可以预先设置下线时间！需要测试
+    $unpublishedAt = $lyMeta->unpublished_at??now();
+    if($unpublishedAt < now()) abort(403);
     if($lyMeta->isLts){
         $playlist = $lyMeta->lts_items();
     }else{

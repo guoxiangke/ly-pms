@@ -42,7 +42,8 @@ class LtsItem extends Resource
      * @var array
      */
     public static $search = [
-        'id',
+        'alias',
+        'description'
     ];
 
     /**
@@ -54,11 +55,11 @@ class LtsItem extends Resource
     public function fields(NovaRequest $request)
     {
         return [
-            ID::make()->sortable(),
-            BelongsTo::make('ltsMeta', 'lts_meta', 'App\Nova\LtsMeta'),
+            // ID::make()->sortable(),
             Text::make('alias')
                 ->sortable()
                 ->rules('required', 'max:12'),
+            BelongsTo::make('ltsMeta', 'lts_meta', 'App\Nova\LtsMeta'),
 
             Text::make('description')
                 ->sortable()

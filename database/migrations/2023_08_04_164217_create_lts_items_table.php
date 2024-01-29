@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('lts_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('lts_meta_id')->index()->nullable(); //Not NULL!
-            $table->string('alias')->unique(); // mavam101-mavam124
+            $table->string('alias')->unique()->index(); // mavam101-mavam124
             $table->timestamp('play_at')->nullable();
             $table->text('description')->nullable()->comment('一句话描述');
             $table->string('mp3')->nullable()->comment('attachment_mp3 覆盖上传的音频mp3，用于更正音频');

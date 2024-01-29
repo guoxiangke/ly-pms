@@ -12,8 +12,8 @@ return [
 		                'placeholder' => '节目英文标题',
 		            ],
 		            [
-		                'field' => 'supervisor',
-		                'field_desc' => 'Supervisor',
+		                'field' => 'producer',
+		                'field_desc' => 'Producer',
 		                'placeholder' => '节目监制',
 		            ],
 		            [

@@ -1,19 +1,28 @@
 <x-player-layout>
-  <nav class="border-gray-200 bg-gray-50 dark:bg-gray-100 dark:border-gray-50">
-    <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-      <a href="#" class="flex items-center">
-          <img src="https://lpyy729.net/images/729ly_logo_50.png" class="h-8 mr-3" alt="LOGO Logo" />
-      </a>
-    </div>
-  </nav>
-
+    <nav class="border-gray-200 bg-gray-50 dark:bg-gray-100 dark:border-gray-50">
+      <div class="max-w-screen-xl flex flex-wrap items-center justify-between m-8 py-4" style="margin-top: 0;">
+        <a href="#" class="">
+            <img src="https://lpyy729.net/images/729ly_logo_50.png" class="h-10" alt="LOGO Logo" />
+        </a>
+      </div>
+    </nav>
   <main class="m-8">
-    <h1 class="text-2xl font-extrabold tracking-tight text-slate-900">{{$lyMeta->name}}</h1>
+    
     <details>
-      <summary class="cursor-pointer">{{$lyMeta->description}}</summary>
-      <pre class="font-medium leading-7 text-slate-900">{{$lyMeta->getMeta('description_detail')}}</pre>
-      <p>电邮：{{$lyMeta->getMeta('program_email')}}</p>
-      <p>短信：{{$lyMeta->getMeta('program_sms')}} @if($keyword = $lyMeta->getMeta('program_sms_keyword')) {{$keyword}} @endif</p>
+      <summary class="cursor-pointer text-2xl font-extrabold tracking-tight text-slate-900">{{$lyMeta->name}}<span class="text-sm font-medium ml-2 text-gray-500">{{$lyMeta->description}}</span></summary>
+      <div class="bg-gray-100 text-gray-600">
+        <div class="p-2">
+          <img src="{{$lyMeta->cover}}" style="float: right;" class="float-right w-36 h-36 ml-2">
+          <div style="min-height: 150px;" >
+            <p class="font-medium leading-7">{{$lyMeta->getMeta('description_detail')}}</p>
+            <p class="mt-1">电邮：{{$lyMeta->getMeta('program_email')}}</p>
+            <p class="mt-1">短信：{{$lyMeta->getMeta('program_sms')}} @if($keyword = $lyMeta->getMeta('program_sms_keyword')) {{$keyword}} @endif</p>
+          </div>
+        </div>
+      </div>
+      <div>
+          
+      </div>
     </details>
     @if($playlist->count()===0)
         <div class="text-lg p-4 text-gray">播放列表暂时为空，请耐心等待...</div>
@@ -25,22 +34,19 @@
       <audio class="hidden" id="audio" data-id="0" controls src='{{$music->path}}'></audio>
 
       <div class="flex flex-nowrap audio-player my-4">
-        <div class="hidden md:block lg:block basis-2/12 bg-gray-500" >
-          <img src="{{$lyMeta->cover}}" class="w-full h-full">
-        </div>
         <div class="flex-auto">
           <div class="p-4 player-body">
             <p
               class="playButton font-medium title" id="playButton">
-              <svg id="playButton-play" class="inline h-5 w-5 flex-none" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true">
+              <svg id="playButton-play" class="cursor-pointer inline h-5 w-5 flex-none" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true">
                 <title>点击播放</title>
                 <svg class="h-5 w-5 flex-none inline -ml-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50"><path d="M 10 5.25 L 10 44.75 L 11.5 43.875 L 42.09375 25.875 L 43.5625 25 L 42.09375 24.125 L 11.5 6.125 Z M 12 8.75 L 39.59375 25 L 12 41.25 Z"/></svg>
               </svg>
-              <svg id="playButton-pause" class="hidden inline flex-none h-5 w-5 m-auto h-full" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true">
+              <svg id="playButton-pause" class="cursor-pointer hidden inline flex-none h-5 w-5 m-auto h-full" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true">
                 <title>点击暂停</title>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M 10 6 L 10 26 L 12 26 L 12 6 Z M 20 6 L 20 26 L 22 26 L 22 6 Z"/></svg>
               </svg>
-              {{$lyMeta->name}} - <span id="play_at">{{$music->play_at->format('ymd')}}</span>
+              {{$lyMeta->name}} - <span id="play_at">{{$music->play_at->format('Ymd')}}</span>
             </p>
 
           <div id="waveform" class="py-2 waveform"></div>
@@ -83,6 +89,7 @@
                   data-id="{{$loop->index}}"
                   data-url='{{$lyItem->path}}' 
                   data-date='{{$lyItem->play_at->format("Ymd")}}' 
+                  title="点击播放"
                   class="preventEvents track cursor-pointer flex min-w-0 gap-x-4">
                   <div class="flex shrink-0 items-center gap-x-4">
                     <svg
@@ -112,12 +119,15 @@
                 </div>
 
                 <div class="flex shrink-0 items-center gap-x-4">
-                    <svg 
-                      data-url="{{$lyItem->path}}" 
-                      class="downloads cursor-pointer h-5 w-5 flex-none text-gray-400  hover:text-gray-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                      <title>音频下载 (6.89M)</title>
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M 15 4 L 15 20.5625 L 9.71875 15.28125 L 8.28125 16.71875 L 15.28125 23.71875 L 16 24.40625 L 16.71875 23.71875 L 23.71875 16.71875 L 22.28125 15.28125 L 17 20.5625 L 17 4 Z M 7 26 L 7 28 L 25 28 L 25 26 Z"/></svg>
-                    </svg>
+                    <div data-url="{{$lyItem->path}}" 
+                        title="音频下载 (6.89M)"
+                        class="preventEvents downloads cursor-pointer">
+                      <svg 
+                        class="h-5 w-5 flex-none text-gray-400  hover:text-gray-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                          <title></title>
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M 15 4 L 15 20.5625 L 9.71875 15.28125 L 8.28125 16.71875 L 15.28125 23.71875 L 16 24.40625 L 16.71875 23.71875 L 23.71875 16.71875 L 22.28125 15.28125 L 17 20.5625 L 17 4 Z M 7 26 L 7 28 L 25 28 L 25 26 Z"/></svg>
+                      </svg>
+                    </div>
                     
                     <div class="group relative">
                       <svg 
@@ -196,6 +206,7 @@
         links.forEach(link => {
           link.addEventListener('click', function (e) {
             e.preventDefault();
+            console.log(e.target.getAttribute('data-url'),e.target);
             const url = e.target.getAttribute('data-url');
             const filename = url.split('/').pop();
             fetchDown(url, filename);

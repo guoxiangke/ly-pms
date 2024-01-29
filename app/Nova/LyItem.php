@@ -45,7 +45,8 @@ class LyItem extends Resource
      * @var array
      */
     public static $search = [
-        'id',
+        'alias',
+        'description',
     ];
 
     /**
@@ -87,7 +88,10 @@ class LyItem extends Resource
                 ->acceptedTypes('.mp3')
                 ->disableDownload()];
         return array_merge( [
-            ID::make()->sortable(),
+            Text::make('alias')
+                ->sortable()
+                ->rules('required', 'max:12'),
+            // ID::make()->sortable(),
         ] , $fileFeild,
         [
             // obersive Mp3: 一更新，后台便去处理
@@ -100,9 +104,6 @@ class LyItem extends Resource
                 ->rules('required', 'max:255')->displayUsing(function($description) {
                     return Str::limit($description, 32);
                 })->onlyOnIndex(),
-            Text::make('alias')
-                ->sortable()
-                ->rules('required', 'max:12'),
             Date::make('play_at')->sortable(),
             
             Boolean::make('Active',function(){

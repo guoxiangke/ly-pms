@@ -7,14 +7,14 @@
       </div>
     </nav>
   <main class="m-8">
-    <h1 class="text-2xl font-extrabold tracking-tight text-slate-900">{{$lyMeta->name}}</h1>
+    
     <details>
-      <summary class="cursor-pointer">{{$lyMeta->description}}</summary>
-      <div class="bg-gray-100">
+      <summary class="cursor-pointer text-2xl font-extrabold tracking-tight text-slate-900">{{$lyMeta->name}}<span class="text-sm font-medium ml-2 text-gray-500">{{$lyMeta->description}}</span></summary>
+      <div class="bg-gray-100 text-gray-600">
         <div class="p-2">
-          <img src="{{$lyMeta->cover}}" style="float: right;" class="float-right w-36 h-36">
+          <img src="{{$lyMeta->cover}}" style="float: right;" class="float-right w-36 h-36 ml-2">
           <div style="min-height: 150px;" >
-            <p class="font-medium leading-7 text-slate-900">{{$lyMeta->getMeta('description_detail')}}</p>
+            <p class="font-medium leading-7">{{$lyMeta->getMeta('description_detail')}}</p>
             <p class="mt-1">电邮：{{$lyMeta->getMeta('program_email')}}</p>
             <p class="mt-1">短信：{{$lyMeta->getMeta('program_sms')}} @if($keyword = $lyMeta->getMeta('program_sms_keyword')) {{$keyword}} @endif</p>
           </div>

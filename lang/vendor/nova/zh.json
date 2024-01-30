@@ -10,7 +10,7 @@
   "Preview": "预览",
   "Previous": "上一页",
   "Attach :resource": "附加 :resource",
-  ":resource Details: :title": ":resource 详情之 :title",
+  ":resource Details: :title": ":resource详情：:title",
   "Create :resource": "新建 :resource",
   "Choose :resource": "选取 :resource",
   "New :resource": "新建 :resource",

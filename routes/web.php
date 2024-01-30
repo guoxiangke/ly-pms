@@ -28,8 +28,8 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/getLocal', function () {
-    return [App::currentLocale()];
+Route::get('/getLocal', function (Request $request) {
+    return [App::currentLocale(), $request->getPreferredLanguage()];
 });
 
 

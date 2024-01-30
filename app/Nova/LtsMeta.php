@@ -19,12 +19,31 @@ use Spatie\TagsField\Tags;
 use App;
 
 class LtsMeta extends Resource
-{
+{   
+    /**
+     * The resource label
+     * 
+     */
+
+    public static function label()
+    {
+        return __('Lts Metas');
+    }
+
+     /**
+      * Singular resource label
+      */
+
+    public static function singularLabel()
+    {
+       return __('Lts Meta');
+    }
+
     // use Orderable;
     // public static $defaultOrderField = 'weight';
     // public static function label() { return '良院'; }
     public static $priority = 2;
-    public static $group = 'Metadata';
+    // public static $group = 'Metadata 元数据';
     public static $perPageOptions = [50,100];
     
     // https://trungpv1601.github.io/2020/04/14/Laravel-Nova-Setting-a-default-sort-order-support-multi-columns/
@@ -73,7 +92,7 @@ class LtsMeta extends Resource
      * @var array
      */
     public static $search = [
-        'id',
+        'name',
     ];
 
     /**

@@ -25,10 +25,29 @@ use Carbon\Carbon;
 use App;
 
 class LyMeta extends Resource
-{
+{   
+    /**
+     * The resource label
+     * 
+     */
+
+    public static function label()
+    {
+        return __('Ly Metas');
+    }
+
+     /**
+      * Singular resource label
+      */
+
+    public static function singularLabel()
+    {
+       return __('Ly Meta');
+    }
+
     // public static function label() { return '良友'; }
     // public static $priority = 1;
-    public static $group = 'Metadata';
+    // public static $group = 'Metadata';
     public static $perPageOptions = [50,100];
     
     // https://trungpv1601.github.io/2020/04/14/Laravel-Nova-Setting-a-default-sort-order-support-multi-columns/
@@ -77,7 +96,7 @@ class LyMeta extends Resource
      * @var array
      */
     public static $search = [
-        'id',
+        'name',
     ];
 
     /**

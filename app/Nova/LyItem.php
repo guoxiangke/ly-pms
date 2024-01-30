@@ -107,23 +107,23 @@ class LyItem extends Resource
                 ->acceptedTypes('.mp3')
                 ->disableDownload()];
         return array_merge( [
-            Text::make('alias')
+            Text::make(__('Program Alias'), 'alias')
                 ->sortable()
                 ->rules('required', 'max:12'),
             // ID::make()->sortable(),
         ] , $fileFeild,
         [
             // obersive Mp3: 一更新，后台便去处理
-            BelongsTo::make('LyMeta', 'ly_meta', 'App\Nova\LyMeta'),
+            BelongsTo::make(__('Program Title'), 'ly_meta', 'App\Nova\LyMeta'),
 
-            Text::make('description')
+            Text::make(__('Program Description'), 'description')
                 ->sortable()
                 ->hideFromIndex(),
-            Text::make('description')
+            Text::make(__('Program Description'), 'description')
                 ->rules('required', 'max:255')->displayUsing(function($description) {
                     return Str::limit($description, 32);
                 })->onlyOnIndex(),
-            Date::make('play_at')->sortable(),
+            Date::make(__('Play At'), 'play_at')->sortable(),
             
             Boolean::make('Active',function(){
                 return !$this->is_future;

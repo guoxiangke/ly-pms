@@ -154,7 +154,7 @@ class LyMeta extends Resource
         $meta_fields = config('pms.lyMeta.extraFields.text');
         $addMetaFields = [];
         foreach ($meta_fields as $filed) {
-            $addMetaFields[] = Text::make($filed['field_desc'], $filed['field'])
+            $addMetaFields[] = Text::make(__($filed['field_desc']), $filed['field'])
                 ->fillUsing(function ($request, $model, $attribute, $requestAttribute) {
                     $model->setMeta($attribute, $request->input($attribute));
                 })
@@ -166,50 +166,50 @@ class LyMeta extends Resource
         $defaultFields = [
             // ID::make()->sortable(),
 
-            Text::make('Program Title','name')
+            Text::make(__('Program Title'),'name')
                 ->sortable()
                 ->hideFromIndex(),
-            Text::make('avatar', function () {
+            Text::make(__('Cover'), function () {
                 return "<img width='40px' src='{$this->cover}' />";
             })->asHtml(),
 
-            Text::make('Program Title', 'name')
+            Text::make(__('Program Title'), 'name')
                 ->rules('required', 'max:255')->displayUsing(function($name) {
                     return Str::limit($name, 32);
                 })->onlyOnIndex(),
-            Text::make('Program Alias','code')
+            Text::make(__('Program Alias'),'code')
                 ->placeholder('节目网络用代号')
                 ->sortable()
                 ->rules('required', 'max:12'),
                 // ->withMeta(['placeholder' => 'Add categories...']),
                 // ->canBeDeselected(),
                 // ->limit($maxNumberOfTags),
-            BelongsToMany::make('Announcers')->allowDuplicateRelations(),
+            BelongsToMany::make(__('Announcers'), 'announcers', Announcer::class)->allowDuplicateRelations(),
 
-            Tags::make('Program Category Title')
+            Tags::make(__('Program Category Title'))
                 ->type('ly')
                 ->hideFromIndex()
                 ->single(),
-            Date::make('Program Start Date','begin_at')->sortable()->hideFromIndex(),
-            Date::make('Program End Date','end_at')->sortable(),
-            Date::make('unpublished_at')->sortable()->hideFromIndex(),
-            Text::make('Publish duration','counts_max_list')->placeholder('播放列表最多显示天数，31-255')->sortable()->hideFromIndex(),
-            Textarea::make('Program Brief Description','description')->hideFromIndex(),
-            Textarea::make('remark')->hideFromIndex(),
+            Date::make(__('Program Start Date'),'begin_at')->sortable()->hideFromIndex(),
+            Date::make(__('Program End Date'),'end_at')->sortable(),
+            // Date::make(__('Playlist Unpublish Date','unpublished_at'))->sortable()->hideFromIndex(),
+            Text::make(__('Publish Duration'),'counts_max_list')->placeholder('播放列表最多显示天数，31-255')->sortable()->hideFromIndex(),
+            Textarea::make(__('Program Brief Description'),'description')->hideFromIndex(),
+            Textarea::make(__('Remark'))->hideFromIndex(),
 
-            $image::make('avatar')
+            $image::make(__('avatar'))
                 ->path('ly/programs')
                 ->storeAs(function (Request $request) {
                     return $this->code . '.jpg';
                 })
                 ->acceptedTypes('.jpg')->onlyOnForms(),
 
-            Text::make('Weekly Broadcast Date','rrule_by_day')
+            Text::make(__('Weekly Broadcast Date'),'rrule_by_day')
                 ->sortable()
                 ->placeholder('每周播出日期')
                 ->rules('required', 'max:255'),
 
-            Textarea::make('Program Full Description', 'description_detail')
+            Textarea::make(__('Program Full Description'), 'description_detail')
                 ->fillUsing(function ($request, $model, $attribute, $requestAttribute) {
                     $model->setMeta($attribute, $request->input($attribute));
                 })
@@ -217,27 +217,27 @@ class LyMeta extends Resource
                 ->placeholder('Program Full Description')
                 ->hideFromIndex(),
 
-            Tags::make('Program Language')
+            Tags::make(__('Program Language'),'Program Language')
                 ->type('program-language')
                 ->hideFromIndex()
                 ->single(),
-            Tags::make('Program Format')
+            Tags::make(__('Program Format'),'Program Format')
                 ->type('program-format')
                 ->hideFromIndex()
                 ->single(),
-            Tags::make('Program Nature')
+            Tags::make(__('Program Nature'),'Program Nature')
                 ->type('program-nature')
                 ->hideFromIndex()
                 ->single(),
-            Tags::make('Target Audience')
+            Tags::make(__('Target Audience'),'Target Audience')
                 ->type('target-audience')
                 ->hideFromIndex()
                 ->single(),
-            Tags::make('Production Centre')
+            Tags::make(__('Production Centre'),'Production Centre')
                 ->type('production-centre')
                 ->hideFromIndex()
                 ->single(),
-            Tags::make('Sponsor')
+            Tags::make(__('Sponsor'),'sponsor')
                 ->type('sponsor-producer')
                 ->hideFromIndex()
                 ->single(),
@@ -250,7 +250,7 @@ class LyMeta extends Resource
                 // 起先播放 first_play_lts
                 // 起先播放日期 first_play_lts
                 //current_lts fist_play_at then 1-24...
-                Select::make('lts_first_play')
+                Select::make(__('Lts First Paly'), 'lts_first_play')
                     ->options($currentOptions)
                     ->fillUsing(function ($request, $model, $attribute, $requestAttribute) {
                         $model->setMeta('lts_first_play', $request->input($attribute));
@@ -259,7 +259,7 @@ class LyMeta extends Resource
                         return $this->getMeta('lts_first_play');
                     })->onlyOnForms(),
 
-                Text::make('lts_first_play', function () use($isLts) {
+                Text::make(__('Lts First Paly At'), 'lts_first_play', function () use($isLts) {
                         if(!$isLts) return '!lts';
                         $lts_first_play = $this->getMeta('lts_first_play');
                         $ltsMeta = LtsMeta::find($lts_first_play);
@@ -268,7 +268,7 @@ class LyMeta extends Resource
                     })
                     ->asHtml()
                     ->onlyOnDetail(),
-                Date::make('lts_first_play_at')
+                Date::make(__('Lts First Paly At'), 'lts_first_play_at')
                     ->help('请更改时间')
                     ->fillUsing(function ($request, $model, $attribute, $requestAttribute) {
                         $isDirty = $this->getMeta('lts_first_play_at') != $request->input('lts_first_play_at');
@@ -308,7 +308,7 @@ class LyMeta extends Resource
                     ->default(function ($request) use($model) {
                         return $model->getMeta('lts_first_play_at')??1;
                     })->hideFromIndex(),
-                Number::make('lts_first_play_index')
+                Number::make(__('Lts First Play Index'),'lts_first_play_index')
                     ->dependsOn(['code'],
                         function ($field) use($isLts) {
                             if (!$isLts) {
@@ -327,7 +327,7 @@ class LyMeta extends Resource
         }else{
             // if(!$isLts) 
             // 动态添加 HasMany lyitem, 原因： 良院的lyMeta没有这些。
-            array_push($defaultFields, HasMany::make('ly_items', 'ly_items_with_future'));
+            array_push($defaultFields, HasMany::make(__('Ly Items'), 'ly_items_with_future', LyItem::class));
         }
         
         return !$isLts?array_merge($defaultFields, $addMetaFields):array_merge($defaultFields,$ltsFields, $addMetaFields);

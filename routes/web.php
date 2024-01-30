@@ -11,6 +11,7 @@ use App\Jobs\InfluxQueue;
 use Carbon\Carbon;
 use App\Livewire\CreateSubmission;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\App;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,6 +27,11 @@ use Illuminate\Support\Str;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/getLocal', function () {
+    return [App::currentLocale()];
+});
+
 
 Route::middleware([
     'auth:sanctum',

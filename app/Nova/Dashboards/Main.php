@@ -18,4 +18,14 @@ class Main extends Dashboard
             new Help,
         ];
     }
+
+    /**
+     * Get the displayable name of the dashboard.
+     *
+     * @return string
+     */
+    public function name()
+    {
+        return __('Insights Status');
+    }
 }

@@ -18,7 +18,26 @@ use Laravel\Nova\Fields\VaporFile;
 
 class LtsItem extends Resource
 {
-    public static $group = 'Items';
+    /**
+     * The resource label
+     * 
+     */
+
+    public static function label()
+    {
+        return __('Lts Items');
+    }
+
+     /**
+      * Singular resource label
+      */
+
+    public static function singularLabel()
+    {
+       return __('Lts Item');
+    }
+
+    // public static $group = 'Items 列表';
     public static $priority = 1;
     public static $perPageOptions = [50,100];
     public static $perPageViaRelationship = 50;

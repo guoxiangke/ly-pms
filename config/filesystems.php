@@ -55,6 +55,11 @@ return [
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
             'throw' => false,
         ],
+        's3-audio' => [
+            'driver' => 'scoped',
+            'disk' => 's3',
+            'prefix' => 'ly/audio',
+        ],
         'r2-share' => [
             'driver' => 's3',
             'region' => env('R2_DEFAULT_REGION'),

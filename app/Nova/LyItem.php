@@ -77,35 +77,16 @@ class LyItem extends Resource
     public function fields(NovaRequest $request)
     {
         $model = $this;
-        $file = App::isLocal() ? File::class : VaporFile::class;
-        $reflection = new \ReflectionClass($file);
-        $className = $reflection->getName();
 
-        $fileFeild = App::isLocal() ? [
+        $fileFeild = [
             File::make('音频勘误', 'mp3')
                 ->disk('public')
                 ->path('ly/corrections')
-                ->storeAs(fn() => $this->alias . '.mp3')
-                // ->storeAs(function (Request $request){
-                //     // 记录谁上传的，上传的时间
-                //     $fileNameParts = [
-                //         $this->alias,
-                //         Auth::id(),
-                //         now()->format('Ymd_H:i:s'),
-                //         $request->mp3->getSize(),
-                //         $request->mp3->getClientOriginalName(),
-                //     ];
-                //     return implode('-', $fileNameParts);
-                // })
-                ->help('紧急情况下修正 音频错误时，上传新的mp3 '.$className)
+                ->storeAs(fn() => $this->alias .'v'.date('His'). '.mp3')
+                ->help('紧急情况下修正 音频错误时，上传新的mp3 ')
                 ->acceptedTypes('.mp3')
-                ->disableDownload()] : [
-            VaporFile::make('音频勘误', 'mp3')
-                ->path('ly/corrections')
-                ->storeAs(fn() => $this->alias . '.mp3')
-                ->help('紧急情况下修正 音频错误时，上传新的mp3 '.$className)
-                ->acceptedTypes('.mp3')
-                ->disableDownload()];
+                ->disableDownload()
+        ];
         return array_merge( [
             Text::make(__('Program Alias'), 'alias')
                 ->sortable()

@@ -60,4 +60,5 @@ return [
 			],
 		],
 	],
+	'cloudfrontDomain' => env('CLOUDFRONT_DOMAIN'),
 ];

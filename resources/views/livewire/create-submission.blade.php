@@ -58,6 +58,6 @@
             </div>
         @endif
         <br>
-        <x-button disabled dusk="submit" type="submit">Submit</x-button>
+        <x-button dusk="submit" type="submit">Submit</x-button>
     </form>
 </div>

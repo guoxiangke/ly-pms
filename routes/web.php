@@ -54,7 +54,7 @@ Route::get('/storage/ly/corrections/{mp3}', function (Request $request, $mp3) {
 Route::get('/storage/ly/audio/{year}/{code}/{day}.mp3', function (Request $request, $year, $code, $day) {
     $ymd = preg_replace('/\D+/', '', $day);
     $dt = Carbon::createFromFormat('ymd', $ymd);
-    if(!$request->user){
+    if(!auth()->id()){
         //√ hide if get 230930 when in 230926 in query. // then 403 if get mp3! @see routes/web.php
         if($dt > now()) return redirect(403); //403 Forbidden 
         
@@ -64,21 +64,8 @@ Route::get('/storage/ly/audio/{year}/{code}/{day}.mp3', function (Request $reque
         }
     }
 
-    //√ 新旧目录设计 对调： year/code -> code/year
-    if (is_numeric($code)) {
-        list($year, $code) = [$code, $year];
-    }
-    
-    //is_old code remove ma
-    if($dt >=  Carbon::createFromFormat('Y-m-d', config('pms.launched_at'))){
-        $code = substr($code, 2);
-        $day = substr($day, 2);
-    }
-    // dd($code,$day);
-
-
     $ip = $request->header('x-forwarded-for')??$request->ip();
-    $domain =  'https://d3ml8yyp1h3hy5.cloudfront.net'; // TODO
+    $domain =  config('pms.cloudfrontDomain');
     $url = $request->url();
     $target = basename($url); //cc201221.mp3
     

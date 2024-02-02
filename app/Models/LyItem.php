@@ -14,6 +14,8 @@ use Carbon\Carbon;
 use App;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 use Deligoez\LaravelModelHashId\Traits\HasHashId;
 use Illuminate\Support\Facades\Auth;
 
@@ -35,6 +37,15 @@ class LyItem extends Model implements HasMedia
         // 'is_old', // 旧系统的节目 目录结构
         'is_future', // 明后天的节目
     ];
+
+    use LogsActivity;
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logUnguarded()
+            // @see LyItemObserver
+            ->dontLogIfAttributesChangedOnly(['play_at']);
+    }
     public function content(): MorphOne
     {
         return $this->morphOne(Content::class, 'contentable');

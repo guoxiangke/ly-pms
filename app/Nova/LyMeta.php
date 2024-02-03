@@ -312,7 +312,7 @@ class LyMeta extends Resource
         }else{
             // if(!$isLts) 
             // 动态添加 HasMany lyitem, 原因： 良院的lyMeta没有这些。
-            array_push($defaultFields, HasMany::make(__('Ly Items'), 'ly_items_with_future', LyItem::class));
+            array_push($defaultFields, HasMany::make(__('Ly Episodes'), 'ly_items_with_future', LyItem::class));
         }
         
         return !$isLts?array_merge($defaultFields, $addMetaFields):array_merge($defaultFields,$ltsFields, $addMetaFields);

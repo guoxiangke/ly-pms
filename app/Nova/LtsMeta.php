@@ -155,7 +155,7 @@ class LtsMeta extends Resource
                 ->sortable()
                 ->placeholder('微信编码')
                 ->hideFromIndex(),
-            HasMany::make(__("Lts Items"), 'lts_items', LtsItem::class),
+            HasMany::make(__("Lts Episodes"), 'lts_items', LtsItem::class),
         ];
         return array_merge($defaultFields, $addMetaFields);
     }

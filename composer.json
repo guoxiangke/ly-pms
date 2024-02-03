@@ -6,12 +6,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.1",
-        "advoor/nova-editor-js": "^3.2",
-        "bolechen/nova-activitylog": "^0.4.0",
         "deligoez/laravel-model-hashid": "^2.4",
-        "dmitrybubyakin/nova-medialibrary-field": "^4.0",
-        "ebess/advanced-nova-media-library": "^4.1",
-        "guoxiangke/nova-order-field": "2.1.1",
         "guzzlehttp/guzzle": "^7.2",
         "http-interop/http-factory-guzzle": "^1.2",
         "inertiajs/inertia-laravel": "^0.6.9",
@@ -34,7 +29,7 @@
         "nuwave/lighthouse": "^6.15",
         "plank/laravel-metable": "^5.4",
         "spatie/laravel-activitylog": "^4.7",
-        "spatie/laravel-medialibrary-pro": "^3.0.0",
+        "spatie/laravel-medialibrary-pro": "^5.0.0",
         "spatie/laravel-permission": "^5.10",
         "spatie/nova-tags-field": "^4.0"
     },

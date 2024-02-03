@@ -5,9 +5,9 @@ namespace App\Nova;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Text;
-// use Laravel\Nova\Fields\Trix;
+use Laravel\Nova\Fields\Trix;
 // use Laravel\Nova\Fields\Textarea;
-use Advoor\NovaEditorJs\NovaEditorJsField;
+// use Advoor\NovaEditorJs\NovaEditorJsField;
 use Laravel\Nova\Fields\Date;
 use Laravel\Nova\Fields\Image;
 use Laravel\Nova\Fields\BelongsToMany;
@@ -88,7 +88,8 @@ class Announcer extends Resource
             Date::make('birthday'),
             
             BelongsToMany::make('LyMetas'),
-            NovaEditorJsField::make('description')->hideFromIndex(),
+            Trix::make('description')->hideFromIndex(),
+            // NovaEditorJsField::make('description')->hideFromIndex(),
 
             Date::make('begin_at')->sortable(),
             Date::make('stop_at')->sortable(),

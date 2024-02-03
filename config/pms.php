@@ -12,14 +12,14 @@ return [
 		                'placeholder' => '节目英文标题',
 		            ],
 		            [
-		                'field' => 'producer',
-		                'field_desc' => 'Producer',
-		                'placeholder' => '节目监制',
-		            ],
-		            [
 		                'field' => 'program_column',
 		                'field_desc' => 'Program Column',
 		                'placeholder' => '节目栏目',
+		            ],
+		            [
+		                'field' => 'producer',
+		                'field_desc' => 'Producer',
+		                'placeholder' => '节目监制',
 		            ],
 		            [
 		                'field' => 'program_email',

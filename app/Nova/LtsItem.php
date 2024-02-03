@@ -25,7 +25,7 @@ class LtsItem extends Resource
 
     public static function label()
     {
-        return __('Lts Items');
+        return __('Lts Episodes');
     }
 
      /**
@@ -34,7 +34,7 @@ class LtsItem extends Resource
 
     public static function singularLabel()
     {
-       return __('Lts Item');
+       return __('Lts Episode');
     }
 
     // public static $group = 'Items 列表';
@@ -75,9 +75,6 @@ class LtsItem extends Resource
     {
         return [
             // ID::make()->sortable(),
-            Text::make(__('LTS Subject Alias'),'alias')
-                ->sortable()
-                ->rules('required', 'max:12'),
             BelongsTo::make(__('LTS Subject Title'), 'lts_meta', 'App\Nova\LtsMeta'),
 
             Text::make(__('LTS Subject Description'),'description')
@@ -87,10 +84,10 @@ class LtsItem extends Resource
                 ->rules('required', 'max:255')->displayUsing(function($description) {
                     return Str::limit($description, 32);
                 })->onlyOnIndex(),
+            Date::make(__('Play At'),'play_at')->sortable(),
             Text::make(__('LTS Subject Alias'),'alias')
                 ->sortable()
                 ->rules('required', 'max:12'),
-            Date::make(__('Play At'),'play_at')->sortable(),
             Audio::make('Mp3', fn() => $this->novaPath)->disableDownload(),
         ];
     }

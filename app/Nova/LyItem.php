@@ -28,7 +28,7 @@ class LyItem extends Resource
 
     public static function label()
     {
-        return __('Ly Items');
+        return __('Ly Episodes');
     }
 
      /**
@@ -37,7 +37,7 @@ class LyItem extends Resource
 
     public static function singularLabel()
     {
-       return __('Ly Item');
+       return __('Ly Episode');
     }
 
     // public static $group = 'Items 列表';

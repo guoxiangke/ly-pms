@@ -1,5 +1,5 @@
 <div class="mt-12 flex-grow w-full max-w-4xl mx-auto p-16 bg-white rounded shadow-xl">
-    <x-h2>Submission Info: {{$user->name}} - {{$dateString}} </x-h2>
+    <x-h2>Submission User: {{$user->name??'Annous'}} </x-h2>
 
     <form method="POST" wire:submit.prevent="submit">
         <div class="bg-teal-100 border-t-4 border-teal-500 rounded-b text-teal-900 px-4 py-3 shadow-md" role="alert">
@@ -28,7 +28,7 @@
             <livewire:media-library
                 wire:model="files"
                 name="files"
-                :model="$fileSubmission"
+                :model="$user"
                 collection="mp3"
 
                 rules="mimes:mp3"

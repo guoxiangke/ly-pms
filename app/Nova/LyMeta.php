@@ -10,6 +10,7 @@ use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Fields\Boolean;
 use Laravel\Nova\Fields\Number;
 use Laravel\Nova\Fields\Textarea;
+use Laravel\Nova\Fields\Trix;
 use Laravel\Nova\Fields\Image;
 use Laravel\Nova\Fields\VaporImage;
 use Laravel\Nova\Fields\BelongsToMany;
@@ -48,7 +49,7 @@ class LyMeta extends Resource
     // public static function label() { return '良友'; }
     // public static $priority = 1;
     // public static $group = 'Metadata';
-    public static $perPageOptions = [50,100];
+    public static $perPageOptions = [25,50,100];
     
     // https://trungpv1601.github.io/2020/04/14/Laravel-Nova-Setting-a-default-sort-order-support-multi-columns/
     /**
@@ -109,7 +110,7 @@ class LyMeta extends Resource
     {
         // https://docs.vapor.build/resources/storage.html
         // https://nova.laravel.com/docs/4.0/resources/fields.html#vapor-image-field
-        $image = App::isLocal() ? Image::class : VaporImage::class;
+        // $image = App::isLocal() ? Image::class : VaporImage::class;
 
         // $ltsPlaylistMeta = [
         //     'ltsnp' => '启航',
@@ -169,70 +170,53 @@ class LyMeta extends Resource
             Text::make(__('Program Title'),'name')
                 ->sortable()
                 ->hideFromIndex(),
-            Text::make(__('Cover'), function () {
-                return "<img width='40px' src='{$this->cover}' />";
-            })->asHtml(),
-
             Text::make(__('Program Title'), 'name')
                 ->rules('required', 'max:255')->displayUsing(function($name) {
                     return Str::limit($name, 32);
                 })->onlyOnIndex(),
-            Text::make(__('Program Alias'),'code')
-                ->placeholder('节目网络用代号')
-                ->sortable()
-                ->rules('required', 'max:12'),
-                // ->withMeta(['placeholder' => 'Add categories...']),
-                // ->canBeDeselected(),
-                // ->limit($maxNumberOfTags),
-            BelongsToMany::make(__('Announcers'), 'announcers', Announcer::class)->allowDuplicateRelations(),
-
-            Tags::make(__('Program Category Title'))
-                ->type('ly')
-                ->hideFromIndex()
-                ->single(),
-            Date::make(__('Program Start Date'),'begin_at')->sortable()->hideFromIndex(),
-            Date::make(__('Program End Date'),'end_at')->sortable(),
-            // Date::make(__('Playlist Unpublish Date','unpublished_at'))->sortable()->hideFromIndex(),
-            Text::make(__('Publish Duration'),'counts_max_list')->placeholder('播放列表最多显示天数，31-255')->sortable()->hideFromIndex(),
-            Textarea::make(__('Program Brief Description'),'description')->hideFromIndex(),
-            Textarea::make(__('Remark'))->hideFromIndex(),
-
-            $image::make(__('avatar'))
+            Text::make(__('Cover'), function () {
+                return "<img width='40px' src='{$this->cover}' />";
+            })->asHtml(),
+            Image::make(__('avatar'))
                 ->path('ly/programs')
                 ->storeAs(function (Request $request) {
                     return $this->code . '.jpg';
                 })
                 ->acceptedTypes('.jpg')->onlyOnForms(),
-
-            Text::make(__('Weekly Broadcast Date'),'rrule_by_day')
+            Text::make(__('Program Alias'),'code')
                 ->sortable()
-                ->placeholder('每周播出日期')
-                ->rules('required', 'max:255'),
-
-            Textarea::make(__('Program Full Description'), 'description_detail')
+                ->rules('required', 'max:12'),
+            Tags::make(__('Program Category Title'))
+                ->type('ly')
+                ->single(),
+            Tags::make(__('Program Language'),'Program Language')
+                ->type('program-language')
+                ->hideFromIndex()
+                ->single(),
+            Text::make(__('Program Brief Description'),'description')->hideFromIndex(),
+            Trix::make(__('Program Full Description'), 'description_detail')
                 ->fillUsing(function ($request, $model, $attribute, $requestAttribute) {
                     $model->setMeta($attribute, $request->input($attribute));
                 })
                 ->withMeta(["value" => $model->getMeta('description_detail')])
-                ->placeholder('Program Full Description')
                 ->hideFromIndex(),
-
-            Tags::make(__('Program Language'),'Program Language')
-                ->type('program-language')
+            Tags::make(__('Program Nature'),'Program Nature')
+                ->type('program-nature')
+                ->single(),
+            Tags::make(__('Target Audience'),'Target Audience')
+                ->type('target-audience')
                 ->hideFromIndex()
                 ->single(),
             Tags::make(__('Program Format'),'Program Format')
                 ->type('program-format')
                 ->hideFromIndex()
                 ->single(),
-            Tags::make(__('Program Nature'),'Program Nature')
-                ->type('program-nature')
-                ->hideFromIndex()
-                ->single(),
-            Tags::make(__('Target Audience'),'Target Audience')
-                ->type('target-audience')
-                ->hideFromIndex()
-                ->single(),
+            Date::make(__('Program Start Date'),'begin_at')->sortable()->hideFromIndex(),
+            Date::make(__('Program End Date'),'end_at')->sortable(),
+            Text::make(__('Weekly Broadcast Date'),'rrule_by_day')
+                ->sortable()
+                ->rules('required', 'max:255'),
+            Text::make(__('Publish Duration'),'counts_max_list')->placeholder('播放列表最多显示天数，31-255')->sortable()->hideFromIndex(),
             Tags::make(__('Production Centre'),'Production Centre')
                 ->type('production-centre')
                 ->hideFromIndex()
@@ -241,7 +225,8 @@ class LyMeta extends Resource
                 ->type('sponsor-producer')
                 ->hideFromIndex()
                 ->single(),
-
+            Textarea::make(__('Remark'))->hideFromIndex(),
+            BelongsToMany::make(__('Announcers'), 'announcers', Announcer::class)->allowDuplicateRelations(),
         ];
 
         // 动态添加LTS的Meta
@@ -327,7 +312,7 @@ class LyMeta extends Resource
         }else{
             // if(!$isLts) 
             // 动态添加 HasMany lyitem, 原因： 良院的lyMeta没有这些。
-            array_push($defaultFields, HasMany::make(__('Ly Items'), 'ly_items_with_future', LyItem::class));
+            array_push($defaultFields, HasMany::make(__('Ly Episodes'), 'ly_items_with_future', LyItem::class));
         }
         
         return !$isLts?array_merge($defaultFields, $addMetaFields):array_merge($defaultFields,$ltsFields, $addMetaFields);

@@ -14,8 +14,6 @@ use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\HasMany;
 
 use Spatie\TagsField\Tags;
-// use MichielKempen\NovaOrderField\Orderable;
-// use MichielKempen\NovaOrderField\OrderField;
 use App;
 
 class LtsMeta extends Resource
@@ -39,12 +37,8 @@ class LtsMeta extends Resource
        return __('Lts Meta');
     }
 
-    // use Orderable;
-    // public static $defaultOrderField = 'weight';
-    // public static function label() { return '良院'; }
     public static $priority = 2;
-    // public static $group = 'Metadata 元数据';
-    public static $perPageOptions = [50,100];
+    public static $perPageOptions = [25,50,100];
     
     // https://trungpv1601.github.io/2020/04/14/Laravel-Nova-Setting-a-default-sort-order-support-multi-columns/
     /**
@@ -121,34 +115,9 @@ class LtsMeta extends Resource
 
         $defaultFields = [
             // ID::make()->sortable(),
-            Text::make('微信编码','index')
-                ->sortable()
-                ->placeholder('微信编码')
-                ->hideFromIndex(),
             Text::make(__('Cover'), function () {
                 return "<img width='40px' src='{$this->cover}' />";
             })->asHtml(),
-            Text::make(__('LTS Subject Title'),'name')
-                ->sortable()
-                ->rules('required', 'max:255'),
-
-            Text::make(__('LTS Subject Alias'),'code')
-                ->placeholder('良院课程代号')
-                ->sortable()
-                ->rules('required', 'max:12'),
-            Text::make(__('Number of Episode'),'count')
-                ->placeholder('节数')
-                ->sortable(),
-            Tags::make(__('Category'),'Tags')
-                ->type('lts')
-                ->single(),
-            Text::make(__('Announcer'),'author')
-                ->hideFromIndex()
-                ->sortable(),
-            BelongsTo::make(__('Program Title'), 'ly_meta', 'App\Nova\LyMeta')->hideFromIndex(),
-            Date::make(__('Start Publishing Date'),'begin_at')->hideFromIndex()->sortable(),
-            Date::make(__('Finish Publishing Date'),'stop_at')->hideFromIndex()->sortable(),
-            Date::make(__('Production Date'),'made_at')->hideFromIndex()->sortable(),//制作日期
             Image::make('avatar')
                 ->path('ly/lts')
                 ->storeAs(function (Request $request) {
@@ -157,16 +126,36 @@ class LtsMeta extends Resource
                 ->acceptedTypes('.jpg')
                 ->disableDownload()
                 ->onlyOnForms(),
+            Text::make(__('LTS Subject Title'),'name')
+                ->sortable()
+                ->rules('required', 'max:255'),
+            Text::make(__('LTS Subject Alias'),'code')
+                ->sortable()
+                ->rules('required', 'max:12'),
+            BelongsTo::make(__('Program LTS Title'), 'ly_meta', 'App\Nova\LyMeta'),
             Textarea::make(__('LTS Subject Description'),'description')
-                ->placeholder('良院课程说明')
                 ->hideFromIndex(),
-            Textarea::make(__("Remark"), 'remark')->hideFromIndex(),
-            HasMany::make(__("Lts Items"), 'lts_items', LtsItem::class),
-            // Production Centre
+            Text::make(__('Number of Episode'),'count')->sortable(),
+            Date::make(__('Production Date'),'made_at')->sortable(),
             Tags::make(__('Production Centre'),'Production Centre')
                 ->type('production-centre')
                 ->hideFromIndex()
                 ->single(),
+            Text::make(__('Announcer'),'author')
+                ->hideFromIndex()
+                ->sortable(),
+            Date::make(__('Start Publishing Date'),'begin_at')->hideFromIndex()->sortable(),
+            Date::make(__('Finish Publishing Date'),'stop_at')->hideFromIndex()->sortable(),
+            Textarea::make(__("Remark"), 'remark')->hideFromIndex(),
+            Tags::make(__('Category'),'Tags')
+                ->type('lts')
+                ->single()
+                ->hideFromIndex(),
+            Text::make('微信编码','index')
+                ->sortable()
+                ->placeholder('微信编码')
+                ->hideFromIndex(),
+            HasMany::make(__("Lts Episodes"), 'lts_items', LtsItem::class),
         ];
         return array_merge($defaultFields, $addMetaFields);
     }

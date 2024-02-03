@@ -2,9 +2,9 @@
 
 namespace App\Livewire;
 
-use App\Models\FileSubmission;
 use App\Models\LyMeta;
 use App\Models\LyItem;
+use App\Models\User;
 use Livewire\Component;
 use Spatie\MediaLibraryPro\Livewire\Concerns\WithMedia;
 use Spatie\MediaLibraryPro\Models\TemporaryUpload;
@@ -21,8 +21,6 @@ class CreateSubmission extends Component
 
     public $user;
 
-    public $dateString;
-
     public $hasNewFile = false;
     public $messageTitle = "注意：上传请谨慎";
     public $message = '本上传功能只验证新提交的文件。<br/>1. 文件一旦SUBMIT(提交)，将进入处理队列，不可更改（修改删除无效）<br/>2. 已提交的文件(SUBMIT)不可更改Name，不要轻易改动Description,<a href="/nova/resources/ly-items"><s>想改动?</s></a><br/>3. 当天可追加提交(再次提交请先刷新本页)';
@@ -31,23 +29,10 @@ class CreateSubmission extends Component
     // [Rule(['files.*' => 'file|max:1024'])]
     public $files = [];
 
-    public $fileSubmission;
 
     public function mount()
     {
-        $user = auth()->user();
-        $this->user = $user;
-
-        $dateString = now()->format('ymd');
-        $this->dateString = $dateString;
-
-        $fileSubmission = FileSubmission::firstOrCreate([
-            'user_id' => $user->id,
-            'generated_at' => now()->copy()->startOfDay(),
-        ]);
-        
-        $this->fileSubmission = $fileSubmission;
-        // $this->addError('message', 'The email field is invalid.');
+        $this->user = auth()->user()??User::find(1);
     }
 
 
@@ -56,7 +41,6 @@ class CreateSubmission extends Component
         // if alias in [arleay configed alieas]!
         $this->message = '';
 
-        $fileSubmission = $this->fileSubmission;
 
         $fileNames = [];
         $rules = [];

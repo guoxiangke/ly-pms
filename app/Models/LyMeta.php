@@ -87,7 +87,7 @@ class LyMeta extends Model
     {
         $code = substr($this->code, 2);
         return Attribute::make(
-            get: fn () => isset($this->avatar) ? Storage::url($this->avatar) : "https://txly2.net/images/program_banners/{$code}_prog_banner_sq.png",
+            get: fn () => isset($this->avatar) ? config('pms.uploader_domain'). Storage::url($this->avatar) : "https://txly2.net/images/program_banners/{$code}_prog_banner_sq.png",
         );
     }
 

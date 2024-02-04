@@ -225,7 +225,7 @@ class LyMeta extends Resource
                 ->type('sponsor-producer')
                 ->hideFromIndex()
                 ->single(),
-            Textarea::make(__('Remark'))->hideFromIndex(),
+            Textarea::make(__('Remark'),'remark')->hideFromIndex(),
             BelongsToMany::make(__('Announcers'), 'announcers', Announcer::class)->allowDuplicateRelations(),
         ];
 

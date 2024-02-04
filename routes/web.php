@@ -65,7 +65,7 @@ Route::get('/storage/ly/audio/{year}/{code}/{day}.mp3', function (Request $reque
     }
 
     $ip = $request->header('x-forwarded-for')??$request->ip();
-    $domain =  config('pms.cloudfrontDomain');
+    $domain =  config('pms.cloudfront_domain');
     $url = $request->url();
     $target = basename($url); //cc201221.mp3
     

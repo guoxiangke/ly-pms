@@ -115,17 +115,17 @@ class LtsMeta extends Resource
 
         $defaultFields = [
             // ID::make()->sortable(),
-            Text::make(__('Cover'), function () {
-                return "<img width='40px' src='{$this->cover}' />";
-            })->asHtml(),
-            Image::make('avatar')
-                ->path('ly/lts')
-                ->storeAs(function (Request $request) {
-                    return $this->code . '.jpg';
-                })
-                ->acceptedTypes('.jpg')
-                ->disableDownload()
-                ->onlyOnForms(),
+            // Text::make(__('Cover'), function () {
+            //     return "<img width='40px' src='{$this->cover}' />";
+            // })->asHtml(),
+            // Image::make('avatar')
+            //     ->path('ly/lts')
+            //     ->storeAs(function (Request $request) {
+            //         return $this->code . '.jpg';
+            //     })
+            //     ->acceptedTypes('.jpg')
+            //     ->disableDownload()
+            //     ->onlyOnForms(),
             Text::make(__('LTS Subject Title'),'name')
                 ->sortable()
                 ->rules('required', 'max:255'),

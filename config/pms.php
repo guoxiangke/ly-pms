@@ -60,5 +60,6 @@ return [
 			],
 		],
 	],
-	'cloudfrontDomain' => env('CLOUDFRONT_DOMAIN'),
+	'cloudfront_domain' => env('CLOUDFRONT_DOMAIN'),
+	'uploader_domain' => env('UPLOADER_DOMAIN'),
 ];

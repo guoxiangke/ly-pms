@@ -79,44 +79,14 @@ class LyItemObserver
         }
     
         Storage::disk('s3')->putFileAs("/ly/audio/$code/$year/", new File($tempFilePath), $fileName);
+        // $tempFilePath = "~/storage/app/public/13c31817f1b9e707dd98ebc2c95b2be1/1e6357c8d32a0fd019a1c36eb4d6b854/macs240730.mp3";
         unlink($tempFilePath);
-        // $this->deleteDirectory($tempFilePath);
+        rmdir(dirname($tempFilePath));
+        rmdir(dirname(dirname($tempFilePath) . ".remove"));
+        // @see Spatie\TemporaryDirectory::deleteDirectory();
+        // static::deleteDirectory($tempFilePath);
     }
 
-    // @see Spatie\TemporaryDirectory::deleteDirectory();
-    
-    protected function deleteDirectory(string $path): bool
-    {
-        try {
-            if (is_link($path)) {
-                return unlink($path);
-            }
-
-            if (! file_exists($path)) {
-                return true;
-            }
-
-            if (! is_dir($path)) {
-                return unlink($path);
-            }
-
-            foreach (new FilesystemIterator($path) as $item) {
-                if (! $this->deleteDirectory((string) $item)) {
-                    return false;
-                }
-            }
-
-            /*
-             * By forcing a php garbage collection cycle using gc_collect_cycles() we can ensure
-             * that the rmdir does not fail due to files still being reserved in memory.
-             */
-            gc_collect_cycles();
-
-            return rmdir($path);
-        } catch (Throwable) {
-            return false;
-        }
-    }
     /**
      * Handle the LyItem "deleted" event.
      */

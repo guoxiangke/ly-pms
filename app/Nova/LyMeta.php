@@ -222,7 +222,7 @@ class LyMeta extends Resource
                 ->hideFromIndex()
                 ->single(),
             Tags::make(__('Sponsor'),'sponsor')
-                ->type('sponsor-producer')
+                ->type('sponsor')
                 ->hideFromIndex()
                 ->single(),
             Textarea::make(__('Remark'),'remark')->hideFromIndex(),

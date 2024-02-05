@@ -75,7 +75,7 @@ class LtsItem extends Resource
     {
         return [
             // ID::make()->sortable(),
-            BelongsTo::make(__('LTS Subject Title'), 'lts_meta', 'App\Nova\LtsMeta'),
+            BelongsTo::make(__('LTS Subject Title'), 'lts_meta', 'App\Nova\LtsMeta')->searchable(),
 
             Text::make(__('LTS Subject Description'),'description')
                 ->sortable()

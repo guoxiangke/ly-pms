@@ -95,7 +95,7 @@ class LyItem extends Resource
         ] , $fileFeild,
         [
             // obersive Mp3: 一更新，后台便去处理
-            BelongsTo::make(__('Program Title'), 'ly_meta', 'App\Nova\LyMeta'),
+            BelongsTo::make(__('Program Title'), 'ly_meta', 'App\Nova\LyMeta')->searchable(),//->filterable(),
 
             Text::make(__('Program Description'), 'description')
                 ->sortable()

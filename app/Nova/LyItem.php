@@ -6,17 +6,16 @@ use Illuminate\Http\Request;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Laravel\Nova\Fields\Text;
+use Outl1ne\NovaInlineTextField\InlineText;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\Date;
 use Illuminate\Support\Str;
 use Laravel\Nova\Fields\Boolean;
 use Laravel\Nova\Fields\Audio;
-use Ebess\AdvancedNovaMediaLibrary\Fields\Files;
+
 
 use App;
 use Laravel\Nova\Fields\File;
-use Laravel\Nova\Fields\VaporFile;
-// use DmitryBubyakin\NovaMedialibraryField\Fields\Medialibrary;
 use Illuminate\Support\Facades\Auth;
 
 class LyItem extends Resource
@@ -97,13 +96,13 @@ class LyItem extends Resource
             // obersive Mp3: 一更新，后台便去处理
             BelongsTo::make(__('Program Title'), 'ly_meta', 'App\Nova\LyMeta')->searchable(),//->filterable(),
 
-            Text::make(__('Program Description'), 'description')
-                ->sortable()
-                ->hideFromIndex(),
-            Text::make(__('Program Description'), 'description')
-                ->rules('required', 'max:255')->displayUsing(function($description) {
+            InlineText::make(__('Program Description'), 'description')->displayUsing(function($description) {
                     return Str::limit($description, 32);
                 })->onlyOnIndex(),
+            // Text::make(__('Program Description'), 'description')
+            //     ->rules('required', 'max:255')->displayUsing(function($description) {
+            //         return Str::limit($description, 32);
+            //     })->onlyOnIndex(),
             Date::make(__('Play At'), 'play_at')->sortable(),
             
             Boolean::make('Active',function(){

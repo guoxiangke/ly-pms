@@ -27,6 +27,7 @@
         "meilisearch/meilisearch-php": "^1.3",
         "mll-lab/laravel-graphiql": "^3.1",
         "nuwave/lighthouse": "^6.15",
+        "outl1ne/nova-inline-text-field": "^2.0",
         "plank/laravel-metable": "^5.4",
         "spatie/laravel-activitylog": "^4.7",
         "spatie/laravel-medialibrary-pro": "^5.0.0",
@@ -73,7 +74,8 @@
             "@php artisan package:discover --ansi"
         ],
         "post-update-cmd": [
-            "@php artisan vendor:publish --tag=laravel-assets --ansi --force"
+            "@php artisan vendor:publish --tag=laravel-assets --ansi --force",
+            "@php artisan nova:publish"
         ],
         "post-root-package-install": [
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""

@@ -12,6 +12,8 @@ use Carbon\Carbon;
 use App\Livewire\CreateSubmission;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\App;
+use Laravel\Nova\Nova;
+// use Cookie;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,10 +30,6 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/getLocal', function (Request $request) {
-    return [App::currentLocale(), $request->getPreferredLanguage()];
-});
-
 
 Route::middleware([
     'auth:sanctum',
@@ -45,6 +43,20 @@ Route::middleware([
     Route::mediaLibrary();
  
     Route::get('/file/submission', CreateSubmission::class);
+
+    Route::get('/nova/switch/language', function (Request $request) {
+        $key = 'preferred_language';
+        $preferredLanguage = Cookie::get($key);
+
+        $switchedLanguage = $preferredLanguage == 'en'?'zh':'en';
+        Cookie::queue(cookie($key, $switchedLanguage));
+        // Nova.success('Yey!');
+            // en_US
+            // $languageStr = $request->getPreferredLanguage();
+            // $languageStr = 'zh_CN';
+        // session()->flash('message', 'Something went wrong');
+        return redirect()->back();
+    });
 });
 
 Route::get('/storage/ly/corrections/{mp3}', function (Request $request, $mp3) {

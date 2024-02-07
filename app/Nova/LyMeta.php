@@ -7,17 +7,16 @@ use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Laravel\Nova\Fields\Date;
 use Laravel\Nova\Fields\Text;
+use Outl1ne\NovaInlineTextField\InlineText;
 use Laravel\Nova\Fields\Boolean;
 use Laravel\Nova\Fields\Number;
 use Laravel\Nova\Fields\Textarea;
 use Laravel\Nova\Fields\Trix;
 use Laravel\Nova\Fields\Image;
-use Laravel\Nova\Fields\VaporImage;
 use Laravel\Nova\Fields\BelongsToMany;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\HasMany;
 use Laravel\Nova\Fields\Select;
-use Laravel\Nova\Fields\FormData;
 use App\Models\LtsMeta;
 use Spatie\TagsField\Tags;
 use Illuminate\Support\Str;
@@ -213,9 +212,9 @@ class LyMeta extends Resource
                 ->single(),
             Date::make(__('Program Start Date'),'begin_at')->sortable()->hideFromIndex(),
             Date::make(__('Program End Date'),'end_at')->sortable(),
-            Text::make(__('Weekly Broadcast Date'),'rrule_by_day')
-                ->sortable()
-                ->rules('required', 'max:255'),
+            Date::make(__('Program Unpublished Date'),'unpublished_at')->sortable()->help('节目1.1号停播，end_at=1.1,播放列表最多显示天数，31,  counts_max_list=31, 1.15提前下架，强制不显示,unpublished_at=1.15'),
+            InlineText::make(__('Weekly Broadcast Date'),'rrule_by_day')
+                ->rules('required', 'max:20'),//3x7-1
             Text::make(__('Publish Duration'),'counts_max_list')->placeholder('播放列表最多显示天数，31-255')->sortable()->hideFromIndex(),
             Tags::make(__('Production Centre'),'Production Centre')
                 ->type('production-centre')
@@ -337,7 +336,10 @@ class LyMeta extends Resource
      */
     public function filters(NovaRequest $request)
     {
-        return [];
+        return [
+            // https://laracasts.com/discuss/channels/nova/filter-by-a-non-null-value-in-laravel-nova?page=1&replyId=923948
+            // new Filters\LyMetaActive,
+        ];
     }
 
     /**

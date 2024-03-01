@@ -25,7 +25,7 @@ class LyItemObserver
         $lyItem->update([
             'play_at' => $play_at
         ]);
-        Log::debug(__CLASS__,[$lyItem->alias, $dt]);
+        Log::debug(__CLASS__,[$lyItem->alias]);
     }
 
     /**

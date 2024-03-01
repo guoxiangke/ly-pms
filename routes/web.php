@@ -30,6 +30,8 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+use App\Livewire\LyPulse;
+Route::get('/pulse', LyPulse::class);
 
 Route::middleware([
     'auth:sanctum',

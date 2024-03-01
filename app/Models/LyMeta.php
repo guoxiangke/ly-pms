@@ -27,6 +27,7 @@ class LyMeta extends Model
     use SoftDeletes;
     use Metable;
     use HasTags;
+    // overriding the Tag Model
     public static function getTagClassName(): string
     {
         return Tag::class;
@@ -53,7 +54,7 @@ class LyMeta extends Model
     ];
     protected $appends = [
         'cover',
-        'category', 
+        'category',
     ];
     
 
@@ -71,6 +72,12 @@ class LyMeta extends Model
     public function scopeActive($query)
     {
         return $query->whereNull('unpublished_at');
+    }
+
+
+    public function scopeNotLts($query)
+    {
+        return $query->whereNot('code','like','malts%');
     }
 
     

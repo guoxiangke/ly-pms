@@ -13,6 +13,7 @@ use App\Livewire\CreateSubmission;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\App;
 use Laravel\Nova\Nova;
+use App\Livewire\LyPulse;
 // use Cookie;
 
 /*
@@ -30,7 +31,6 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-use App\Livewire\LyPulse;
 Route::get('/pulse', LyPulse::class);
 
 Route::middleware([

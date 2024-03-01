@@ -33,7 +33,7 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
             return $menu;
         });
         $key = 'preferred_language';
-        $preferredLanguage = Cookie::get($key);
+        $preferredLanguage = Cookie::get($key)??'en';
         app()->setLocale($preferredLanguage);
         // dd($preferredLanguage);
 

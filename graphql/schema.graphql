@@ -55,16 +55,6 @@ type User {
     updated_at: DateTime!
 }
 
-type Maker {
-  id: ID!
-  name: String!
-  avatar: String
-  description: String
-  begin_at: String
-  stop_at: String
-  ly_metas: [LyMeta!]! @hasMany
-}
-
 type LyMeta {
   id: ID!
   name: String!
@@ -73,9 +63,8 @@ type LyMeta {
   description: String
   begin_at: String
   end_at: String
-  maker: Maker! @belongsTo
   remark: String
-  category: String!
+  category: String
   announcers: [Announcer!]! @belongsToMany
 
   ly_items: [LyItem]! @hasMany(type: PAGINATOR, defaultCount: 31) @orderBy(column: "alias", direction: DESC)

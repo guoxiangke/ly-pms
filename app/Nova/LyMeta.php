@@ -212,7 +212,7 @@ class LyMeta extends Resource
                 ->single(),
             Date::make(__('Program Start Date'),'begin_at')->sortable()->hideFromIndex(),
             Date::make(__('Program End Date'),'end_at')->sortable(),
-            Date::make(__('Program Unpublished Date'),'unpublished_at')->sortable()->help('节目1.1号停播，end_at=1.1,播放列表最多显示天数，31,  counts_max_list=31, 1.15提前下架，强制不显示,unpublished_at=1.15'),
+            Date::make(__('Playlist Unpublish Date'),'unpublished_at')->sortable()->help('节目1.1号停播，end_at=1.1,播放列表最多显示天数，30,  counts_max_list=30, 1.15提前下架，强制不显示,unpublished_at=1.15'),
             InlineText::make(__('Weekly Broadcast Date'),'rrule_by_day')
                 ->rules('required', 'max:20'),//3x7-1
             Text::make(__('Publish Duration'),'counts_max_list')->placeholder('播放列表最多显示天数，31-255')->sortable()->hideFromIndex(),

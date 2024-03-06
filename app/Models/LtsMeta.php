@@ -24,8 +24,12 @@ class LtsMeta extends Model
 
     protected $guarded = ['id', 'created_at', 'updated_at', 'deleted_at'];
 
-    protected $dates = ['created_at', 'updated_at', 'deleted_at', 'begin_at', 'stop_at'];
+    protected $dates = ['created_at', 'updated_at', 'deleted_at', 'begin_at', 'made_at'];
     
+    protected $casts = [
+        'begin_at' => 'date',
+        'made_at' => 'date',
+    ];
 
     protected $appends = [
         'cover',

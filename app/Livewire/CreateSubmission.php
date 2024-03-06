@@ -21,6 +21,7 @@ class CreateSubmission extends Component
 
     public $user;
 
+    public $title = 'Submission';
     public $hasNewFile = false;
     public $messageTitle = "注意：上传请谨慎";
     public $message = '本上传功能只验证新提交的文件。<br/>1. 文件一旦SUBMIT(提交)，将进入处理队列，不可更改（修改删除无效）<br/>2. 已提交的文件(SUBMIT)不可更改Name，不要轻易改动Description,<a href="/nova/resources/ly-items"><s>想改动?</s></a><br/>3. 当天可追加提交(再次提交请先刷新本页)';
@@ -155,8 +156,7 @@ class CreateSubmission extends Component
 
     public function render()
     {
-        return view('livewire.create-submission');
-        // default layout file : components.layouts.app
-        // ->layout('layouts.submission'); //views/layouts/submission.blade.php
+        return view('livewire.create-submission')
+            ->layout('layouts.submission');
     }
 }

@@ -25,6 +25,7 @@ return new class extends Migration
             $table->foreignId('make_id')->nullable();
             $table->string('avatar')->nullable();
             $table->text('remark')->nullable()->comment('备注');
+            $table->unsignedInteger('wx_index')->unique()->nullable()->comment('微信编号');
             $table->softDeletes();
             $table->timestamps();
         });

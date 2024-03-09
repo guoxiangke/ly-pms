@@ -2,7 +2,7 @@
     <nav class="border-gray-200 bg-gray-50 dark:bg-gray-100 dark:border-gray-50">
       <div class="max-w-screen-xl flex flex-wrap items-center justify-between m-8 py-4" style="margin-top: 0;">
         <a href="#" class="">
-            <img src="https://lpyy729.net/images/729ly_logo_50.png" class="h-10" alt="LOGO Logo" />
+            <img src="/logo.png" class="h-10" alt="LOGO Logo" />
         </a>
       </div>
     </nav>
@@ -12,9 +12,8 @@
       <summary class="cursor-pointer text-2xl font-extrabold tracking-tight text-slate-900">{{$lyMeta->name}}<span class="text-sm font-medium ml-2 text-gray-500">{{$lyMeta->description}}</span></summary>
       <div class="bg-gray-50 text-gray-600">
         <div class="p-2">
-          <img src="{{$lyMeta->cover}}" style="float: right;" class="float-right w-36 h-36 ml-2">
-          <div style="min-height: 150px;" >
-            <p class="font-medium leading-7">{{$lyMeta->getMeta('description_detail')}}</p>
+          <div class="text-gray-900" >
+            <p class=" leading-7">{{$lyMeta->getMeta('description_detail')}}</p>
             <p class="mt-1">电邮：{{$lyMeta->getMeta('program_email')}}</p>
             <p class="mt-1">短信：{{$lyMeta->getMeta('program_sms')}} @if($keyword = $lyMeta->getMeta('program_sms_keyword')) {{$keyword}} @endif</p>
           </div>
@@ -34,6 +33,42 @@
       <audio class="hidden" id="audio" data-id="0" controls src='{{$music->path}}'></audio>
 
       <div class="flex flex-nowrap audio-player my-4">
+        <div class="p-4" style="padding-right: 0;">
+          <img src="{{$lyMeta->cover}}" class="rounded-lg bg-slate-100 pt-1" loading="lazy">
+          <div class="gap-1 flex items-center justify-center mt-3">
+                  <button id="prev" type="button" class="" aria-label="Previous">
+                    <svg width="24" height="24" fill="none">
+                      <path d="m10 12 8-6v12l-8-6Z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                      <path d="M6 6v12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  </button>
+                  <button id="rewind" type="button" aria-label="Rewind 10 seconds">
+                    <svg width="24" height="24" fill="none">
+                      <title>倒退10s</title>
+                      <path d="M6.492 16.95c2.861 2.733 7.5 2.733 10.362 0 2.861-2.734 2.861-7.166 0-9.9-2.862-2.733-7.501-2.733-10.362 0A7.096 7.096 0 0 0 5.5 8.226" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                      <path d="M5 5v3.111c0 .491.398.889.889.889H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  </button>
+                  <button title="速度切换" alt="倍速播放" id="speed" type="button" class=" rounded-lg text-xs leading-6 font-semibold px-2 ring-2 ring-inset ring-slate-500 text-slate-500 dark:text-slate-100 dark:ring-0 dark:bg-slate-500">
+                    1x
+                  </button>
+
+                  <button id="skip" type="button" aria-label="Skip 10 seconds">
+
+                    <svg width="24" height="24" fill="none">
+                      <title>前进10s</title>
+                      <path d="M17.509 16.95c-2.862 2.733-7.501 2.733-10.363 0-2.861-2.734-2.861-7.166 0-9.9 2.862-2.733 7.501-2.733 10.363 0 .38.365.711.759.991 1.176" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                      <path d="M19 5v3.111c0 .491-.398.889-.889.889H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  </button>
+                  <button id="next" type="button" class="sm:block lg:hidden xl:block" aria-label="Next">
+                    <svg width="24" height="24" fill="none">
+                      <path d="M14 12 6 6v12l8-6Z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                      <path d="M18 6v12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  </button>
+          </div>
+        </div>
         <div class="flex-auto">
           <div class="p-4 player-body">
             <p
@@ -51,26 +86,17 @@
 
           <div id="waveform" class="py-2 waveform"></div>
 
-          <div class="flex flex-nowrap justify-between controls">
-            <div class="volume">
+          <div class="flex flex-nowrap justify-between">
+            <div class="flex volume hidden lg:block md:block xl:block">
               <img
                 id="volumeIcon"
                 class="volume-icon"
                 src="/waveplayer/volume.svg"
                 alt="Volume"
               />
-              <input
-                id="volumeSlider"
-                class="volume-slider"
-                type="range"
-                name="volume-slider"
-                min="0"
-                max="100"
-                value="50"
-              />
             </div>
 
-            <div class="flex items-center text-xs md:text-sm lg:text-base">
+            <div class="flex items-center text-base">
               <span id="currentTime">00:00</span><span>/</span><span id="totalDuration">00:00</span>
             </div>
           </div>
@@ -113,29 +139,30 @@
                       {{$lyMeta->name}}-{{$lyItem->play_at->format('Ymd')}}
                     </p>
                     <p class="mt-1 flex text-sm leading-5 text-gray-500">
-                      <span class="relative truncate hover:underline">{{$lyItem->description}}</span>
+                      <span class="relative hover:underline">{{$lyItem->description}}</span>
                     </p>
                   </div>
                 </div>
 
                 <div class="flex shrink-0 items-center gap-x-4">
                     <div data-url="{{$lyItem->path}}" 
-                        title="音频下载 (6.89M)"
-                        class="preventEvents downloads cursor-pointer">
+                        title="音频下载 ({{$lyItem->filesize?:'6.9M'}})"
+                        class="preventEvents downloads cursor-pointer text-gray-400  hover:text-gray-600">
                       <svg 
-                        class="h-5 w-5 flex-none text-gray-400  hover:text-gray-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        class="h-5 w-5 flex-none " viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                           <title></title>
                           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M 15 4 L 15 20.5625 L 9.71875 15.28125 L 8.28125 16.71875 L 15.28125 23.71875 L 16 24.40625 L 16.71875 23.71875 L 23.71875 16.71875 L 22.28125 15.28125 L 17 20.5625 L 17 4 Z M 7 26 L 7 28 L 25 28 L 25 26 Z"/></svg>
                       </svg>
                     </div>
                     
-                    <div class="group relative">
+                    <div class="group relative" title="点此分享">
+
+                      <a href="{{Route('share.lyItem', $lyItem->hashId)}}" target="_blank">
                       <svg 
-                        data-url="{{Route('share.lyItem', $lyItem->hashId)}}"
                         class="share cursor-pointer h-5 w-5 flex-none text-gray-400  hover:text-gray-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><path d="M 35.484375 5.984375 A 1.50015 1.50015 0 0 0 34.439453 8.5605469 L 36.878906 11 L 35.5 11 C 23.64339 11 14 20.64339 14 32.5 A 1.50015 1.50015 0 1 0 17 32.5 C 17 22.26461 25.26461 14 35.5 14 L 36.878906 14 L 34.439453 16.439453 A 1.50015 1.50015 0 1 0 36.560547 18.560547 L 41.431641 13.689453 A 1.50015 1.50015 0 0 0 41.423828 11.302734 L 36.560547 6.4394531 A 1.50015 1.50015 0 0 0 35.484375 5.984375 z M 12.5 6 C 8.9280619 6 6 8.9280619 6 12.5 L 6 35.5 C 6 39.071938 8.9280619 42 12.5 42 L 35.5 42 C 39.071938 42 42 39.071938 42 35.5 L 42 27.5 A 1.50015 1.50015 0 1 0 39 27.5 L 39 35.5 C 39 37.450062 37.450062 39 35.5 39 L 12.5 39 C 10.549938 39 9 37.450062 9 35.5 L 9 12.5 C 9 10.549938 10.549938 9 12.5 9 L 20.5 9 A 1.50015 1.50015 0 1 0 20.5 6 L 12.5 6 z"/></svg>
                       </svg>
-                      <span class="pointer-events-none absolute -top-7 -left-14 w-max rounded bg-gray-900 px-2 py-1 text-xs font-medium text-gray-50 opacity-0 shadow transition-all scale-0 group-hover:scale-100 group-hover:opacity-100 ">点此获取分享链接</span>
+                      </a>
                     </div>
                 </div>
               </div>
@@ -145,19 +172,6 @@
         </ul>
       </div>
     </div>
- 
-    <div id="tooltip" class="hidden animate-fade transition-opacity duration-1000 ease-in hover:opacity-0  opacity-100  fixed z-50 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"> 
-      <div class="w-full mx-auto">
-        <div class="flex p-5 rounded-lg shadow bg-white">
-          <div class="ml-3">
-            <p class="mt-2 text-sm text-gray-800 leading-relaxed">分享链接已复制</p>
-          </div>
-          <div>
-            <svg  class="w-5 h-5 fill-current text-gray-900" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18,21H6c-1.657,0-3-1.343-3-3V6c0-1.657,1.343-3,3-3h12c1.657,0,3,1.343,3,3v12  C21,19.657,19.657,21,18,21z" opacity=".35"/><path d="M14.812,16.215L7.785,9.188c-0.384-0.384-0.384-1.008,0-1.392l0.011-0.011c0.384-0.384,1.008-0.384,1.392,0l7.027,7.027  c0.384,0.384,0.384,1.008,0,1.392l-0.011,0.011C15.82,16.599,15.196,16.599,14.812,16.215z"/><path d="M7.785,14.812l7.027-7.027c0.384-0.384,1.008-0.384,1.392,0l0.011,0.011c0.384,0.384,0.384,1.008,0,1.392l-7.027,7.027 c-0.384,0.384-1.008,0.384-1.392,0l-0.011-0.011C7.401,15.82,7.401,15.196,7.785,14.812z"/></svg>
-          </div>
-        </div>
-      </div>
-    </div>
     @endif
 
   </main>
@@ -165,13 +179,14 @@
   @push('scripts')
     <script type="text/javascript">
       document.addEventListener("DOMContentLoaded", function() {
+        
+
         const audio = document.getElementById("audio");
         const links = document.querySelectorAll('.downloads');
         const tracks = document.getElementsByClassName('track');
         const playButton = document.querySelector('#playButton');
         const waveform = document.querySelector('#waveform');
         const volumeIcon = document.querySelector('#volumeIcon');
-        const volumeSlider = document.querySelector('#volumeSlider');
         const currentTime = document.querySelector('#currentTime');
         const totalDuration = document.querySelector('#totalDuration');
         const playButtonPlay = document.querySelector('#playButton-play');
@@ -179,42 +194,29 @@
         const playButtonsPlay = document.getElementsByClassName('playButtons-play');
         const playButtonsPause = document.getElementsByClassName('playButtons-pause');
 
-        const shares = document.querySelectorAll('.share');
-        const tooltip = document.getElementById("tooltip");
 
-        shares.forEach(share => {
-          share.addEventListener('click', function (e) {
-            e.preventDefault();
-            const url = e.target.getAttribute('data-url');
-            copyToClipboard(url);
-            tooltip.classList.remove('hidden');
+        const rewindButton = document.querySelector('#rewind');
+        const skipButton = document.querySelector('#skip');
+        const speedButton = document.querySelector('#speed');
+        const nextButton = document.querySelector('#next');
+        const prevButton = document.querySelector('#prev');
 
-            setTimeout(function(){
-                tooltip.classList.add('hidden');
-            }, 3000);
-          },false);
-        });
-
-        tooltip.addEventListener('mouseover', function (e) {
-          e.preventDefault();
-          setTimeout(function(){
-              tooltip.classList.add('hidden')
-          }, 1000);
-        })
+        
 
         // click to download
         links.forEach(link => {
           link.addEventListener('click', function (e) {
             e.preventDefault();
-            console.log(e.target.getAttribute('data-url'),e.target);
             const url = e.target.getAttribute('data-url');
             const filename = url.split('/').pop();
-            fetchDown(url, filename);
+            e.currentTarget.className += " img-rotate";
+            fetchDown(url, filename, e);
           });
         });
 
         // download function
-        function fetchDown (url, saveas) {
+        function fetchDown (url, saveas, e) {
+          e.currentTarget.className += " text-gray-600";
           fetch(url)
           .then(res => {
             if (res.status != 200) { throw new Error("Bad server response"); }
@@ -227,7 +229,8 @@
             anchor.download = saveas;
             anchor.click();
             window.URL.revokeObjectURL(url);
-            // document.removeChild(anchor);
+            e.target.classList.toggle('img-rotate');
+            e.target.classList.toggle('text-gray-600');
           })
           .catch(err => console.error(err));
         }
@@ -329,31 +332,6 @@
             });
 
             /**
-             * Handles changing the volume slider input
-             * @param {event} e
-             */
-            const handleVolumeChange = e => {
-              // Set volume as input value divided by 100
-              // NB: Wavesurfer only excepts volume value between 0 - 1
-              const volume = e.target.value / 100;
-
-              wavesurfer.setVolume(volume);
-
-              // Save the value to local storage so it persists between page reloads
-              localStorage.setItem('audio-player-volume', volume);
-            };
-
-            /**
-             * Retrieves the volume value from localstorage and sets the volume slider
-             */
-            const setVolumeFromLocalStorage = () => {
-              // Retrieves the volume from localstorage, or falls back to default value of 50
-              const volume = localStorage.getItem('audio-player-volume') * 100 || 50;
-
-              volumeSlider.value = volume;
-            };
-
-            /**
              * Formats time as HH:MM:SS
              * @param {number} seconds
              * @returns time as HH:MM:SS
@@ -371,27 +349,55 @@
               audio.muted = !audio.muted; 
               if (audio.muted) {
                 volumeIcon.src = '/waveplayer/mute.svg';
-                volumeSlider.disabled = true;
               } else {
-                volumeSlider.disabled = false;
                 volumeIcon.src = '/waveplayer/volume.svg';
               }
+            };
+
+            const handleSpeedChange = e => {
+              let rate = wavesurfer.getPlaybackRate();
+              if(rate<2) {
+                rate+=0.5;
+              }else{
+                rate = 1;
+              }
+              e.target.innerText = rate+"x";
+              wavesurfer.setPlaybackRate(rate);
+            };
+
+            const handleNext = e => {
+              let nextTrack = "#track-" + (parseInt(audio.dataset.id)  + 1) % tracks.length
+              document.querySelector(nextTrack).click();
+            };
+            const handlePrev = e => {
+              let id = parseInt(audio.dataset.id);
+              if(id <= 0) {
+                id = tracks.length-1
+              }else{
+               id = --id % tracks.length
+              }
+              let nextTrack = "#track-" + id
+              document.querySelector(nextTrack).click();
             };
 
             // --------------------------------------------------------- //
 
             // Javascript Event listeners
-            window.addEventListener('load', setVolumeFromLocalStorage);
             playButton.addEventListener('click', togglePlay);
             volumeIcon.addEventListener('click', toggleMute);
-            volumeSlider.addEventListener('input', handleVolumeChange);
+
+            rewindButton.addEventListener('click', () => {wavesurfer.skip(-10)});
+            skipButton.addEventListener('click', () => {wavesurfer.skip(10)});
+            speedButton.addEventListener('click', handleSpeedChange);
+            nextButton.addEventListener('click', handleNext);
+            prevButton.addEventListener('click', handlePrev);
 
             // --------------------------------------------------------- //
 
             // Wavesurfer event listeners
             wavesurfer.on('ready', () => {
               // Set wavesurfer volume
-              wavesurfer.setVolume(volumeSlider.value / 100);
+              wavesurfer.setVolume(1);
 
               // Set audio track total duration
               const duration = wavesurfer.getDuration();
@@ -421,8 +427,12 @@
               }
               if (e.key === "ArrowRight" || e.key == "ArrowDown") {
                   e.preventDefault();
-                  let nextTrack = "#track-" + (parseInt(audio.dataset.id)  + 1) % tracks.length
-                  document.querySelector(nextTrack).click();
+                  handleNext()
+              }
+
+              if (e.key === "ArrowLeft" || e.key == "ArrowUp") {
+                  e.preventDefault();
+                  handlePrev()
               }
             });
         })();

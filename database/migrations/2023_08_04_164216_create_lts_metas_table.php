@@ -19,10 +19,9 @@ return new class extends Migration
             $table->string('author')->nullable()->comment('授课老师、分割');
             $table->string('code')->comment('课程代码')->unique();
             $table->unsignedTinyInteger('count')->comment('课程数量');
-            $table->unsignedInteger('index')->unique()->nullable()->comment('微信编号');
+            $table->unsignedInteger('wx_index')->unique()->nullable()->comment('微信编号');
 
             $table->timestamp('begin_at')->nullable()->comment('上架时间');
-            $table->timestamp('stop_at')->nullable()->comment('课程下架时间');
             $table->timestamp('made_at')->nullable()->comment('制作日期');
             $table->foreignId('ly_meta_id')->index()->nullable()->comment('上次上架分类hp、dp');
 

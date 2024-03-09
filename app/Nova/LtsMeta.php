@@ -130,7 +130,7 @@ class LtsMeta extends Resource
             Text::make(__('LTS Subject Title'),'name')
                 ->sortable()
                 ->rules('required', 'max:255'),
-            Text::make(__('LTS Subject Alias'),'code')
+            Text::make(__('LTS Subject Prefix'),'code')
                 ->sortable()
                 ->rules('required', 'max:12'),
             BelongsTo::make(__('Program LTS Title'), 'ly_meta', 'App\Nova\LyMeta')
@@ -149,15 +149,10 @@ class LtsMeta extends Resource
                 ->hideFromIndex()
                 ->sortable(),
             Date::make(__('Start Publishing Date'),'begin_at')->hideFromIndex()->sortable(),
-            Date::make(__('Finish Publishing Date'),'stop_at')->hideFromIndex()->sortable(),
             Textarea::make(__("Remark"), 'remark')->hideFromIndex(),
             Tags::make(__('Category'),'Tags')
                 ->type('lts')
                 ->single()
-                ->hideFromIndex(),
-            Text::make('微信编码','index')
-                ->sortable()
-                ->placeholder('微信编码')
                 ->hideFromIndex(),
             HasMany::make(__("Lts Episodes"), 'lts_items', LtsItem::class),
         ];

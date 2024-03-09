@@ -21,10 +21,11 @@ return new class extends Migration
             $table->timestamp('begin_at')->nullable();
             $table->timestamp('end_at')->nullable()->comment('停播日期');
             $table->timestamp('unpublished_at')->nullable()->comment('下架日期，强制不显示');
-            $table->unsignedTinyInteger('counts_max_list')->default(31)->comment('播放列表最多显示天数，Publish duration：31-255');//max_show_counts
+            $table->unsignedTinyInteger('counts_max_list')->default(30)->comment('播放列表最多显示天数，Publish duration：31-255');//max_show_counts
             $table->foreignId('make_id')->nullable();
             $table->string('avatar')->nullable();
             $table->text('remark')->nullable()->comment('备注');
+            $table->unsignedInteger('wx_index')->unique()->nullable()->comment('微信编号');
             $table->softDeletes();
             $table->timestamps();
         });

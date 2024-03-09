@@ -42,7 +42,6 @@
 
           /* Volume */
           .volume {
-            display: flex;
             align-items: center;
           }
           .volume-icon {
@@ -121,6 +120,19 @@
           }
           .volume-slider[disabled]::-ms-track {
             background-color: var(--disabled-button-color);
+          }
+
+          @-webkit-keyframes rotation{
+            from {-webkit-transform: scale(1);}
+            to {-webkit-transform: scale(2);}
+          }
+
+          .img-rotate{
+            -webkit-transform: scale(2);
+            animation: rotation 1.4s linear infinite;
+            -moz-animation: rotation 1.4s linear infinite;
+            -webkit-animation: rotation 1.4s linear infinite;
+            -o-animation: rotation 1.4s linear infinite;
           }
         </style>
     </head>

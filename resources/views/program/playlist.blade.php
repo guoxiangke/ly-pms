@@ -8,8 +8,8 @@
     </nav>
   <main class="m-8">
     
-    <details>
-      <summary class="cursor-pointer text-2xl font-extrabold tracking-tight text-slate-900">{{$lyMeta->name}}<span class="text-sm font-medium ml-2 text-gray-500">{{$lyMeta->description}}</span></summary>
+    <details open>
+      <summary class="cursor-pointer text-2xl font-extrabold tracking-tight text-slate-900">{{$lyMeta->name}}<span class="hidden text-sm font-medium ml-2 text-gray-500">{{$lyMeta->description}}</span></summary>
       <div class="bg-gray-50 text-gray-600">
         <div class="p-2">
           <div class="text-gray-900" >

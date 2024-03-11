@@ -10,8 +10,8 @@
     
     <details open>
       <summary class="cursor-pointer text-2xl font-extrabold tracking-tight text-slate-900">{{$lyMeta->name}}<span class="hidden text-sm font-medium ml-2 text-gray-500">{{$lyMeta->description}}</span></summary>
-      <div class="bg-gray-50 text-gray-600">
-        <div class="p-2">
+      <div class="mt-2 bg-gray-50 text-gray-600">
+        <div class="p-4">
           <div class="text-gray-900" >
             <p class=" leading-7">{{$lyMeta->getMeta('description_detail')}}</p>
             <p class="mt-1">电邮：{{$lyMeta->getMeta('program_email')}}</p>

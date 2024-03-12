@@ -31,8 +31,6 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/pulse', LyPulse::class);
-
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
@@ -46,19 +44,7 @@ Route::middleware([
  
     Route::get('/file/submission', CreateSubmission::class);
 
-    Route::get('/nova/switch/language', function (Request $request) {
-        $key = 'preferred_language';
-        $preferredLanguage = Cookie::get($key);
-
-        $switchedLanguage = $preferredLanguage == 'en'?'zh':'en';
-        Cookie::queue(cookie($key, $switchedLanguage));
-        // Nova.success('Yey!');
-            // en_US
-            // $languageStr = $request->getPreferredLanguage();
-            // $languageStr = 'zh_CN';
-        // session()->flash('message', 'Something went wrong');
-        return redirect()->back();
-    });
+    Route::get('/pulse', LyPulse::class)->name('pulse');
 });
 
 Route::get('/storage/ly/corrections/{mp3}', function (Request $request, $mp3) {

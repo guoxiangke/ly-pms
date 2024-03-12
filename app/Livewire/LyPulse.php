@@ -16,6 +16,6 @@ class LyPulse extends Component
         $lyMetas = LyMeta::active()->notLts()->get();
         $lyItems = LyItem::whereBetween('play_at',[now()->subDay($before)->startOfDay(),now()->addDays($after)->startOfDay()])->get()->groupBy('ly_meta_id');
         return view('livewire.ly-pulse',compact('lyMetas', 'lyItems', 'before', 'after'))
-            ->layout('layouts.pulse');
+            ->layout('layouts.app');
     }
 }

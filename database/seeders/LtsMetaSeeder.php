@@ -30,6 +30,8 @@ class LtsMetaSeeder extends Seeder
             $item['code'] =  "ma" . $item['code'];
 
             $filter = Arr::only($item, ['name', 'description', 'avatar', 'code', 'count','author','index']);
+            $filter['wx_index'] = $filter['index'];  // change index => wx_index!
+            unset($filter['index']);
             $ltsMeta = LtsMeta::Create($filter);//compact('code'), 
             $categoryTitle = $category[$item['category']];
             $tag = Tag::findOrCreateFromString($categoryTitle, 'lts');

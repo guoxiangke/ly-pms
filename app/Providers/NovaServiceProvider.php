@@ -22,31 +22,6 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
      */
     public function boot()
     {
-        // Nova::userMenu(function (Request $request, Menu $menu) {
-        //     $menu->prepend(
-        //         MenuItem::make(
-        //             '中文 ⇋ English',
-        //             "/switch/language"
-        //         )->withBadge('⚐', 'info')
-        //     );
-        //     // dd($request->getPreferredLanguage());// en_US
-        //     return $menu;
-        // });
-        
-        // $key = 'preferred_language';
-        // $preferredLanguage = Cookie::get($key)??'en';
-        // app()->setLocale($preferredLanguage);
-        // dd($preferredLanguage);
-
-        // navigator.language
-            // en-US
-            // zh-CN
-            // zh-TW
-            
-        // $preferredLanguage = auth()->user()->getMeta('preferred_language', 'en');
-        
-        // dd(app()->getLocale());//en
-        // Nova::userLocale(fn()=>'en');
         parent::boot();
         Nova::withBreadcrumbs();
         Nova::withoutNotificationCenter();

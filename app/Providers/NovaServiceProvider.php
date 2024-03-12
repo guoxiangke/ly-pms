@@ -22,19 +22,20 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
      */
     public function boot()
     {
-        Nova::userMenu(function (Request $request, Menu $menu) {
-            $menu->prepend(
-                MenuItem::make(
-                    '中文 ⇋ English',
-                    "/switch/language"
-                )->withBadge('⚐', 'info')
-            );
-            // dd($request->getPreferredLanguage());// en_US
-            return $menu;
-        });
-        $key = 'preferred_language';
-        $preferredLanguage = Cookie::get($key)??'en';
-        app()->setLocale($preferredLanguage);
+        // Nova::userMenu(function (Request $request, Menu $menu) {
+        //     $menu->prepend(
+        //         MenuItem::make(
+        //             '中文 ⇋ English',
+        //             "/switch/language"
+        //         )->withBadge('⚐', 'info')
+        //     );
+        //     // dd($request->getPreferredLanguage());// en_US
+        //     return $menu;
+        // });
+        
+        // $key = 'preferred_language';
+        // $preferredLanguage = Cookie::get($key)??'en';
+        // app()->setLocale($preferredLanguage);
         // dd($preferredLanguage);
 
         // navigator.language
@@ -104,7 +105,9 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
      */
     public function tools()
     {
-        return [];
+        return [
+            new \Badinansoft\LanguageSwitch\LanguageSwitch(),
+        ];
     }
 
     /**

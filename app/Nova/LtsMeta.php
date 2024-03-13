@@ -133,7 +133,7 @@ class LtsMeta extends Resource
             Text::make(__('LTS Subject Prefix'),'code')
                 ->sortable()
                 ->rules('required', 'max:12'),
-            BelongsTo::make(__('Program LTS Title'), 'ly_meta', 'App\Nova\LyMeta')
+            BelongsTo::make(__('LTS Program Title'), 'ly_meta', 'App\Nova\LyMeta')
                 ->relatableQueryUsing(function (NovaRequest $request, Builder $query) {
                     $query->where('code', 'like', 'malts%');
                 }),//->searchable(),

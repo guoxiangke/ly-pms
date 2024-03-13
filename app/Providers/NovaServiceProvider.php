@@ -23,10 +23,13 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
     public function boot()
     {
         parent::boot();
-        Nova::withBreadcrumbs();
+        // Nova::withBreadcrumbs();
         Nova::withoutNotificationCenter();
+        Nova::withoutThemeSwitcher();
         Nova::footer(function ($request) {
-            return Blade::render('<p class="text-center">© 2024 <a href="https://729ly.net">良友电台</a><span class="hidden">Created by www.yilindeli.com</span></p>');
+            return Blade::render('<p class="text-center">&copy; {!! $year !!} <a href="https://729ly.net">良友电台</a> · v{!! $version !!}<span class="hidden">Created by dale404200@gmail.com</span></p>', [
+            'version' => Nova::version(),
+            'year' => date('Y')]);
         });
     }
 
@@ -82,6 +85,8 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
     {
         return [
             new \Badinansoft\LanguageSwitch\LanguageSwitch(),
+            new \Xiangkeguo\Pulse\Pulse(),
+            // new \Anaseqal\NovaSidebarIcons\NovaSidebarIcons,
         ];
     }
 

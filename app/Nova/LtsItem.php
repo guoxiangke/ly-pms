@@ -75,17 +75,17 @@ class LtsItem extends Resource
     {
         return [
             // ID::make()->sortable(),
-            BelongsTo::make(__('LTS Subject Title'), 'lts_meta', 'App\Nova\LtsMeta')->searchable(),
+            BelongsTo::make(__('Episode Title'), 'lts_meta', 'App\Nova\LtsMeta')->searchable(),
 
-            Text::make(__('LTS Subject Description'),'description')
+            Text::make(__('Episode Description'),'description')
                 ->sortable()
                 ->hideFromIndex(),
-            Text::make(__('LTS Subject Description'),'description')
+            Text::make(__('Episode Description'),'description')
                 ->rules('required', 'max:255')->displayUsing(function($description) {
                     return Str::limit($description, 32);
                 })->onlyOnIndex(),
-            Date::make(__('Play At'),'play_at')->sortable(),
-            Text::make(__('LTS Subject Alias'),'alias')
+            Date::make(__('Start Publishing Date'),'play_at')->sortable(),
+            Text::make(__('Episode Alias'),'alias')
                 ->sortable()
                 ->rules('required', 'max:12'),
             Audio::make('Mp3', fn() => $this->novaPath)->disableDownload(),

@@ -49,7 +49,7 @@
                       <path d="M5 5v3.111c0 .491.398.889.889.889H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
                   </button>
-                  <button title="速度切换" alt="倍速播放" id="speed" type="button" class=" rounded-lg text-xs leading-6 font-semibold px-2 ring-2 ring-inset ring-slate-500 text-slate-500 dark:text-slate-100 dark:ring-0 dark:bg-slate-500">
+                  <button title="速度切换" alt="倍速播放" id="speed" type="button" class="text-xs leading-6 font-semibold px-2">
                     1x
                   </button>
 

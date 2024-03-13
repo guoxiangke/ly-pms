@@ -1,6 +1,5 @@
-<div class="m-8 px-4 sm:px-6 lg:px-8">
-    <div class="mt-8">
-          <div class="max-w-full overflow-x-auto max-h-screen overflow-y-scroll inline-block align-middle">
+<div class="">
+          <div class="max-w-full overflow-x-auto max-h-screen overflow-y-scroll align-middle">
             <table class="min-w-full border-separate border-spacing-0">
               <thead class="">
                 <tr class="divide-x divide-gray-200">
@@ -48,6 +47,5 @@
               </tbody>
             </table>
           </div>
-  </div>
 </div>
 

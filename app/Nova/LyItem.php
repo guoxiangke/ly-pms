@@ -87,7 +87,7 @@ class LyItem extends Resource
                 ->disableDownload()
         ];
         return array_merge( [
-            Text::make(__('Program Alias'), 'alias')
+            Text::make(__('Episode Alias'), 'alias')
                 ->sortable()
                 ->rules('required', 'max:12')
                 ->hideFromIndex(),
@@ -99,19 +99,19 @@ class LyItem extends Resource
             Boolean::make('', function(){
                 return !$this->is_future;
             })->onlyOnIndex(),
-            Text::make(__('Program Title'), fn()=> $this->ly_meta->name . "-" . $this->play_at->format("ymd"))->onlyOnIndex(),
+            Text::make(__('Episode Title'), fn()=> $this->ly_meta->name . "-" . $this->play_at->format("ymd"))->onlyOnIndex(),
 
-            BelongsTo::make(__('Program Title'), 'ly_meta', 'App\Nova\LyMeta')->hideFromIndex(),//->filterable(),
-            Text::make(__('Playtime String'), 'playtime_string')->sortable(),
+            BelongsTo::make(__('Episode Title'), 'ly_meta', 'App\Nova\LyMeta')->hideFromIndex(),//->filterable(),
+            Text::make(__('Episode Duration'), 'playtime_string')->sortable(),
 
-            InlineText::make(__('Program Description'), 'description')->displayUsing(function($description) {
+            InlineText::make(__('Episode Description'), 'description')->displayUsing(function($description) {
                     return Str::limit($description, 32);
                 })->onlyOnIndex(),
-            Text::make(__('Program Description'), 'description')
+            Text::make(__('Episode Description'), 'description')
                 ->rules('required', 'max:255')->displayUsing(function($description) {
                     return Str::limit($description, 32);
                 })->hideFromIndex(),
-            Date::make(__('Play At'), 'play_at')->hideFromIndex(),
+            Date::make(__('Start Publishing Date'), 'play_at')->hideFromIndex(),
             
             // TODO: 不要跳转，不要统计, aws直链
             App::isLocal() ? Audio::make('Mp3', fn() => $this->mp3?:$this->novaPath)->disableDownload()->onlyOnDetail() : Audio::make('Mp3', fn() => $this->mp3?$this->path:$this->novaPath)->disableDownload()->onlyOnDetail(),

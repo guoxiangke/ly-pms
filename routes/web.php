@@ -28,7 +28,8 @@ use App\Livewire\LyPulse;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect('/admin');
+    // return view('welcome');
 });
 
 Route::middleware([
@@ -117,12 +118,6 @@ Route::get('/storage/ly/audio/{code}/{day}.mp3', function (Request $request, $co
     ];
     InfluxQueue::dispatchAfterResponse($protocolLine);
     return redirect()->away("{$domain}/lts/${code}/${day}.mp3");
-});
-
-
-Route::get('/ip', function (Request $request) {
-    $ip = $request->header('x-forwarded-for')??$request->ip();
-    return [$ip,$request->ip()];
 });
 
 Route::get('/program/{lyMeta:code}', function (LyMeta $lyMeta) {

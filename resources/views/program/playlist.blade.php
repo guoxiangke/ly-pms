@@ -2,7 +2,7 @@
     <nav class="border-gray-200 bg-gray-50 dark:bg-gray-100 dark:border-gray-50">
       <div class="max-w-screen-xl flex flex-wrap items-center justify-between m-8 py-4" style="margin-top: 0;">
         <a href="#" class="">
-            <img src="/logo.png" class="h-10" alt="LOGO Logo" />
+            <img src="{{asset('logo.png')}}" class="h-10" alt="LY Logo" />
         </a>
       </div>
     </nav>
@@ -91,7 +91,7 @@
               <img
                 id="volumeIcon"
                 class="volume-icon"
-                src="/waveplayer/volume.svg"
+                src="{{asset('/waveplayer/volume.svg')}}"
                 alt="Volume"
               />
             </div>
@@ -348,9 +348,9 @@
               // wavesurfer.toggleMute();
               audio.muted = !audio.muted; 
               if (audio.muted) {
-                volumeIcon.src = '/waveplayer/mute.svg';
+                volumeIcon.src = "{{asset('/waveplayer/mute.svg')}}"
               } else {
-                volumeIcon.src = '/waveplayer/volume.svg';
+                volumeIcon.src = "{{asset('/waveplayer/volume.svg')}}"
               }
             };
 

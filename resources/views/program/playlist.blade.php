@@ -91,7 +91,7 @@
               <img
                 id="volumeIcon"
                 class="volume-icon"
-                src="/waveplayer/volume.svg"
+                src="{{asset('/waveplayer/volume.svg')}}"
                 alt="Volume"
               />
             </div>
@@ -348,9 +348,9 @@
               // wavesurfer.toggleMute();
               audio.muted = !audio.muted; 
               if (audio.muted) {
-                volumeIcon.src = '/waveplayer/mute.svg';
+                volumeIcon.src = "{{asset('/waveplayer/mute.svg')}}"
               } else {
-                volumeIcon.src = '/waveplayer/volume.svg';
+                volumeIcon.src = "{{asset('/waveplayer/volume.svg')}}"
               }
             };
 

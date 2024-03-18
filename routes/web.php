@@ -28,7 +28,7 @@ use App\Livewire\LyPulse;
 */
 
 Route::get('/', function () {
-    return redirect('/admin');
+    return redirect()->route('nova.pages.home');
     // return view('welcome');
 });
 

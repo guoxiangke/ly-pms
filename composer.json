@@ -2,12 +2,16 @@
     "name": "laravel/laravel",
     "type": "project",
     "description": "The Laravel Framework.",
-    "keywords": ["framework", "laravel"],
+    "keywords": [
+        "framework",
+        "laravel"
+    ],
     "license": "MIT",
     "require": {
         "php": "^8.1",
         "badinansoft/nova-language-switch": "^1.2",
         "deligoez/laravel-model-hashid": "^2.4",
+        "elipzis/nova-embed-card": "^1.0",
         "guzzlehttp/guzzle": "^7.2",
         "http-interop/http-factory-guzzle": "^1.2",
         "inertiajs/inertia-laravel": "^0.6.9",
@@ -15,7 +19,7 @@
         "james-heinrich/getid3": "^1.9",
         "laravel/framework": "^10.9",
         "laravel/jetstream": "^3.2",
-        "laravel/nova": "^4.0",
+        "laravel/nova": "^4.33",
         "laravel/octane": "^2.3",
         "laravel/sanctum": "^3.2",
         "laravel/scout": "^10.2",
@@ -34,7 +38,8 @@
         "spatie/laravel-medialibrary-pro": "^5.0.0",
         "spatie/laravel-permission": "^5.10",
         "spatie/nova-tags-field": "^4.0",
-        "xiangkeguo/pulse": "0.0.1"
+        "xiangkeguo/nova-embed-card": "@dev",
+        "xiangkeguo/pulse": "^0.0.1"
     },
     "repositories": [
         {
@@ -44,6 +49,14 @@
         {
             "type": "composer",
             "url": "https://nova.laravel.com"
+        },
+        {
+            "type": "path",
+            "url": "./nova-components/NovaEmbedCard"
+        },
+        {
+            "type": "path",
+            "url": "./nova-components/NovaEmbedCard"
         }
     ],
     "require-dev": {

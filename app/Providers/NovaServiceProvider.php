@@ -31,7 +31,7 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
             'version' => Nova::version(),
             'year' => date('Y')]);
         });
-        Nova::initialPath('/admin/pulse');
+        Nova::initialPath('/pulse');
     }
 
     /**
@@ -73,7 +73,7 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
     protected function dashboards()
     {
         return [
-            // new \App\Nova\Dashboards\Main,
+            new \App\Nova\Dashboards\Main,
         ];
     }
 

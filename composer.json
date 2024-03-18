@@ -38,7 +38,6 @@
         "spatie/laravel-medialibrary-pro": "^5.0.0",
         "spatie/laravel-permission": "^5.10",
         "spatie/nova-tags-field": "^4.0",
-        "xiangkeguo/nova-embed-card": "@dev",
         "xiangkeguo/pulse": "^0.0.1"
     },
     "repositories": [

@@ -48,7 +48,7 @@
         {
             "type": "composer",
             "url": "https://nova.laravel.com"
-        },
+        }
     ],
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.8",

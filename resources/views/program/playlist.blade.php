@@ -8,7 +8,7 @@
     </nav>
   <main class="m-8">
     
-    <details open>
+    <details @if(Route::current()->getName() != "share.lyItem") open @endif>
       <summary class="cursor-pointer text-2xl font-extrabold tracking-tight text-slate-900">{{$lyMeta->name}}<span class="hidden text-sm font-medium ml-2 text-gray-500">{{$lyMeta->description}}</span></summary>
       <div class="mt-2 bg-gray-50 text-gray-600">
         <div class="p-4">
@@ -32,37 +32,77 @@
       @endphp
       <audio class="hidden" id="audio" data-id="0" controls src='{{$music->path}}'></audio>
 
-      <div class="flex flex-nowrap audio-player my-4">
-        <div class="p-4" style="padding-right: 0;">
+      <div class="block lg:hidden md:hidden xl:hidden p-4 flex items-center justify-center" style="padding-right: 0; ">
+        <div>
           <img src="{{$lyMeta->cover}}" class="rounded-lg bg-slate-100 pt-1" loading="lazy">
           <div class="gap-1 flex items-center justify-center mt-3">
-                  <button id="prev" type="button" class="" aria-label="Previous">
+                  <button class="prev" type="button" class="" aria-label="Previous">
                     <svg width="24" height="24" fill="none">
                       <path d="m10 12 8-6v12l-8-6Z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                       <path d="M6 6v12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
                   </button>
-                  <button id="rewind" type="button" aria-label="Rewind 10 seconds">
+                  <button class="rewind" type="button" aria-label="Rewind 10 seconds">
                     <svg width="24" height="24" fill="none">
-                      <title>倒退10s</title>
+                      <title>跳后 10 秒</title>
                       <path d="M6.492 16.95c2.861 2.733 7.5 2.733 10.362 0 2.861-2.734 2.861-7.166 0-9.9-2.862-2.733-7.501-2.733-10.362 0A7.096 7.096 0 0 0 5.5 8.226" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                       <path d="M5 5v3.111c0 .491.398.889.889.889H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
                   </button>
-                  <button title="速度切换" alt="倍速播放" id="speed" type="button" class="text-xs leading-6 font-semibold px-2">
+                  <button title="速度" alt="速度" type="button" class="speed text-xs leading-6 font-semibold px-2">
                     1x
                   </button>
 
-                  <button id="skip" type="button" aria-label="Skip 10 seconds">
+                  <button class="skip" type="button" aria-label="Skip 10 seconds">
 
                     <svg width="24" height="24" fill="none">
-                      <title>前进10s</title>
+                      <title>跳前 10 秒</title>
                       <path d="M17.509 16.95c-2.862 2.733-7.501 2.733-10.363 0-2.861-2.734-2.861-7.166 0-9.9 2.862-2.733 7.501-2.733 10.363 0 .38.365.711.759.991 1.176" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                       <path d="M19 5v3.111c0 .491-.398.889-.889.889H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
                   </button>
-                  <button id="next" type="button" class="sm:block lg:hidden xl:block" aria-label="Next">
+                  <button class="next" type="button" class="sm:block lg:hidden xl:block" aria-label="Next">
                     <svg width="24" height="24" fill="none">
+                      <path d="M14 12 6 6v12l8-6Z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                      <path d="M18 6v12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex flex-nowrap audio-player my-4">
+        <div class="p-4 hidden lg:block md:block xl:block" style="padding-right: 0;">
+          <img src="{{$lyMeta->cover}}" class="rounded-lg bg-slate-100 pt-1" loading="lazy">
+          <div class="gap-1 flex items-center justify-center mt-3">
+                  <button class="prev" type="button" class="" aria-label="Previous">
+                    <svg width="24" height="24" fill="none">
+                      <title>上一个</title>
+                      <path d="m10 12 8-6v12l-8-6Z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                      <path d="M6 6v12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  </button>
+                  <button class="rewind" type="button" aria-label="Rewind 10 seconds">
+                    <svg width="24" height="24" fill="none">
+                      <title>跳后 10 秒</title>
+                      <path d="M6.492 16.95c2.861 2.733 7.5 2.733 10.362 0 2.861-2.734 2.861-7.166 0-9.9-2.862-2.733-7.501-2.733-10.362 0A7.096 7.096 0 0 0 5.5 8.226" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                      <path d="M5 5v3.111c0 .491.398.889.889.889H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  </button>
+                  <button title="速度" alt="速度" type="button" class="speed text-xs leading-6 font-semibold px-2">
+                    1x
+                  </button>
+
+                  <button class="skip" type="button" aria-label="Skip 10 seconds">
+                    <svg width="24" height="24" fill="none">
+                      <title>跳前 10 秒</title>
+                      <path d="M17.509 16.95c-2.862 2.733-7.501 2.733-10.363 0-2.861-2.734-2.861-7.166 0-9.9 2.862-2.733 7.501-2.733 10.363 0 .38.365.711.759.991 1.176" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                      <path d="M19 5v3.111c0 .491-.398.889-.889.889H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  </button>
+                  <button class="next" type="button" class="sm:block lg:hidden xl:block" aria-label="Next">
+                    <svg width="24" height="24" fill="none">
+                      <title>下一个</title>
                       <path d="M14 12 6 6v12l8-6Z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                       <path d="M18 6v12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
@@ -74,7 +114,7 @@
             <p
               class="playButton title" id="playButton">
               <svg id="playButton-play" class="cursor-pointer inline h-5 w-5 flex-none" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true">
-                <title>点击播放</title>
+                <title>播放音频</title>
                 <svg class="h-5 w-5 flex-none inline -ml-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50"><path d="M 10 5.25 L 10 44.75 L 11.5 43.875 L 42.09375 25.875 L 43.5625 25 L 42.09375 24.125 L 11.5 6.125 Z M 12 8.75 L 39.59375 25 L 12 41.25 Z"/></svg>
               </svg>
               <svg id="playButton-pause" class="cursor-pointer hidden inline flex-none h-5 w-5 m-auto h-full" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true">
@@ -92,7 +132,8 @@
                 id="volumeIcon"
                 class="volume-icon"
                 src="{{asset('/waveplayer/volume.svg')}}"
-                alt="Volume"
+                alt="静音"
+                title="静音"
               />
             </div>
 
@@ -146,7 +187,7 @@
 
                 <div class="flex shrink-0 items-center gap-x-4">
                     <div data-url="{{$lyItem->path}}" 
-                        title="音频下载 ({{$lyItem->filesize?:'6.9M'}})"
+                        title="下载音频 ({{$lyItem->filesize?:'6.9M'}})"
                         class="preventEvents downloads cursor-pointer text-gray-400  hover:text-gray-600">
                       <svg 
                         class="h-5 w-5 flex-none " viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -154,8 +195,8 @@
                           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M 15 4 L 15 20.5625 L 9.71875 15.28125 L 8.28125 16.71875 L 15.28125 23.71875 L 16 24.40625 L 16.71875 23.71875 L 23.71875 16.71875 L 22.28125 15.28125 L 17 20.5625 L 17 4 Z M 7 26 L 7 28 L 25 28 L 25 26 Z"/></svg>
                       </svg>
                     </div>
-                    
-                    <div class="group relative" title="点此分享">
+                    @if(Route::current()->getName() != "share.lyItem")
+                    <div class="group relative" title="分享音频">
 
                       <a href="{{Route('share.lyItem', $lyItem->hashId)}}" target="_blank">
                       <svg 
@@ -164,6 +205,7 @@
                       </svg>
                       </a>
                     </div>
+                    @endif
                 </div>
               </div>
             </div>
@@ -195,11 +237,11 @@
         const playButtonsPause = document.getElementsByClassName('playButtons-pause');
 
 
-        const rewindButton = document.querySelector('#rewind');
-        const skipButton = document.querySelector('#skip');
-        const speedButton = document.querySelector('#speed');
-        const nextButton = document.querySelector('#next');
-        const prevButton = document.querySelector('#prev');
+        const rewindButton = document.querySelectorAll('.rewind');
+        const skipButton = document.querySelectorAll('.skip');
+        const speedButton = document.querySelectorAll('.speed');
+        const nextButton = document.querySelectorAll('.next');
+        const prevButton = document.querySelectorAll('.prev');
 
         
 
@@ -349,17 +391,21 @@
               audio.muted = !audio.muted; 
               if (audio.muted) {
                 volumeIcon.src = "{{asset('/waveplayer/mute.svg')}}"
+                volumeIcon.title = "取消静音"
+                volumeIcon.alt = "取消静音"
               } else {
                 volumeIcon.src = "{{asset('/waveplayer/volume.svg')}}"
+                volumeIcon.title = "静音"
+                volumeIcon.alt = "静音"
               }
             };
 
             const handleSpeedChange = e => {
               let rate = wavesurfer.getPlaybackRate();
               if(rate<2) {
-                rate+=0.5;
+                rate+=0.25;
               }else{
-                rate = 1;
+                rate = 0.75;
               }
               e.target.innerText = rate+"x";
               wavesurfer.setPlaybackRate(rate);
@@ -386,11 +432,16 @@
             playButton.addEventListener('click', togglePlay);
             volumeIcon.addEventListener('click', toggleMute);
 
-            rewindButton.addEventListener('click', () => {wavesurfer.skip(-10)});
-            skipButton.addEventListener('click', () => {wavesurfer.skip(10)});
-            speedButton.addEventListener('click', handleSpeedChange);
-            nextButton.addEventListener('click', handleNext);
-            prevButton.addEventListener('click', handlePrev);
+            rewindButton.forEach(bt => bt.addEventListener('click', () => {wavesurfer.skip(-10)}));
+            skipButton.forEach(bt => bt.addEventListener('click', () => {wavesurfer.skip(10)}));
+            speedButton.forEach(bt => bt.addEventListener('click', handleSpeedChange));
+            nextButton.forEach(bt => bt.addEventListener('click', handleNext));
+            prevButton.forEach(bt => bt.addEventListener('click', handlePrev));
+            // rewindButton.addEventListener('click', () => {wavesurfer.skip(-10)});
+            // skipButton.addEventListener('click', () => {wavesurfer.skip(10)});
+            // speedButton.addEventListener('click', handleSpeedChange);
+            // nextButton.addEventListener('click', handleNext);
+            // prevButton.addEventListener('click', handlePrev);
 
             // --------------------------------------------------------- //
 

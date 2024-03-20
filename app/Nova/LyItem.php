@@ -89,8 +89,7 @@ class LyItem extends Resource
         return array_merge( [
             Text::make(__('Episode Alias'), 'alias')
                 ->sortable()
-                ->rules('required', 'max:12')
-                ->hideFromIndex(),
+                ->rules('required', 'max:12'),
             // ID::make()->sortable(),
         ] , $fileFeild,
         [
@@ -104,14 +103,10 @@ class LyItem extends Resource
             BelongsTo::make(__('Episode Title'), 'ly_meta', 'App\Nova\LyMeta')->hideFromIndex(),//->filterable(),
             Text::make(__('Episode Duration'), 'playtime_string')->sortable(),
 
-            InlineText::make(__('Episode Description'), 'description')->displayUsing(function($description) {
-                    return Str::limit($description, 32);
-                })->onlyOnIndex(),
+            InlineText::make(__('Episode Description'), 'description')->onlyOnIndex(),
             Text::make(__('Episode Description'), 'description')
-                ->rules('required', 'max:255')->displayUsing(function($description) {
-                    return Str::limit($description, 32);
-                })->hideFromIndex(),
-            Date::make(__('Start Publishing Date'), 'play_at')->hideFromIndex(),
+                ->rules('required', 'max:255')->hideFromIndex(),
+            Date::make(__('Start Publishing Date'), 'play_at'),
             
             // TODO: 不要跳转，不要统计, aws直链
             App::isLocal() ? Audio::make('Mp3', fn() => $this->mp3?:$this->novaPath)->disableDownload()->onlyOnDetail() : Audio::make('Mp3', fn() => $this->mp3?$this->path:$this->novaPath)->disableDownload()->onlyOnDetail(),

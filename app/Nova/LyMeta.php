@@ -48,7 +48,7 @@ class LyMeta extends Resource
     // public static function label() { return '良友'; }
     // public static $priority = 1;
     // public static $group = 'Metadata';
-    public static $perPageOptions = [25,50,100];
+    public static $perPageOptions = [5,10,25,50,100];
     
     // https://trungpv1601.github.io/2020/04/14/Laravel-Nova-Setting-a-default-sort-order-support-multi-columns/
     /**
@@ -176,7 +176,7 @@ class LyMeta extends Resource
             Text::make(__('Cover'), function () {
                 return "<img width='40px' src='{$this->cover}' />";
             })->asHtml(),
-            Image::make(__('avatar'))
+            Image::make(__('Cover'))
                 ->path('ly/programs')
                 ->storeAs(function (Request $request) {
                     return $this->code . '.jpg';

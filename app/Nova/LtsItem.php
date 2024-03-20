@@ -75,8 +75,8 @@ class LtsItem extends Resource
     {
         return [
             // ID::make()->sortable(),
-            BelongsTo::make(__('Episode Title'), 'lts_meta', 'App\Nova\LtsMeta')->searchable(),
-
+            Text::make(__('Episode Title'), fn()=>$this->lts_meta->name.'-'. str_replace($this->lts_meta->code, '', $this->alias))->onlyOnIndex(),
+            // BelongsTo::make(__('Episode Title'), 'lts_meta', 'App\Nova\LtsMeta')->searchable(),
             Text::make(__('Episode Description'),'description')
                 ->sortable()
                 ->hideFromIndex(),

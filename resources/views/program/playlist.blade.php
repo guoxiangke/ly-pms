@@ -147,6 +147,20 @@
 
       <div class="playlist h-full overflow-y-auto">
         <ul role="list" class="divide-y divide-gray-100">
+          @if(Route::current()->getName() != "share.lyItem")
+          @php
+            $path = '?order=ASC';
+            if(Request::query('order') == 'ASC'){
+              $path = '';
+            }
+          @endphp
+          <div>
+            <a href="{{Request::url() . $path}}">
+              <span title="点击排序">排序
+              <svg width="10px" height="10px" @if(!$path) style="transform: rotate(180deg);" @endif aria-hidden="true" fill="black" xmlns="http://www.w3.org/2000/svg" class="inline stroke-slate-400"><path d="M9.75 4.125 6 7.875l-3.75-3.75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg><span>
+            </a>
+          </div>
+          @endif
           @foreach($playlist as $key => $lyItem)
           <li class="relative py-3 hover:bg-gray-50">
             <div class="px-4 sm:px-6 lg:px-8">

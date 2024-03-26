@@ -93,15 +93,14 @@ class LyItem extends Resource
             // ID::make()->sortable(),
         ] , $fileFeild,
         [
-            // ly_meta
             // obersive Mp3: 一更新，后台便去处理
             Boolean::make('', function(){
                 return !$this->is_future;
             })->onlyOnIndex(),
-            Text::make(__('Episode Title'), fn()=> $this->ly_meta->name . "-" . $this->play_at->format("ymd"))->onlyOnIndex(),
+            Text::make(__('Episode Title'), fn()=> $this->episodeTitle)->onlyOnIndex(),
 
-            BelongsTo::make(__('Episode Title'), 'ly_meta', 'App\Nova\LyMeta')->hideFromIndex(),//->filterable(),
-            Text::make(__('Episode Duration'), 'playtime_string')->sortable(),
+            BelongsTo::make(__('Episode Title'), 'ly_meta', 'App\Nova\LyMeta')->hideFromIndex(),
+            Text::make(__('Episode Duration'), 'playtime_string')->sortable()->onlyOnIndex(),
 
             InlineText::make(__('Episode Description'), 'description')->onlyOnIndex(),
             Text::make(__('Episode Description'), 'description')

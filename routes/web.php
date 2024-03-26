@@ -120,17 +120,18 @@ Route::get('/storage/ly/audio/{code}/{day}.mp3', function (Request $request, $co
     return redirect()->away("{$domain}/lts/${code}/${day}.mp3");
 });
 
-Route::get('/program/{lyMeta:code}', function (LyMeta $lyMeta) {
+Route::get('/program/{lyMeta:code}', function (Request $request, LyMeta $lyMeta) {
+    $order = $request->query('order')?'ASC':'DESC';
     // $isUnpublished '已下线，不可访问该播放列表'
     // 可以预先设置下线时间！
     if($lyMeta->unpublished_at && $lyMeta->unpublished_at < now()) abort(403);
     if($lyMeta->isLts){
-        $playlist = $lyMeta->lts_items();
+        $playlist = $lyMeta->lts_items($order)->get();
     }else{
-        $playlist = $lyMeta->ly_items; 
+        $playlist = $lyMeta->ly_items($order)->get();
     }    
-    return view('program/playlist', compact('lyMeta', 'playlist'));
-});
+    return view('program/playlist', compact('lyMeta', 'playlist', 'order'));
+})->name('playlist');
 
 Route::get('/share/{hashId}', function ($hashId) {
     if(Str::startsWith($hashId, 'lts')){ //lts-item

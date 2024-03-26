@@ -14,7 +14,7 @@ use Illuminate\Validation\Rule;
 use Carbon\Carbon;
 use App\Observers\LyItemObserver;
 use getID3;
-
+use App\Jobs\WriteID3TagAndSync2S3Queue;
 class CreateSubmission extends Component
 {   
     use WithMedia;
@@ -126,13 +126,13 @@ class CreateSubmission extends Component
                     return Validator::make([], [])->after(fn ($validator) => $validator->errors()->add('some_error', "The $key field sample_rate不是48000！")
                     )->validate();
                 }
-
-                LyItemObserver::writeID3Tag($tempFilePath, $descriptions[$key]);
+                // add to queue
+                WriteID3TagAndSync2S3Queue::dispatch($tempFilePath, $descriptions[$key]);
             }
         }
 
         // ✅验证通过后，更新 Description！  save description => lyItem
-        $links = "\n<ol>";
+        $links = "\n<ol style='list-style:decimal'>";
         foreach ($aliases as $key => $alias) {
             $ymd = preg_replace('/\D+/', '', $alias) . " 00:00:00";
             $play_at = Carbon::createFromFormat('ymd H:i:s', $ymd);
@@ -150,7 +150,7 @@ class CreateSubmission extends Component
         //     ->addFromMediaLibraryRequest($this->files)
         //     ->withCustomProperties('extra_field')
         //     ->toMediaCollection('mp3');
-        $this->messageTitle = "成功提交".count($aliases)."条记录，谢谢！";
+        $this->messageTitle = "成功提交".count($aliases)."条记录，如继续上传，请刷新页面！";
         $this->message = 'Your form has been submitted.'.$links;
     }
 

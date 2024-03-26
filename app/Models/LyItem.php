@@ -36,6 +36,7 @@ class LyItem extends Model implements HasMedia
         'path',
         // 'is_old', // 旧系统的节目 目录结构
         'is_future', // 明后天的节目
+        'episode_title', // Episode Title
     ];
 
     use LogsActivity;
@@ -104,22 +105,8 @@ class LyItem extends Model implements HasMedia
         $domain = config('app.url');
         return str_replace($domain.'/storage', '', $this->path);
     }
-    
-    // √ hide if get 230930 when in 230926 in query. 
-    // 1.默认显示比当前日期小的节目。
-    // 2.不超过30听的数据 for 未登录的用户
-    // √ 404 if get mp3! @see routes/web.php 
-    
-    // protected static function booted()
-    // {
-    //     static::addGlobalScope('ancient', function (Builder $builder) {
-    //         if(is_null(Auth::user())){
-    //             //TODO Var 31 config("ly.max.show.days")=31
-    //             $builder->whereBetween('play_at', [now()->subDays(31), now()]);
-    //         }else{
-    //             $builder->where('play_at', '<=', now());
-    //         }
-    //     });
-    // }
 
+    public function getEpisodeTitleAttribute(){
+        return $this->ly_meta->name . "-" . $this->play_at->format("ymd");
+    }
 }

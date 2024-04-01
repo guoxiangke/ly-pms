@@ -60,6 +60,15 @@ return [
 			],
 		],
 	],
+	'code_diff' => [
+	    'ltsdp1'=>'ltstpa1',
+	    'ltsdp2'=>'ltstpa2',
+	    'ltshdp1'=>'ltstpb1',
+	    'ltshdp2'=>'ltstpb2',
+	    'cttb'=>'cattb',
+	    'cwa'=>'cawa',
+	    'ynf'=>'yunf',
+	],
 	'cloudfront_domain' => env('CLOUDFRONT_DOMAIN'),
 	'uploader_domain' => env('UPLOADER_DOMAIN'),
 ];

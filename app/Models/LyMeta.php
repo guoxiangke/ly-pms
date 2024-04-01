@@ -22,6 +22,7 @@ use Illuminate\Http\File;
 use App;
 use getID3;
 use getid3_writetags;
+use Illuminate\Support\Facades\Log;
 
 class LyMeta extends Model
 {
@@ -29,12 +30,8 @@ class LyMeta extends Model
     use SoftDeletes;
     use Metable;
     use HasTags;
-    // overriding the Tag Model
-    public static function getTagClassName(): string
-    {
-        return Tag::class;
-    }
-    // if(App::isProduction()) use Searchable;
+
+    // use Searchable;
     // use LogsActivity;
     protected static $recordEvents = ['updated','deleted'];
     public function getActivitylogOptions(): LogOptions
@@ -58,7 +55,7 @@ class LyMeta extends Model
         'cover',
         'category',
     ];
-    
+
 
     public function announcers()
     {
@@ -82,7 +79,7 @@ class LyMeta extends Model
         return $query->whereNot('code','like','malts%');
     }
 
-    
+
     // append programs API的category
     // +category : "生活智慧"
     public function getCategoryAttribute(){
@@ -114,18 +111,18 @@ class LyMeta extends Model
 
     // $lyMeta->isLts
     public function getIsLtsAttribute(){
-        return Str::startsWith($this->code, 'malts');
+        return Str::startsWith($this->code, 'lts');
     }
     public function lts_items($order = "DESC"): Collection
     {
         return LtsItem::with('lts_meta')->whereBetween('play_at', [now()->subDays($this->max_list_count), now()])
             ->orderBy('play_at', $order)->get()->filter(fn($ltsItem) => $ltsItem->lts_meta->ly_meta_id == $this->id);
     }
-    
+
     // Call to undefined method App\Models\LyMeta::lyItems()
-    public function lyitems(): HasMany
+    public function lyitems($order = "DESC"): HasMany
     {
-        return $this->ly_items();
+        return $this->ly_items($order);
     }
 
     // 后台显示，包含 明后天的及31天以外的节目
@@ -135,7 +132,7 @@ class LyMeta extends Model
             ->withoutGlobalScopes()
             ->orderBy('alias', 'DESC');
     }
-    
+
     public function getLtsFirstPlayAttribute(){
         return $this->getMeta('lts_first_play');
     }
@@ -144,7 +141,7 @@ class LyMeta extends Model
         return \DateTime::createFromFormat("Y-m-d", $this->getMeta('lts_first_play_at','2000-01-01'));
     }
 
-    //    
+    //
     public static function writeID3Tag($tempFilePath, $description=null)
     {
         $getID3 = new getID3;
@@ -160,7 +157,7 @@ class LyMeta extends Model
 
         // https://github.com/JamesHeinrich/getID3/issues/422
         $TagData['attached_picture'][0] = [
-            'data' => file_get_contents(public_path('logo.png')),
+            'data' => file_get_contents(public_path('Liangyou.png')),
             'picturetypeid' => 3,
             'description' => 'Liangyou.png',
             'mime' => 'image/png',
@@ -187,13 +184,60 @@ class LyMeta extends Model
         if(App::isLocal()){
             Storage::putFileAs("/ly/audio/$code/$year/", new File($tempFilePath), $fileName);
         }else{
-           Storage::disk('s3')->putFileAs("/ly/audio/$code/$year/", new File($tempFilePath), $fileName); 
+           Storage::disk('s3')->putFileAs("/ly/audio/$code/$year/", new File($tempFilePath), $fileName);
         }
         unlink($tempFilePath);
         rmdir(dirname($tempFilePath));
         rmdir(dirname(dirname($tempFilePath) . ".remove"));
         // @see Spatie\TemporaryDirectory::deleteDirectory();
         // static::deleteDirectory($tempFilePath);
+    }
+
+    public static function getNewCodeAndAlias($alias)
+    {
+        $specials = config('pms.code_diff');
+        $code = preg_replace('/\d+/','',$alias);//cc
+        if(isset($specials[$code])){
+            // 'cwa'=>'cawa',
+            $alias = str_replace($code, $specials[$code], $alias);
+            $code = $specials[$code];
+        }else{
+            if(Str::startsWith($alias,'ca')){
+                 //ca 开头的，不加ma,
+                $alias = $alias;// code 不变，$alias 也不变 = 原来的。
+            }else{
+                $code = 'ma' . $code; //macc
+                $alias = 'ma' . $alias;
+            }
+        }
+        return compact('code','alias');
+    }
+
+    public static function getLtsTags($code)
+    {
+        $tags = [];
+        switch ($code) {
+            case 'ltsnp':
+                $tags[] = '启航课程';
+                $tags[] = '专辑课程';
+                break;
+            case 'ltstpa1':
+            case 'ltstpa2':
+                $tags[] = '本科文凭课程';
+                $tags[] = '专辑课程';
+                break;
+            case 'ltstpb1':
+            case 'ltstpb2':
+                $tags[] = '进深文凭课程';
+                break;
+
+            default:
+                // code...
+                break;
+        }
+        // if($local != 'en') app()->setLocale('en'); 
+        // $options = LtsMeta::withAnyTags($tags, 'lts')->pluck('name','id')->toArray();
+        return $tags;
     }
 
 }

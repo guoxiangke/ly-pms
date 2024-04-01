@@ -11,13 +11,13 @@ use Laravel\Scout\Searchable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Carbon\Carbon;
-use App;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 use Deligoez\LaravelModelHashId\Traits\HasHashId;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class LyItem extends Model implements HasMedia
 {
@@ -25,7 +25,8 @@ class LyItem extends Model implements HasMedia
     use InteractsWithMedia;
     use HasFactory;
     use SoftDeletes;
-    // if(App::isProduction()) use Searchable;
+    // use Searchable;
+    // use LogsActivity;
 
     protected $guarded = ['id', 'created_at', 'updated_at', 'deleted_at'];
     protected $dates = ['created_at', 'updated_at', 'deleted_at', 'play_at'];
@@ -38,8 +39,7 @@ class LyItem extends Model implements HasMedia
         'is_future', // 明后天的节目
         'episode_title', // Episode Title
     ];
-
-    use LogsActivity;
+    
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
@@ -101,11 +101,11 @@ class LyItem extends Model implements HasMedia
         }
     }
 
-    public function getNovaPathAttribute(){
+    public function getNovaMp3PathAttribute(){
         $domain = config('app.url');
         return str_replace($domain.'/storage', '', $this->path);
     }
-
+    // read only attribute.
     public function getEpisodeTitleAttribute(){
         return $this->ly_meta->name . "-" . $this->play_at->format("ymd");
     }

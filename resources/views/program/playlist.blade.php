@@ -170,14 +170,14 @@
                   data-id="{{$loop->index}}"
                   data-url='{{$lyItem->path}}' 
                   data-date='{{$lyItem->play_at->format("Ymd")}}' 
-                  title="点击播放"
+                  title="播放音频"
                   class="preventEvents track cursor-pointer flex min-w-0 gap-x-4">
                   <div class="flex shrink-0 items-center gap-x-4">
                     <svg
                       data-id="{{$loop->index}}"
                       class="playButtons-play h-5 w-5 flex-none"
                       viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                      <title>点击播放</title>
+                      <title>播放音频</title>
                       <svg class="h-5 w-5 flex-none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50"><path d="M 10 5.25 L 10 44.75 L 11.5 43.875 L 42.09375 25.875 L 43.5625 25 L 42.09375 24.125 L 11.5 6.125 Z M 12 8.75 L 39.59375 25 L 12 41.25 Z"/></svg>
                     </svg>
 

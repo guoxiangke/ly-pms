@@ -20,7 +20,7 @@ class LtsMeta extends Model
     use HasTags;
     use Metable;
     use SoftDeletes;
-    // if(App::isProduction()) use Searchable;
+    // use Searchable;
 
     protected $guarded = ['id', 'created_at', 'updated_at', 'deleted_at'];
 

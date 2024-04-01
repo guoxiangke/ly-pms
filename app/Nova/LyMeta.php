@@ -218,7 +218,7 @@ class LyMeta extends Resource
                         if(!$isLts) return '!lts';
                         $lts_first_play = $this->getMeta('lts_first_play');
                         $ltsMeta = LtsMeta::find($lts_first_play);
-                        if($ltsMeta) return "<a class='link-default' target='_blank' href='/nova/resources/lts-metas/{$ltsMeta->id}'>{$ltsMeta->name}</a>";
+                        if($ltsMeta) return "<a class='link-default' target='_blank' href='/admin/resources/lts-metas/{$ltsMeta->id}'>{$ltsMeta->name}</a>";
                         return '-';
                     })
                     ->asHtml()

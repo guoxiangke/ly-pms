@@ -91,7 +91,12 @@ class LyMeta extends Model
      */
     protected function cover(): Attribute
     {
-        $code = substr($this->code, 2);
+        $specials = array_flip(config('pms.code_diff'));
+        if(isset($specials[$this->code])){
+            $code = $specials[$this->code];
+        }else{//+ma -ma
+            $code = substr($this->code, 2);
+        }
         return Attribute::make(
             get: fn () => isset($this->avatar) ? config('pms.uploader_domain'). Storage::url($this->avatar) : "https://txly2.net/images/program_banners/{$code}_prog_banner_sq.png",
         );
@@ -113,10 +118,10 @@ class LyMeta extends Model
     public function getIsLtsAttribute(){
         return Str::startsWith($this->code, 'lts');
     }
-    public function lts_items($order = "DESC"): Collection
+
+    public function lts_items($order = "DESC")
     {
-        return LtsItem::with('lts_meta')->whereBetween('play_at', [now()->subDays($this->max_list_count), now()])
-            ->orderBy('play_at', $order)->get()->filter(fn($ltsItem) => $ltsItem->lts_meta->ly_meta_id == $this->id);
+        return LtsItem::with('lts_meta')->whereBetween('play_at', [now()->subDays($this->max_list_count), now()])->orderBy('play_at', $order)->get()->filter(fn($ltsItem) => $ltsItem->lts_meta->ly_meta_id == $this->id);
     }
 
     // Call to undefined method App\Models\LyMeta::lyItems()

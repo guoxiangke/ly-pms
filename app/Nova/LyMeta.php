@@ -239,7 +239,7 @@ class LyMeta extends Resource
                                 $ymd = $lts_first_play_at . " 00:00:00";
                                 $ltsMeta = LtsMeta::find($lts_first_play);
                                 $ltsMeta->update(['ly_meta_id' => $model->id]);
-                                foreach ($ltsMeta->lts_items as $key => $ltsItem) {
+                                foreach ($ltsMeta->lts_items_asc as $key => $ltsItem) {
                                     // 从第N个节目开始更新
                                     if ($key + 1 >= $lts_first_play_index) {
                                         $dt = Carbon::createFromFormat('Y-m-d H:i:s', $ymd);

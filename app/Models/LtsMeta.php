@@ -60,6 +60,11 @@ class LtsMeta extends Model
         return $this->HasMany(LtsItem::class)->orderBy('alias', 'DESC');
     }
 
+    public function lts_items_asc(): HasMany
+    {
+        return $this->HasMany(LtsItem::class)->orderBy('alias', 'ASC');
+    }
+
     // FE显示，bu包含 明后天的及31天以外的节目
     public function lts_items_without_future(): HasMany
     {

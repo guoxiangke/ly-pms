@@ -39,7 +39,7 @@ class LtsItem extends Resource
 
     // public static $group = 'Items 列表';
     public static $priority = 1;
-    public static $perPageOptions = [50,100];
+    public static $perPageOptions = [5,10,25,50,100];
     public static $perPageViaRelationship = 50;
     /**
      * The model the resource corresponds to.
@@ -75,7 +75,10 @@ class LtsItem extends Resource
     {
         return [
             // ID::make()->sortable(),
-            Text::make(__('Episode Title'), fn()=>$this->lts_meta->name.'-'. str_replace($this->lts_meta->code, '', $this->alias))->onlyOnIndex(),
+            Text::make(__('Episode Title'), fn()=>$this->episodeTitle)->onlyOnIndex(),
+            Text::make(__('Episode Alias'),'alias')
+                ->sortable()
+                ->rules('required', 'max:12'),
             // BelongsTo::make(__('Episode Title'), 'lts_meta', 'App\Nova\LtsMeta')->searchable(),
             Text::make(__('Episode Description'),'description')
                 ->sortable()
@@ -85,9 +88,6 @@ class LtsItem extends Resource
                     return Str::limit($description, 32);
                 })->onlyOnIndex(),
             Date::make(__('Start Publishing Date'),'play_at')->sortable(),
-            Text::make(__('Episode Alias'),'alias')
-                ->sortable()
-                ->rules('required', 'max:12'),
             Audio::make('Mp3', fn() => $this->novaPath)->disableDownload(),
         ];
     }

@@ -20,7 +20,7 @@ class LtsMeta extends Model
     use HasTags;
     use Metable;
     use SoftDeletes;
-    // if(App::isProduction()) use Searchable;
+    // use Searchable;
 
     protected $guarded = ['id', 'created_at', 'updated_at', 'deleted_at'];
 
@@ -58,6 +58,11 @@ class LtsMeta extends Model
     public function lts_items(): HasMany
     {
         return $this->HasMany(LtsItem::class)->orderBy('alias', 'DESC');
+    }
+
+    public function lts_items_asc(): HasMany
+    {
+        return $this->HasMany(LtsItem::class)->orderBy('alias', 'ASC');
     }
 
     // FE显示，bu包含 明后天的及31天以外的节目

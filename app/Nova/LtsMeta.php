@@ -39,7 +39,7 @@ class LtsMeta extends Resource
     }
 
     public static $priority = 2;
-    public static $perPageOptions = [25,50,100];
+    public static $perPageOptions = [5,10,25,50,100];
     
     // https://trungpv1601.github.io/2020/04/14/Laravel-Nova-Setting-a-default-sort-order-support-multi-columns/
     /**
@@ -115,18 +115,6 @@ class LtsMeta extends Resource
         }
 
         $defaultFields = [
-            // ID::make()->sortable(),
-            // Text::make(__('Cover'), function () {
-            //     return "<img width='40px' src='{$this->cover}' />";
-            // })->asHtml(),
-            // Image::make('avatar')
-            //     ->path('ly/lts')
-            //     ->storeAs(function (Request $request) {
-            //         return $this->code . '.jpg';
-            //     })
-            //     ->acceptedTypes('.jpg')
-            //     ->disableDownload()
-            //     ->onlyOnForms(),
             Text::make(__('LTS Subject Title'),'name')
                 ->sortable()
                 ->rules('required', 'max:255'),
@@ -135,7 +123,7 @@ class LtsMeta extends Resource
                 ->rules('required', 'max:12'),
             BelongsTo::make(__('LTS Program Title'), 'ly_meta', 'App\Nova\LyMeta')
                 ->relatableQueryUsing(function (NovaRequest $request, Builder $query) {
-                    $query->where('code', 'like', 'malts%');
+                    $query->where('code', 'like', '%lts%');
                 }),//->searchable(),
             Textarea::make(__('LTS Subject Description'),'description')
                 ->hideFromIndex(),

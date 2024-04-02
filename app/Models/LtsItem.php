@@ -15,7 +15,7 @@ class LtsItem extends Model
     use HasHashId;
     use HasFactory;
     use SoftDeletes;
-    // if(App::isProduction()) use Searchable;
+    // use Searchable;
     protected $guarded = ['id', 'created_at', 'updated_at', 'deleted_at'];
     protected $dates = ['created_at', 'updated_at', 'deleted_at', 'play_at'];
     protected $casts = [
@@ -24,6 +24,9 @@ class LtsItem extends Model
     protected $appends = [
         'path',
     ];
+    public function getPlayAtAttribute($value){
+        if(!$value) return now();
+    }
     public function lts_meta(): BelongsTo
     {
         return $this->BelongsTo(LtsMeta::class);
@@ -48,5 +51,10 @@ class LtsItem extends Model
         $code = preg_replace('/\d+/', '', $this->alias);
         $alias = $this->alias;
         return "/ly/audio/{$code}/{$alias}.mp3"; 
+    }
+
+    // read only attribute.
+    public function getEpisodeTitleAttribute(){
+        return $this->lts_meta->name . "-" . str_replace($this->lts_meta->code, '', $this->alias);
     }
 }

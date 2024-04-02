@@ -11,6 +11,9 @@ use Spatie\Tags\Tag;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use voku\helper\HtmlDomParser;
+
+use App\Models\Open\Program;
+use Illuminate\Database\Eloquent\Collection;
 class LyMetaSeeder extends Seeder
 {
     private $url = "https://www.729ly.net/program";
@@ -19,6 +22,46 @@ class LyMetaSeeder extends Seeder
      */
     public function run(): void
     {
+        Program::chunk(200, function (Collection $programs) {
+            foreach ($programs as $program) {
+                $specials = config('pms.code_diff');
+
+                if(isset($specials[$program->alias])){
+                    $code = $specials[$program->alias];
+                }else{
+                    if(Str::startsWith($program->alias, 'ca')){
+                         //ca 开头的，不加ma,
+                        $code = $program->alias;// = 原来的。
+                    }else{
+                        $code = 'ma'.$program->alias;    
+                    }
+                }
+
+                if($program->end_at){
+                    $lyMeta = LyMeta::updateOrCreate(['code'=> $code], [
+                        'unpublished_at' => now(), //'下架日期，强制不显示'
+                        'end_at' => $program->end_at, //'停播日期'
+                        'description' => $program->brief,
+                        'name' =>  $program->name,
+                    ]);
+                }else{
+                    $lyMeta = LyMeta::updateOrCreate(['code'=> $code], [
+                        'end_at' => $program->end_at, //'停播日期'
+                        'description' => $program->brief,
+                        'name' =>  $program->name,
+                    ]);
+                }
+                $lyMeta->setMeta('program_phone_time', $program->phone_open);
+                $lyMeta->setMeta('program_sms', $program->sms_keyword?'':'13229966122');
+                $lyMeta->setMeta('program_sms_keyword', $program->sms_keyword);
+                $lyMeta->setMeta('program_email', $program->email);
+                $lyMeta->setMeta('description_detail', $program->description);
+            }
+        });
+
+        return ;//'old 729ly down!';
+
+
         $response = Http::get($this->url);
         $dom = HtmlDomParser::str_get_html($response->body());
 

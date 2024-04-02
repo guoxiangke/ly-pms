@@ -42,7 +42,7 @@ Route::middleware([
     })->name('dashboard');
 
     Route::mediaLibrary();
- 
+
     Route::get('/file/submission', CreateSubmission::class);
 
     Route::get('/pulse', LyPulse::class)->name('pulse');
@@ -57,8 +57,8 @@ Route::get('/storage/ly/audio/{year}/{code}/{day}.mp3', function (Request $reque
     $dt = Carbon::createFromFormat('ymd', $ymd);
     if(!auth()->id()){
         //√ hide if get 230930 when in 230926 in query. // then 403 if get mp3! @see routes/web.php
-        if($dt > now()) return redirect(403); //403 Forbidden 
-        
+        if($dt > now()) return redirect(403); //403 Forbidden
+
         // 未登录的人不可查看、收听 31天之外的节目, 但登录的主持人可以！
         if($dt->diffInDays(now()) > 31){//TODO Var 31 config("ly.max.show.days")=31
             // return redirect(401); // 401 Unauthorized
@@ -69,7 +69,7 @@ Route::get('/storage/ly/audio/{year}/{code}/{day}.mp3', function (Request $reque
     $domain =  config('pms.cloudfront_domain');
     $url = $request->url();
     $target = basename($url); //cc201221.mp3
-    
+
     $tags = [];
     // TODO 一些直播的節目，直接使用官網的連結
     // if(in_array($tmpCode, ['cc','dy','gf'])){
@@ -99,7 +99,7 @@ Route::get('/storage/ly/audio/{code}/{day}.mp3', function (Request $request, $co
     $domain =  'https://d3ml8yyp1h3hy5.cloudfront.net'; // TODO
     $url = $request->url();
     $target = basename($url); //cc201221.mp3
-    
+
     $tags = [];
     $tags['metric'] = 'lyOpen';
     $tags['type'] = 'lts';
@@ -120,16 +120,31 @@ Route::get('/storage/ly/audio/{code}/{day}.mp3', function (Request $request, $co
     return redirect()->away("{$domain}/lts/${code}/${day}.mp3");
 });
 
-Route::get('/program/{lyMeta:code}', function (Request $request, LyMeta $lyMeta) {
-    $order = $request->query('order')?'ASC':'DESC';
-    // $isUnpublished '已下线，不可访问该播放列表'
-    // 可以预先设置下线时间！
-    if($lyMeta->unpublished_at && $lyMeta->unpublished_at < now()) abort(403);
-    if($lyMeta->isLts){
-        $playlist = $lyMeta->lts_items($order)->get();
+Route::get('/program/{code}', function (Request $request, $code) {
+    $lyMeta = lyMeta::where('code', $code)->first();
+
+    if(!$lyMeta) $ltsMeta = ltsMeta::where('code', $code)->first();
+    if($lyMeta){
+        $order = $request->query('order')?'ASC':'DESC';
+        // $isUnpublished '已下线，不可访问该播放列表'
+        // 可以预先设置下线时间！
+        if($lyMeta->unpublished_at && $lyMeta->unpublished_at < now()) abort(403);
+        if($lyMeta->isLts){
+            $playlist = $lyMeta->lts_items($order);
+        }else{
+            $playlist = $lyMeta->ly_items($order)->get();
+        }
+        // dd($lyMeta->toArray(), $playlist);
     }else{
-        $playlist = $lyMeta->ly_items($order)->get();
-    }    
+        $order = $request->query('order')?'DESC':'ASC';
+        if($order == 'DESC'){
+            $playlist = $ltsMeta->lts_items($order)->get();
+        }else{
+            $playlist = $ltsMeta->lts_items_asc()->get();
+        }
+        $lyMeta = $ltsMeta;
+    }
+    
     return view('program/playlist', compact('lyMeta', 'playlist', 'order'));
 })->name('playlist');
 
@@ -142,7 +157,7 @@ Route::get('/share/{hashId}', function ($hashId) {
         $item = LyItem::findOrFail(LyItem::keyFromHashId($hashId));
         $lyMeta = $item->ly_meta;
     }
-    
+
     $playlist = collect([$item]);
     return view('program/playlist', compact('lyMeta', 'playlist'));
 })->name('share.lyItem');

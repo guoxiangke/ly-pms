@@ -97,6 +97,7 @@ class LyMeta extends Resource
      */
     public static $search = [
         'name',
+        'code',
     ];
 
     /**
@@ -111,44 +112,7 @@ class LyMeta extends Resource
         // https://nova.laravel.com/docs/4.0/resources/fields.html#vapor-image-field
         // $image = App::isLocal() ? Image::class : VaporImage::class;
 
-        // $ltsPlaylistMeta = [
-        //     'ltsnp' => '启航',
-        //     'ltsdp1' => '本科1',
-        //     'ltsdp2' => '本科2',
-        //     'ltshdp1' => '进深1',
-        //     'ltshdp2' => '进深2',
-        // ];
-        // $ltsTags = [
-        //     "启航课程" => "ltsnp",
-        //     "本科文凭课程" => "ltsdp",
-        //     "进深文凭课程" => "ltshdp",
-        //     "专辑课程" => "ltsnop",
-        // ];
         $isLts = $this->isLts;
-        $tags = [];
-        // by 阮老师
-            // 良院專輯在廣播節目表上按日期插在啟航（大部分）及本科良院內
-            // 這個只是廣播時間連續兩個半小時节目
-        switch ($this->code) {
-            case 'maltsnp':
-                $tags[] = '启航课程';
-                $tags[] = '专辑课程';
-                break;
-            case 'maltsdp1':
-            case 'maltsdp2':
-                $tags[] = '本科文凭课程';
-                $tags[] = '专辑课程';
-                break;
-            case 'maltshdp1':
-            case 'maltshdp2':
-                $tags[] = '进深文凭课程';
-                break;
-            
-            default:
-                // code...
-                break;
-        }
-        $currentOptions = LtsMeta::withAnyTags($tags, 'lts')->pluck('name','id');
         $model = $this;
 
         $meta_fields = config('pms.lyMeta.extraFields.text');
@@ -210,11 +174,11 @@ class LyMeta extends Resource
                 ->type('program-format')
                 ->hideFromIndex()
                 ->single(),
+            InlineText::make(__('Weekly Broadcast Date'),'rrule_by_day')
+                ->rules('required', 'max:20'),//3x7-1
             Date::make(__('Program Start Date'),'begin_at')->sortable()->hideFromIndex(),
             Date::make(__('Program End Date'),'end_at')->sortable(),
             Date::make(__('Playlist Unpublish Date'),'unpublished_at')->sortable()->help('节目1.1号停播，end_at=1.1,播放列表最多显示天数，30,  counts_max_list=30, 1.15提前下架，强制不显示,unpublished_at=1.15'),
-            InlineText::make(__('Weekly Broadcast Date'),'rrule_by_day')
-                ->rules('required', 'max:20'),//3x7-1
             Text::make(__('Publish Duration'),'counts_max_list')->placeholder('播放列表最多显示天数，31-255')->sortable()->hideFromIndex(),
             Tags::make(__('Production Centre'),'Production Centre')
                 ->type('production-centre')
@@ -230,6 +194,13 @@ class LyMeta extends Resource
 
         // 动态添加LTS的Meta
         if($isLts) {
+            $tags = \App\Models\LyMeta::getLtsTags($this->code);
+            $local = app()->getLocale();
+            if($local != 'en') app()->setLocale('en'); 
+            // tag only has en translation, so if cn, the $currentOptions = []
+            $currentOptions = \App\Models\LtsMeta::withAnyTags($tags, 'lts')->pluck('name','id')
+                ->toArray();
+            app()->setLocale($local); // rollback local
             $ltsFields = [
                 // 起先播放 first_play_lts
                 // 起先播放日期 first_play_lts
@@ -247,7 +218,7 @@ class LyMeta extends Resource
                         if(!$isLts) return '!lts';
                         $lts_first_play = $this->getMeta('lts_first_play');
                         $ltsMeta = LtsMeta::find($lts_first_play);
-                        if($ltsMeta) return "<a class='link-default' target='_blank' href='/nova/resources/lts-metas/{$ltsMeta->id}'>{$ltsMeta->name}</a>";
+                        if($ltsMeta) return "<a class='link-default' target='_blank' href='/admin/resources/lts-metas/{$ltsMeta->id}'>{$ltsMeta->name}</a>";
                         return '-';
                     })
                     ->asHtml()
@@ -268,7 +239,7 @@ class LyMeta extends Resource
                                 $ymd = $lts_first_play_at . " 00:00:00";
                                 $ltsMeta = LtsMeta::find($lts_first_play);
                                 $ltsMeta->update(['ly_meta_id' => $model->id]);
-                                foreach ($ltsMeta->lts_items as $key => $ltsItem) {
+                                foreach ($ltsMeta->lts_items_asc as $key => $ltsItem) {
                                     // 从第N个节目开始更新
                                     if ($key + 1 >= $lts_first_play_index) {
                                         $dt = Carbon::createFromFormat('Y-m-d H:i:s', $ymd);

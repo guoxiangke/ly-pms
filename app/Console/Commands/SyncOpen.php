@@ -62,9 +62,22 @@ class SyncOpen extends Command
                     Log::debug(__CLASS__, ['LtsItem', $item->id, $newItem->id, $item->alias, $code]);
                 }else{
                     // cc230925
-                    $code = 'ma' . preg_replace('/\d+/','',$item->alias);
+                    $code = preg_replace('/\d+/','',$item->alias);//cc
+                    if(isset($specials[$code])){
+                        // 'cwa'=>'cawa',
+                        $alias = str_replace($code, $specials[$code], $item->alias);
+                        $code = $specials[$code];
+                    }else{
+                        if(Str::startsWith($item->alias,'ca')){
+                             //ca 开头的，不加ma,
+                            $alias = $item->alias;// code 不变，$alias 也不变 = 原来的。
+                        }else{
+                            $code = 'ma' . $code; //macc
+                            $alias = 'ma' . $item->alias;
+                        }
+                    }
                     $lyMeta = LyMeta::firstOrCreate(['code'=> $code], ['name'=>'CBI_' . $code ,'unpublished_at'=>now()]);
-                    $newItem = LyItem::withoutGlobalScopes()->updateOrCreate(['alias' => 'ma' . $item->alias], [
+                    $newItem = LyItem::withoutGlobalScopes()->updateOrCreate(['alias' => $alias], [
                         'ly_meta_id'=>$lyMeta->id,
                         // 'play_at'=>$item->play_at,
                         'description'=>$item->description

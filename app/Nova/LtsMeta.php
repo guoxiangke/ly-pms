@@ -123,7 +123,7 @@ class LtsMeta extends Resource
                 ->rules('required', 'max:12'),
             BelongsTo::make(__('LTS Program Title'), 'ly_meta', 'App\Nova\LyMeta')
                 ->relatableQueryUsing(function (NovaRequest $request, Builder $query) {
-                    $query->where('code', 'like', 'malts%');
+                    $query->where('code', 'like', '%lts%');
                 }),//->searchable(),
             Textarea::make(__('LTS Subject Description'),'description')
                 ->hideFromIndex(),

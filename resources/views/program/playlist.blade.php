@@ -13,7 +13,7 @@
       <div class="mt-2 bg-gray-50 text-gray-600">
         <div class="p-4">
           <div class="text-gray-900" >
-            <p class=" leading-7">{{$lyMeta->getMeta('description_detail')}}</p>
+            <p class=" leading-7">{{$lyMeta->getMeta('description_detail')?:$lyMeta->description}}</p>
             <p class="mt-1">电邮：{{$lyMeta->getMeta('program_email')}}</p>
             <p class="mt-1">短信：{{$lyMeta->getMeta('program_sms')}} @if($keyword = $lyMeta->getMeta('program_sms_keyword')) {{$keyword}} @endif</p>
           </div>
@@ -121,7 +121,7 @@
                 <title>点击暂停</title>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M 10 6 L 10 26 L 12 26 L 12 6 Z M 20 6 L 20 26 L 22 26 L 22 6 Z"/></svg>
               </svg>
-              {{$lyMeta->name}} - <span id="play_at">{{$music->play_at->format('Ymd')}}</span>
+              {{$lyMeta->name}} - <span id="play_at">{{$music->play_at?$music->play_at->format('Ymd'):''}}</span>
             </p>
 
           <div id="waveform" class="py-2 waveform"></div>
@@ -169,7 +169,7 @@
                   id="track-{{$loop->index}}"
                   data-id="{{$loop->index}}"
                   data-url='{{$lyItem->path}}' 
-                  data-date='{{$lyItem->play_at->format("Ymd")}}' 
+                  data-date='{{$lyItem->play_at?$lyItem->play_at->format("Ymd"):""}}' 
                   title="播放音频"
                   class="preventEvents track cursor-pointer flex min-w-0 gap-x-4">
                   <div class="flex shrink-0 items-center gap-x-4">
@@ -191,10 +191,11 @@
                   </div>
                   <div class="min-w-0 flex-auto">
                     <p class="text-base  leading-6 text-gray-900">
-                      {{$lyMeta->name}}-{{$lyItem->play_at->format('Ymd')}}
+                      {{$lyMeta->name}}-{{$lyItem->play_at?$lyItem->play_at->format('Ymd'):''}}
                     </p>
                     <p class="mt-1 flex text-sm leading-5 text-gray-500">
-                      <span class="relative hover:underline">{{$lyItem->description}}</span>
+                      <span class="relative hover:underline">{{$lyItem->description}}
+                      {{$lyItem->episodeTitle}}</span>
                     </p>
                   </div>
                 </div>

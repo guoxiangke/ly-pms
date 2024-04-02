@@ -75,7 +75,7 @@ class LtsItem extends Resource
     {
         return [
             // ID::make()->sortable(),
-            Text::make(__('Episode Title'), fn()=>$this->lts_meta->name.'-'. str_replace($this->lts_meta->code, '', $this->alias))->onlyOnIndex(),
+            Text::make(__('Episode Title'), fn()=>$this->episodeTitle)->onlyOnIndex(),
             Text::make(__('Episode Alias'),'alias')
                 ->sortable()
                 ->rules('required', 'max:12'),

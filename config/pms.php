@@ -65,6 +65,7 @@ return [
 	    'ltsdp2'=>'ltstpa2',
 	    'ltshdp1'=>'ltstpb1',
 	    'ltshdp2'=>'ltstpb2',
+	    'ltsnp'=>'ltsnp',
 	    'cttb'=>'cattb',
 	    'cwa'=>'cawa',
 	    'ynf'=>'yunf',

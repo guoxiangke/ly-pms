@@ -41,7 +41,7 @@ class LyItem extends Resource
 
     // public static $group = 'Items 列表';
     public static $priority = 2;
-    public static $perPageOptions = [50,100];
+    public static $perPageOptions = [5,10,25,50,100];
     public static $perPageViaRelationship = 50;
     /**
      * The model the resource corresponds to.
@@ -75,8 +75,6 @@ class LyItem extends Resource
      */
     public function fields(NovaRequest $request)
     {
-        $model = $this;
-
         $fileFeild = [
             File::make('音频勘误', 'mp3')
                 ->disk('public')
@@ -87,9 +85,6 @@ class LyItem extends Resource
                 ->disableDownload()
         ];
         return array_merge( [
-            Text::make(__('Episode Alias'), 'alias')
-                ->sortable()
-                ->rules('required', 'max:12'),
             // ID::make()->sortable(),
         ] , $fileFeild,
         [
@@ -97,18 +92,20 @@ class LyItem extends Resource
             Boolean::make('', function(){
                 return !$this->is_future;
             })->onlyOnIndex(),
-            Text::make(__('Episode Title'), fn()=> $this->episodeTitle)->onlyOnIndex(),
-
-            BelongsTo::make(__('Episode Title'), 'ly_meta', 'App\Nova\LyMeta')->hideFromIndex(),
-            Text::make(__('Episode Duration'), 'playtime_string')->sortable()->onlyOnIndex(),
-
+            Text::make(__('Episode Title'), fn()=> $this->episodeTitle)->exceptOnForms(),
+            Text::make(__('Episode Alias'), 'alias')
+                ->sortable()
+                ->rules('required', 'max:12'),
+            BelongsTo::make(__('Program Title'), 'ly_meta', 'App\Nova\LyMeta')->onlyOnForms(),
             InlineText::make(__('Episode Description'), 'description')->onlyOnIndex(),
+            Text::make(__('Episode Duration'), 'playtime_string')->sortable()->onlyOnIndex(),
             Text::make(__('Episode Description'), 'description')
                 ->rules('required', 'max:255')->hideFromIndex(),
             Date::make(__('Start Publishing Date'), 'play_at'),
             
             // TODO: 不要跳转，不要统计, aws直链
-            App::isLocal() ? Audio::make('Mp3', fn() => $this->mp3?:$this->novaPath)->disableDownload()->onlyOnDetail() : Audio::make('Mp3', fn() => $this->mp3?$this->path:$this->novaPath)->disableDownload()->onlyOnDetail(),
+            Audio::make('Mp3', fn() => $this->novaMp3Path)->disableDownload()->onlyOnDetail(),
+            Text::make('', fn() => '<a target="_blank" href="'.$this->path.'" dusk="ComputedField-download-link" tabindex="0" class="cursor-pointer text-gray-500 inline-flex items-center"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="16" height="16" class="inline-block mr-2" role="presentation" view-box="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg><span class="class mt-1">Download</span></a>')->asHtml()->onlyOnDetail(),
         ]);
 
     }

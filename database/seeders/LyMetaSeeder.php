@@ -32,6 +32,8 @@ class LyMetaSeeder extends Seeder
                     $code = $program->alias;// = 原来的。
                 }
                 
+                $schedules = config('pms.init.schedule');
+                $schedule = $schedules[$code]??'MO,TU,WE,TH,FR,SA,SU';
 
                 if($program->end_at){
                     $lyMeta = LyMeta::updateOrCreate(['code'=> $code], [
@@ -39,12 +41,14 @@ class LyMetaSeeder extends Seeder
                         'end_at' => $program->end_at, //'停播日期'
                         'description' => $program->brief,
                         'name' =>  $program->name,
+                        'rrule_by_day' => $schedule,
                     ]);
                 }else{
                     $lyMeta = LyMeta::updateOrCreate(['code'=> $code], [
                         'end_at' => $program->end_at, //'停播日期'
                         'description' => $program->brief,
                         'name' =>  $program->name,
+                        'rrule_by_day' => $schedule,
                     ]);
                 }
                 $lyMeta->setMeta('program_phone_time', $program->phone_open);

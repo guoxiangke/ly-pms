@@ -194,26 +194,6 @@ class LyMeta extends Model
         // static::deleteDirectory($tempFilePath);
     }
 
-    public static function getNewCodeAndAlias($alias)
-    {
-        $specials = config('pms.code_diff');
-        $code = preg_replace('/\d+/','',$alias);//cc
-        if(isset($specials[$code])){
-            // 'cwa'=>'cawa',
-            $alias = str_replace($code, $specials[$code], $alias);
-            $code = $specials[$code];
-        }else{
-            if(Str::startsWith($alias,'ca')){
-                 //ca 开头的，不加ma,
-                $alias = $alias;// code 不变，$alias 也不变 = 原来的。
-            }else{
-                $code = 'ma' . $code; //macc
-                $alias = 'ma' . $alias;
-            }
-        }
-        return compact('code','alias');
-    }
-
     public static function getLtsTags($code)
     {
         $tags = [];

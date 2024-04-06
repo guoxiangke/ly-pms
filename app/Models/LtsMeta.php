@@ -44,17 +44,6 @@ class LtsMeta extends Model
         return isset($this->avatar) ? Storage::url($this->avatar) : "https://txly2.net/images/program_banners/ltsnp_prog_banner_sq.png";
     }
 
-    // /**
-    //  * Get the code.
-    //  */
-    // protected function code(): Attribute
-    // {
-    //     return Attribute::make(
-    //         get: fn ($value) => 'ma' . $value,
-    //         set: fn ($value) => substr($value, 2),
-    //     );
-    // }
-
     public function lts_items(): HasMany
     {
         return $this->HasMany(LtsItem::class)->orderBy('alias', 'DESC');

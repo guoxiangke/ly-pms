@@ -92,11 +92,7 @@ class LyMeta extends Model
     protected function cover(): Attribute
     {
         $specials = array_flip(config('pms.code_diff'));
-        if(isset($specials[$this->code])){
-            $code = $specials[$this->code];
-        }else{//+ma -ma
-            $code = substr($this->code, 2);
-        }
+        $code = $specials[$this->code]??$this->code;
         return Attribute::make(
             get: fn () => isset($this->avatar) ? config('pms.uploader_domain'). Storage::url($this->avatar) : "https://txly2.net/images/program_banners/{$code}_prog_banner_sq.png",
         );

@@ -40,16 +40,18 @@ class SyncOpen extends Command
         if(!$lastLyItem){
             $itemCollections = Item::where('id', '>', 0);
         }else{
-            $lastAlias = substr($lastLyItem->alias, 2);
+            $lastAlias = $lastLyItem->alias;
             $lastItem = Item::where('alias',$lastAlias)->firstOrFail();
             $itemCollections = Item::where('id', '>', $lastItem->id);
         }
         // $itemCollections = Item::where('id', '>', 0);
         $itemCollections->chunkById(2000, function (Collection $items)  {
             foreach ($items as $item) {
+                // vspsa546 => mavspsa501
                 if(Str::startsWith($item->alias, 'vsp'))  $item->alias = 'ma' . $item->alias;
                 if(Str::startsWith($item->alias, 'ma')){
-                    $code = substr($item->alias, 0, strlen($item->alias)-2); //vhx1 vpd0
+                    // vhx1 vpd0
+                    $code = substr($item->alias, 0, strlen($item->alias)-2);
                     $ltsMeta = LtsMeta::firstOrCreate(['code'=>$code], [
                         'name'=>'CBI_' . $code ,
                         'count'=>0,
@@ -72,8 +74,8 @@ class SyncOpen extends Command
                              //ca 开头的，不加ma,
                             $alias = $item->alias;// code 不变，$alias 也不变 = 原来的。
                         }else{
-                            $code = 'ma' . $code; //macc
-                            $alias = 'ma' . $item->alias;
+                            $code = $code; //macc
+                            $alias = $item->alias;
                         }
                     }
                     $lyMeta = LyMeta::firstOrCreate(['code'=> $code], ['name'=>'CBI_' . $code ,'unpublished_at'=>now()]);

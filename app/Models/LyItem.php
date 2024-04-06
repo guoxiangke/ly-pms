@@ -88,10 +88,6 @@ class LyItem extends Model implements HasMedia
         // New: /ly/audio/ttb/2023/ttb230726.mp3
         $code = preg_replace('/\d+/', '', $this->alias);
         $alias = $this->alias;
-        if($this->is_old) {
-            $code = substr($code, 2);
-            $alias = substr($alias, 2);
-        }
         $year = $this->play_at->format('Y');
         $domain = config('app.url');
         if($this->is_old){

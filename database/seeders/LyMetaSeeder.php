@@ -29,13 +29,9 @@ class LyMetaSeeder extends Seeder
                 if(isset($specials[$program->alias])){
                     $code = $specials[$program->alias];
                 }else{
-                    if(Str::startsWith($program->alias, 'ca')){
-                         //ca 开头的，不加ma,
-                        $code = $program->alias;// = 原来的。
-                    }else{
-                        $code = 'ma'.$program->alias;    
-                    }
+                    $code = $program->alias;// = 原来的。
                 }
+                
 
                 if($program->end_at){
                     $lyMeta = LyMeta::updateOrCreate(['code'=> $code], [
@@ -120,7 +116,7 @@ class LyMetaSeeder extends Seeder
     private function save($program, $programAuthor, $tag)
     {
         //withoutGlobalScopes()->
-        $program['code'] = 'ma' . $program['code'];
+        $program['code'] = $program['code'];
         $programModel = LyMeta::firstOrCreate(['code'=> $program['code']], $program);
         if($programModel->wasRecentlyCreated){
             Log::info(__METHOD__, $program);

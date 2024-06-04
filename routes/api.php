@@ -2,7 +2,11 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Nuwave\Lighthouse\GraphQL;
+// use Nuwave\Lighthouse\Support\Contracts\CreatesContext;
+use Nuwave\Lighthouse\Execution\ContextFactory;
 
+// use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -26,10 +30,10 @@ Route::get('/categories', function (Request $request) {
             name
             type
             order_column
-            ly_metas{
-                id
+            programs:ly_metas{
+              id
               name
-              code
+              alias:code
               avatar:cover
               description
               begin_at
@@ -38,20 +42,11 @@ Route::get('/categories', function (Request $request) {
           }
         }
     GQL;
-    $graphqlEndpoint = config('app.url') . '/graphql';
-    $client = new \GuzzleHttp\Client();
-    $response = $client->request('POST', $graphqlEndpoint, [
-      'headers' => [
-        'Content-Type' => 'application/json',
-      ],
-      'json' => [
-        'query' => $query
-      ]
-    ]);
-
-    $json = $response->getBody()->getContents();
-    $body = json_decode($json, true);
-    return ['data' => $body['data']['data']];
+    $graphQL = app(GraphQL::class);
+    $createsContext = app(ContextFactory::class);
+    $context = $createsContext->generate($request);
+    $result = $graphQL->executeQueryString($query, $context);
+    return ['data' => $result['data']['data']];
 });
 Route::get('/programs', function (Request $request) {
     $query = <<<GQL
@@ -78,24 +73,38 @@ Route::get('/programs', function (Request $request) {
           }
         }
     GQL;
-    $graphqlEndpoint = config('app.url') . '/graphql';
-    $client = new \GuzzleHttp\Client();
-    $response = $client->request('POST', $graphqlEndpoint, [
-      'headers' => [
-        'Content-Type' => 'application/json',
-      ],
-      'json' => [
-        'query' => $query
-      ]
-    ]);
-
-    $json = $response->getBody()->getContents();
-    $body = json_decode($json, true);
-    return ['data' => $body['data']['data']];
+    $graphQL = app(GraphQL::class);
+    $createsContext = app(ContextFactory::class);
+    $context = $createsContext->generate($request);
+    $result = $graphQL->executeQueryString($query, $context);
+    return ['data' => $result['data']['data']];
 });
 
 Route::get('/today', function (Request $request) {
-    return ItemResource::collection(Item::where('play_at', now()->format('Y-m-d 00:00:00'))->inRandomOrder()->get());
+  $query = <<<GQL
+    {
+      ly_items(play_at: "2024-06-04 00:00:00") {
+        data {
+          id
+          description
+          alias
+          play_at
+          path: novaMp3Path
+          link: path
+          program: ly_meta {
+            id
+            name
+            code
+          }
+        }
+      }
+    }
+  GQL;
+  $graphQL = app(GraphQL::class);
+  $createsContext = app(ContextFactory::class);
+  $context = $createsContext->generate($request);
+  $result = $graphQL->executeQueryString($query, $context);
+  return $result['data']['ly_items'];
 });
 
 Route::get('/program/{code}', function (Request $request, $code) {
@@ -119,7 +128,13 @@ Route::get('/program/{code}', function (Request $request, $code) {
                 alias
                 description
                 play_at
-                mp3
+                path: novaMp3Path
+                link: path
+                program: ly_meta {
+                  id
+                  name
+                  code
+                }
               }
               paginatorInfo {
                 total
@@ -130,23 +145,9 @@ Route::get('/program/{code}', function (Request $request, $code) {
           }
         }
     GQL;
-    $graphqlEndpoint = config('app.url') . '/graphql';
-    $client = new \GuzzleHttp\Client();
-    $response = $client->request('POST', $graphqlEndpoint, [
-      'headers' => [
-        'Content-Type' => 'application/json',
-      ],
-      'json' => [
-        'query' => $query
-      ]
-    ]);
-
-    $json = $response->getBody()->getContents();
-    $body = json_decode($json, true);
-    return ['data' => $body['data']['data']];
-});
-
-Route::get('/program/{code}/{date}', function (Request $request, $code, $date) {
-    $program = Program::whereAlias($code)->firstOrFail();
-    return ItemResource::collection(Item::where('program_id', $program->id)->where('play_at', $date)->get());
+    $graphQL = app(GraphQL::class);
+    $createsContext = app(ContextFactory::class);
+    $context = $createsContext->generate($request);
+    $result = $graphQL->executeQueryString($query, $context);
+    return $result['data']['data']['ly_items'];
 });

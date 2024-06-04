@@ -51,6 +51,14 @@ class LyMetaSeeder extends Seeder
                         'rrule_by_day' => $schedule,
                     ]);
                 }
+
+                // $program->category_id;
+                $categoryTitle = $program->category->name;
+                if($categoryTitle=='少数民族') $categoryTitle = '其他语言';
+                if(Str::contains($program->name, '粤语')) $categoryTitle = '粤语节目';
+                $tag = Tag::findOrCreateFromString($categoryTitle, 'ly');
+                $lyMeta->attachTag($tag);
+
                 $lyMeta->setMeta('program_phone_time', $program->phone_open);
                 $lyMeta->setMeta('program_sms', $program->sms_keyword?'':'13229966122');
                 $lyMeta->setMeta('program_sms_keyword', $program->sms_keyword);

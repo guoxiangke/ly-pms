@@ -24,9 +24,9 @@ class LtsItem extends Model
     protected $appends = [
         'path',
     ];
-    public function getPlayAtAttribute($value){
-        if(!$value) return now();
-    }
+    // public function getPlayAtAttribute($value){
+    //     if(!$value) return now();
+    // }
     public function lts_meta(): BelongsTo
     {
         return $this->BelongsTo(LtsMeta::class);

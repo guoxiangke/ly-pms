@@ -27,7 +27,7 @@ class LtsMetaSeeder extends Seeder
         $json = Http::get("https://wechat.yongbuzhixi.com/api/lts33")->json();
         foreach ($json as $key => $item) {
             // @see App\Models\LtsMeta::code()
-            $item['code'] =  $item['code'];
+            $item['code'] =  'ma' . $item['code'];
 
             $filter = Arr::only($item, ['name', 'description', 'avatar', 'code', 'count','author','index']);
             $filter['wx_index'] = $filter['index'];  // change index => wx_index!

@@ -143,7 +143,7 @@ class LyMeta extends Model
     }
 
     //
-    public static function writeID3Tag($tempFilePath, $description=null)
+    public static function writeID3TagAndSync2S3($tempFilePath, $description=null)
     {
         $getID3 = new getID3;
         // $thisFileInfo = $getID3->analyze($tempFilePath);
@@ -219,6 +219,14 @@ class LyMeta extends Model
         // if($local != 'en') app()->setLocale('en'); 
         // $options = LtsMeta::withAnyTags($tags, 'lts')->pluck('name','id')->toArray();
         return $tags;
+    }
+
+    // hasItemToday()
+    public function hasItemByDate($date = null)
+    {
+        $playAt = $date??now();
+        $schedule = explode(",", $this->rrule_by_day);
+        return in_array(Str::upper($playAt->minDayName), $schedule);
     }
 
 }

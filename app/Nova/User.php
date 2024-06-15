@@ -12,7 +12,7 @@ use Laravel\Nova\Http\Requests\NovaRequest;
 
 class User extends Resource
 {
-    public static $displayInNavigation = false;
+    // public static $displayInNavigation = false;
     
     public static $perPageOptions = [100,500];
     /**

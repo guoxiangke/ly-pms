@@ -11,4 +11,9 @@ class Program extends Model
 	protected $guarded = ['id', 'created_at', 'updated_at', 'deleted_at'];
     
     protected $dates = ['created_at', 'updated_at', 'deleted_at', 'play_at'];
+
+    // $program->category->name
+    public function category(){
+        return $this->belongsTo(Category::class);
+    }
 }

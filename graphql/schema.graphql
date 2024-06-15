@@ -21,9 +21,10 @@ type Query {
 
     ly_metas: [LyMeta!]! @all
     ly_meta(id: Int! @eq): LyMeta @find
-    ly_meta_by_code(code: String  @where(operator: "like")): LyMeta @find
+    ly_meta_by_code(code: String! @eq): LyMeta @find
     ly_item(id: Int! @eq): LyItem @find
-
+    ly_items(play_at: String! @eq): [LyItem!]! @paginate(defaultCount: 100)
+    
     lts_metas: [LtsMeta!]! @all
     lts_meta(id: Int! @eq): LtsMeta @find
     lts_item(id: Int! @eq): LtsItem @find
@@ -80,6 +81,7 @@ type LyItem {
   ly_meta: LyMeta! @belongsTo
   mp3: String
   path: String
+  novaMp3Path: String
 }
 
 type Announcer {

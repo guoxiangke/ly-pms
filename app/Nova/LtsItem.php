@@ -81,13 +81,12 @@ class LtsItem extends Resource
                 ->rules('required', 'max:12'),
             // BelongsTo::make(__('Episode Title'), 'lts_meta', 'App\Nova\LtsMeta')->searchable(),
             Text::make(__('Episode Description'),'description')
-                ->sortable()
                 ->hideFromIndex(),
             Text::make(__('Episode Description'),'description')
                 ->rules('required', 'max:255')->displayUsing(function($description) {
                     return Str::limit($description, 32);
                 })->onlyOnIndex(),
-            Date::make(__('Start Publishing Date'),'play_at')->sortable(),
+            Date::make(__('Start Publishing Date'),'play_at'),
             Audio::make('Mp3', fn() => $this->novaPath)->disableDownload(),
         ];
     }

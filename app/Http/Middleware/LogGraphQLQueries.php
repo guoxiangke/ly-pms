@@ -36,7 +36,6 @@ class LogGraphQLQueries
             $argumentName = $resultArr['definitions'][0]['selectionSet']['selections'][0]['arguments'][0]['name']['value'];
             $argumentValue = $resultArr['definitions'][0]['selectionSet']['selections'][0]['arguments'][0]['value']['value'];
         }
-        $this->logger->info(self::MESSAGE, [$queryName, $argumentName, $argumentValue]);
 
         $tags['metric'] = 'GraphQL';
         $tags['queryName'] = $queryName;
@@ -53,6 +52,7 @@ class LogGraphQLQueries
             'tags' => $tags,
             'fields' => $fields
         ];
+        $this->logger->info(self::MESSAGE, [$queryName, $argumentName, $argumentValue, $protocolLine]);
         InfluxQueue::dispatchAfterResponse($protocolLine);
 
         return $next($request);

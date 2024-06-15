@@ -29,13 +29,11 @@ class LyMetaSeeder extends Seeder
                 if(isset($specials[$program->alias])){
                     $code = $specials[$program->alias];
                 }else{
-                    if(Str::startsWith($program->alias, 'ca')){
-                         //ca 开头的，不加ma,
-                        $code = $program->alias;// = 原来的。
-                    }else{
-                        $code = 'ma'.$program->alias;    
-                    }
+                    $code = $program->alias;// = 原来的。
                 }
+                
+                $schedules = config('pms.init.schedule');
+                $schedule = $schedules[$code]??'MO,TU,WE,TH,FR,SA,SU';
 
                 if($program->end_at){
                     $lyMeta = LyMeta::updateOrCreate(['code'=> $code], [
@@ -43,14 +41,24 @@ class LyMetaSeeder extends Seeder
                         'end_at' => $program->end_at, //'停播日期'
                         'description' => $program->brief,
                         'name' =>  $program->name,
+                        'rrule_by_day' => $schedule,
                     ]);
                 }else{
                     $lyMeta = LyMeta::updateOrCreate(['code'=> $code], [
                         'end_at' => $program->end_at, //'停播日期'
                         'description' => $program->brief,
                         'name' =>  $program->name,
+                        'rrule_by_day' => $schedule,
                     ]);
                 }
+
+                // $program->category_id;
+                $categoryTitle = $program->category->name;
+                if($categoryTitle=='少数民族') $categoryTitle = '其他语言';
+                if(Str::contains($program->name, '粤语')) $categoryTitle = '粤语节目';
+                $tag = Tag::findOrCreateFromString($categoryTitle, 'ly');
+                $lyMeta->attachTag($tag);
+
                 $lyMeta->setMeta('program_phone_time', $program->phone_open);
                 $lyMeta->setMeta('program_sms', $program->sms_keyword?'':'13229966122');
                 $lyMeta->setMeta('program_sms_keyword', $program->sms_keyword);
@@ -120,7 +128,7 @@ class LyMetaSeeder extends Seeder
     private function save($program, $programAuthor, $tag)
     {
         //withoutGlobalScopes()->
-        $program['code'] = 'ma' . $program['code'];
+        $program['code'] = $program['code'];
         $programModel = LyMeta::firstOrCreate(['code'=> $program['code']], $program);
         if($programModel->wasRecentlyCreated){
             Log::info(__METHOD__, $program);

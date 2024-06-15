@@ -237,16 +237,15 @@ class LyMeta extends Resource
                                 $schedule = explode(",", $model->rrule_by_day);
                                 $count = 0;
                                 $ymd = $lts_first_play_at . " 00:00:00";
+                                $dt = Carbon::createFromFormat('Y-m-d H:i:s', $ymd);
                                 $ltsMeta = LtsMeta::find($lts_first_play);
                                 $ltsMeta->update(['ly_meta_id' => $model->id]);
                                 foreach ($ltsMeta->lts_items_asc as $key => $ltsItem) {
                                     // 从第N个节目开始更新
                                     if ($key + 1 >= $lts_first_play_index) {
-                                        $dt = Carbon::createFromFormat('Y-m-d H:i:s', $ymd);
-                                        
-                                        $playAt = $dt->addDays($count);
-                                        
-                                        while (!in_array(Str::upper($playAt->minDayName), $schedule)) {
+                                        $playAt = $dt->copy()->addDays($count);
+                                                                                
+                                        while (!in_array(Str::upper($playAt->locale('en')->minDayName), $schedule)) {
                                             $playAt->addDay();
                                             $count++; // 跳过周日后
                                         }
@@ -254,6 +253,7 @@ class LyMeta extends Resource
                                         $ltsItem->update([
                                             'play_at' => $playAt
                                         ]);
+                                        Log::info(__LINE__,[$count, Str::upper($playAt->locale('en')->minDayName), $ltsItem->toArray()]);
 
                                         $count++;
                                     }

@@ -60,7 +60,8 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
             return in_array($user->email, [
                 'admin@admin.com',
             ]) || Str::of($user->email)->endsWith([
-                '@febchk.org'
+                '@febchk.org',
+                '@liangyou.net',
             ]);
         });
     }

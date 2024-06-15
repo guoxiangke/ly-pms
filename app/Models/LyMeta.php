@@ -92,11 +92,7 @@ class LyMeta extends Model
     protected function cover(): Attribute
     {
         $specials = array_flip(config('pms.code_diff'));
-        if(isset($specials[$this->code])){
-            $code = $specials[$this->code];
-        }else{//+ma -ma
-            $code = substr($this->code, 2);
-        }
+        $code = $specials[$this->code]??$this->code;
         return Attribute::make(
             get: fn () => isset($this->avatar) ? config('pms.uploader_domain'). Storage::url($this->avatar) : "https://txly2.net/images/program_banners/{$code}_prog_banner_sq.png",
         );
@@ -147,7 +143,7 @@ class LyMeta extends Model
     }
 
     //
-    public static function writeID3Tag($tempFilePath, $description=null)
+    public static function writeID3TagAndSync2S3($tempFilePath, $description=null)
     {
         $getID3 = new getID3;
         // $thisFileInfo = $getID3->analyze($tempFilePath);
@@ -198,26 +194,6 @@ class LyMeta extends Model
         // static::deleteDirectory($tempFilePath);
     }
 
-    public static function getNewCodeAndAlias($alias)
-    {
-        $specials = config('pms.code_diff');
-        $code = preg_replace('/\d+/','',$alias);//cc
-        if(isset($specials[$code])){
-            // 'cwa'=>'cawa',
-            $alias = str_replace($code, $specials[$code], $alias);
-            $code = $specials[$code];
-        }else{
-            if(Str::startsWith($alias,'ca')){
-                 //ca 开头的，不加ma,
-                $alias = $alias;// code 不变，$alias 也不变 = 原来的。
-            }else{
-                $code = 'ma' . $code; //macc
-                $alias = 'ma' . $alias;
-            }
-        }
-        return compact('code','alias');
-    }
-
     public static function getLtsTags($code)
     {
         $tags = [];
@@ -243,6 +219,14 @@ class LyMeta extends Model
         // if($local != 'en') app()->setLocale('en'); 
         // $options = LtsMeta::withAnyTags($tags, 'lts')->pluck('name','id')->toArray();
         return $tags;
+    }
+
+    // hasItemToday()
+    public function hasItemByDate($date = null)
+    {
+        $playAt = $date??now();
+        $schedule = explode(",", $this->rrule_by_day);
+        return in_array(Str::upper($playAt->minDayName), $schedule);
     }
 
 }

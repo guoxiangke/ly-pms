@@ -6,9 +6,6 @@ use App\Models\LyItem;
 use App\Models\LyMeta;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
-use getID3;
-// use FilesystemIterator;
 
 class LyItemObserver
 {
@@ -17,7 +14,7 @@ class LyItemObserver
      */
     public function created(LyItem $lyItem): void
     {
-        if($lyItem->play_at) return ;
+        if($lyItem->play_at) return ;// 514
         $ymd = preg_replace('/\D+/', '', $lyItem->alias) . " 00:00:00";
         $play_at = Carbon::createFromFormat('ymd H:i:s', $ymd);
         $lyItem->update([
@@ -32,7 +29,7 @@ class LyItemObserver
     public function updated(LyItem $lyItem): void
     {
         if($lyItem->isDirty('mp3') && $lyItem->mp3){
-            LyMeta::writeID3Tag(storage_path('/app/public/'.$lyItem->mp3), $lyItem->description);
+            LyMeta::writeID3TagAndSync2S3(storage_path('/app/public/'.$lyItem->mp3), $lyItem->description);
         }
     }
 

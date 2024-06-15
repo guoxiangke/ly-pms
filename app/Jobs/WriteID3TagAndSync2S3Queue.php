@@ -30,6 +30,6 @@ class WriteID3TagAndSync2S3Queue implements ShouldQueue
      */
     public function handle(): void
     {
-        LyMeta::writeID3Tag($this->tempFilePath, $this->description);
+        LyMeta::writeID3TagAndSync2S3($this->tempFilePath, $this->description);
     }
 }

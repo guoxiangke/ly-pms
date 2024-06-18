@@ -2,6 +2,7 @@ id: 50254
 name: PMS
 environments:
     production:
+        domain: y.lydt.work
         storage: ly-pms2023
         memory: 1024
         cli-memory: 512

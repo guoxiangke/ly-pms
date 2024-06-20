@@ -152,7 +152,7 @@ class LyMeta extends Resource
             Tags::make(__('Program Category Title'))
                 ->type('ly')
                 ->single(),
-            Tags::make(__('Program Language'),'Program Language')
+            Tags::make(__('Program Language'))
                 ->type('program-language')
                 ->hideFromIndex()
                 ->single(),
@@ -163,28 +163,26 @@ class LyMeta extends Resource
                 })
                 ->withMeta(["value" => $model->getMeta('description_detail')])
                 ->hideFromIndex(),
-            Tags::make(__('Program Nature'),'Program Nature')
+            Tags::make(__('Program Nature'))
                 ->type('program-nature')
                 ->single(),
-            Tags::make(__('Target Audience'),'Target Audience')
+            Tags::make(__('Target Audience'))
                 ->type('target-audience')
-                ->hideFromIndex()
-                ->single(),
-            Tags::make(__('Program Format'),'Program Format')
+                ->hideFromIndex(),
+            Tags::make(__('Program Format'))
                 ->type('program-format')
-                ->hideFromIndex()
-                ->single(),
+                ->hideFromIndex(),
             InlineText::make(__('Weekly Broadcast Date'),'rrule_by_day')
                 ->rules('required', 'max:20'),//3x7-1
             Date::make(__('Program Start Date'),'begin_at')->sortable()->hideFromIndex(),
             Date::make(__('Program End Date'),'end_at')->sortable(),
             Date::make(__('Playlist Unpublish Date'),'unpublished_at')->sortable()->help('节目1.1号停播，end_at=1.1,播放列表最多显示天数，30,  counts_max_list=30, 1.15提前下架，强制不显示,unpublished_at=1.15'),
             Text::make(__('Publish Duration'),'counts_max_list')->placeholder('播放列表最多显示天数，31-255')->sortable()->hideFromIndex(),
-            Tags::make(__('Production Centre'),'Production Centre')
+            Tags::make(__('Production Centre'))
                 ->type('production-centre')
                 ->hideFromIndex()
                 ->single(),
-            Tags::make(__('Sponsor'),'sponsor')
+            Tags::make(__('Sponsor'))
                 ->type('sponsor')
                 ->hideFromIndex()
                 ->single(),

@@ -81,9 +81,10 @@ Route::get('/programs', function (Request $request) {
 });
 
 Route::get('/today', function (Request $request) {
+  $now = date('Y-m-d');
   $query = <<<GQL
     {
-      ly_items(play_at: "2024-06-04 00:00:00") {
+      ly_items(play_at: "$now 00:00:00") {
         data {
           id
           description

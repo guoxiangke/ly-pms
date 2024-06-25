@@ -41,7 +41,11 @@ class LtsMeta extends Model
     }
     
     public function getCoverAttribute(){
-        return isset($this->avatar) ? Storage::url($this->avatar) : "https://txly2.net/images/program_banners/ltsnp_prog_banner_sq.png";
+        $code = 'ltsnp';
+        $domain =  config('pms.cloudfront_domain');
+        $cover = "{$domain}/ly/image/cover/{$code}.jpg";
+
+        return isset($this->avatar) ? Storage::url($this->avatar) : $cover;
     }
 
     public function lts_items(): HasMany

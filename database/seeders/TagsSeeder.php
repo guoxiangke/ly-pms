@@ -209,7 +209,7 @@ class TagsSeeder extends Seeder
             '壮语'=>'zhuang',
             '白族'=>'bai',
             '闽南语' => 'taiwanese',
-            '客家语'=>'Hakka',
+            '客家语'=>'hakka',
         ];
         foreach ($programLanguages as $name  => $slug) {
             $locale = app()->getLocale();

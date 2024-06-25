@@ -157,7 +157,7 @@ class LyMeta extends Resource
                 ->hideFromIndex()
                 ->single(),
             Text::make(__('Program Brief Description'),'description')->hideFromIndex(),
-            Trix::make(__('Program Full Description'), 'description_detail')
+            Textarea::make(__('Program Full Description'), 'description_detail')
                 ->fillUsing(function ($request, $model, $attribute, $requestAttribute) {
                     $model->setMeta($attribute, $request->input($attribute));
                 })

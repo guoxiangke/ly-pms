@@ -76,7 +76,7 @@ class LyMeta extends Model
 
     public function scopeNotLts($query)
     {
-        return $query->whereNot('code','like','malts%');
+        return $query->whereNot('code','like','lts%');
     }
 
 

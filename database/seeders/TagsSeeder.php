@@ -207,7 +207,9 @@ class TagsSeeder extends Seeder
             '维吾尔语'=>'uighur',
             '蒙古话'=>'mongolian',
             '壮语'=>'zhuang',
-            '白族'=>'bai'
+            '白族'=>'bai',
+            '闽南语' => 'taiwanese',
+            '客家语'=>'Hakka',
         ];
         foreach ($programLanguages as $name  => $slug) {
             $locale = app()->getLocale();

@@ -41,7 +41,7 @@ class LyItem extends Resource
 
     // public static $group = 'Items 列表';
     public static $priority = 2;
-    public static $perPageOptions = [5,10,25,50,100];
+    public static $perPageOptions = [5,10,25,30,50,100];
     public static $perPageViaRelationship = 50;
     /**
      * The model the resource corresponds to.

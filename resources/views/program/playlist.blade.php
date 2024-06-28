@@ -13,7 +13,7 @@
       <div class="mt-2 bg-gray-50 text-gray-600">
         <div class="p-4">
           <div class="text-gray-900" >
-            <p class=" leading-7">{{$lyMeta->getMeta('description_detail')?:$lyMeta->description}}</p>
+            <p class=" leading-7">{!!$lyMeta->getMeta('description_detail')?:$lyMeta->description!!}</p>
             <p class="mt-1">电邮：{{$lyMeta->getMeta('program_email')}}</p>
             <p class="mt-1">短信：{{$lyMeta->getMeta('program_sms')}} @if($keyword = $lyMeta->getMeta('program_sms_keyword')) {{$keyword}} @endif</p>
           </div>
@@ -34,7 +34,7 @@
 
       <div class="block lg:hidden md:hidden xl:hidden p-4 flex items-center justify-center" style="padding-right: 0; ">
         <div>
-          <img src="{{$lyMeta->cover}}" class="rounded-lg bg-slate-100 pt-1" loading="lazy">
+          <img src="{{$lyMeta->cover}}" style="max-width: 150px;" class="rounded-lg bg-slate-100 pt-1" loading="lazy">
           <div class="gap-1 flex items-center justify-center mt-3">
                   <button class="prev" type="button" class="" aria-label="Previous">
                     <svg width="24" height="24" fill="none">
@@ -73,7 +73,7 @@
 
       <div class="flex flex-nowrap audio-player my-4">
         <div class="p-4 hidden lg:block md:block xl:block" style="padding-right: 0;">
-          <img src="{{$lyMeta->cover}}" class="rounded-lg bg-slate-100 pt-1" loading="lazy">
+          <img src="{{$lyMeta->cover}}" style="max-width: 150px;" class="rounded-lg bg-slate-100 pt-1" loading="lazy">
           <div class="gap-1 flex items-center justify-center mt-3">
                   <button class="prev" type="button" class="" aria-label="Previous">
                     <svg width="24" height="24" fill="none">

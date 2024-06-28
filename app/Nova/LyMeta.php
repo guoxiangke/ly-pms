@@ -48,7 +48,7 @@ class LyMeta extends Resource
     // public static function label() { return '良友'; }
     // public static $priority = 1;
     // public static $group = 'Metadata';
-    public static $perPageOptions = [5,10,25,50,100];
+    public static $perPageOptions = [5,10,25,30,50,100];
     
     // https://trungpv1601.github.io/2020/04/14/Laravel-Nova-Setting-a-default-sort-order-support-multi-columns/
     /**
@@ -157,7 +157,7 @@ class LyMeta extends Resource
                 ->hideFromIndex()
                 ->single(),
             Text::make(__('Program Brief Description'),'description')->hideFromIndex(),
-            Textarea::make(__('Program Full Description'), 'description_detail')
+            Trix::make(__('Program Full Description'), 'description_detail')
                 ->fillUsing(function ($request, $model, $attribute, $requestAttribute) {
                     $model->setMeta($attribute, $request->input($attribute));
                 })
@@ -172,8 +172,9 @@ class LyMeta extends Resource
             Tags::make(__('Program Format'))
                 ->type('program-format')
                 ->hideFromIndex(),
-            InlineText::make(__('Weekly Broadcast Date'),'rrule_by_day')
-                ->rules('required', 'max:20'),//3x7-1
+            Text::make(__('Weekly Broadcast Date'),'rrule_by_day')
+                ->rules('required', 'max:20')
+                ->hideFromIndex(),
             Date::make(__('Program Start Date'),'begin_at')->sortable()->hideFromIndex(),
             Date::make(__('Program End Date'),'end_at')->sortable(),
             Date::make(__('Playlist Unpublish Date'),'unpublished_at')->sortable()->help('节目1.1号停播，end_at=1.1,播放列表最多显示天数，30,  counts_max_list=30, 1.15提前下架，强制不显示,unpublished_at=1.15'),
@@ -203,7 +204,7 @@ class LyMeta extends Resource
                 // 起先播放 first_play_lts
                 // 起先播放日期 first_play_lts
                 //current_lts fist_play_at then 1-24...
-                Select::make(__('Lts First Paly'), 'lts_first_play')
+                Select::make(__('Lts First Play'), 'lts_first_play')
                     ->options($currentOptions)
                     ->fillUsing(function ($request, $model, $attribute, $requestAttribute) {
                         $model->setMeta('lts_first_play', $request->input($attribute));
@@ -212,7 +213,7 @@ class LyMeta extends Resource
                         return $this->getMeta('lts_first_play');
                     })->onlyOnForms(),
 
-                Text::make(__('Lts First Paly At'), 'lts_first_play', function () use($isLts) {
+                Text::make(__('Lts First Play At'), 'lts_first_play', function () use($isLts) {
                         if(!$isLts) return '!lts';
                         $lts_first_play = $this->getMeta('lts_first_play');
                         $ltsMeta = LtsMeta::find($lts_first_play);
@@ -221,7 +222,7 @@ class LyMeta extends Resource
                     })
                     ->asHtml()
                     ->onlyOnDetail(),
-                Date::make(__('Lts First Paly At'), 'lts_first_play_at')
+                Date::make(__('Lts First Play At'), 'lts_first_play_at')
                     ->help('请更改时间')
                     ->fillUsing(function ($request, $model, $attribute, $requestAttribute) {
                         $isDirty = $this->getMeta('lts_first_play_at') != $request->input('lts_first_play_at');

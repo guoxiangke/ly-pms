@@ -124,12 +124,16 @@ class LtsMeta extends Resource
             BelongsTo::make(__('LTS Program Title'), 'ly_meta', 'App\Nova\LyMeta')
                 ->relatableQueryUsing(function (NovaRequest $request, Builder $query) {
                     $query->where('code', 'like', '%lts%');
-                }),//->searchable(),
+                })->withoutTrashed(),
             Textarea::make(__('LTS Subject Description'),'description')
                 ->hideFromIndex(),
             Text::make(__('Number of Episode'),'count')->sortable(),
-            Date::make(__('Production Date'),'made_at')->sortable(),
-            Tags::make(__('Production Centre'),'Production Centre')
+            Date::make(__('Production Date'),'made_at')->sortable()->showOnUpdating()->hideFromIndex(),
+            Text::make(__('Production Date'), function () {
+                return $this->made_at?$this->made_at->format("Y/m"):'—';
+            })->asHtml()->hideWhenUpdating(),
+
+            Tags::make(__('Production Centre'))
                 ->type('production-centre')
                 ->hideFromIndex()
                 ->single(),

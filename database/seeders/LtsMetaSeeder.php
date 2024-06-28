@@ -19,9 +19,9 @@ class LtsMetaSeeder extends Seeder
     {
         $category = [
           0 => '启航课程',
-          1 => '本科文凭课程',
-          2 => '进深文凭课程',
-          3 => '专辑课程',
+          1 => '普及本科',
+          2 => '普及进深',
+          3 => '专题特辑',
         ];
 
         $json = Http::get("https://wechat.yongbuzhixi.com/api/lts33")->json();

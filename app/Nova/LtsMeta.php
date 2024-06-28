@@ -39,7 +39,7 @@ class LtsMeta extends Resource
     }
 
     public static $priority = 2;
-    public static $perPageOptions = [5,10,25,50,100];
+    public static $perPageOptions = [5,10,25,30,50,100];
     
     // https://trungpv1601.github.io/2020/04/14/Laravel-Nova-Setting-a-default-sort-order-support-multi-columns/
     /**
@@ -124,12 +124,16 @@ class LtsMeta extends Resource
             BelongsTo::make(__('LTS Program Title'), 'ly_meta', 'App\Nova\LyMeta')
                 ->relatableQueryUsing(function (NovaRequest $request, Builder $query) {
                     $query->where('code', 'like', '%lts%');
-                }),//->searchable(),
+                })->withoutTrashed(),
             Textarea::make(__('LTS Subject Description'),'description')
                 ->hideFromIndex(),
             Text::make(__('Number of Episode'),'count')->sortable(),
-            Date::make(__('Production Date'),'made_at')->sortable(),
-            Tags::make(__('Production Centre'),'Production Centre')
+            Date::make(__('Production Date'),'made_at')->sortable()->showOnUpdating()->hideFromIndex(),
+            Text::make(__('Production Date'), function () {
+                return $this->made_at?$this->made_at->format("Y/m"):'—';
+            })->asHtml()->hideWhenUpdating(),
+
+            Tags::make(__('Production Centre'))
                 ->type('production-centre')
                 ->hideFromIndex()
                 ->single(),

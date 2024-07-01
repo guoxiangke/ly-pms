@@ -13,6 +13,7 @@ use Spatie\Activitylog\LogOptions;
 use Laravel\Scout\Searchable;
 
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\hasManyThrough;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Support\Facades\Storage;
@@ -115,11 +116,25 @@ class LyMeta extends Model
         return Str::startsWith($this->code, 'lts');
     }
 
+    // if($this->isLts)
     public function lts_items($order = "DESC")
     {
         return LtsItem::with('lts_meta')->whereBetween('play_at', [now()->subDays($this->max_list_count), now()])->orderBy('play_at', $order)->get()->filter(fn($ltsItem) => $ltsItem->lts_meta->ly_meta_id == $this->id);
+
     }
 
+    public function ltsItems()
+    {
+        return $this
+            ->hasManyThrough(LtsItem::class, LtsMeta::class)
+            ->withoutGlobalScopes();
+    }
+
+    public function ltsMetas()
+    {
+        return $this->hasMany(LtsMeta::class);
+    }
+    
     // Call to undefined method App\Models\LyMeta::lyItems()
     public function lyitems($order = "DESC"): HasMany
     {

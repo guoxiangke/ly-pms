@@ -32,6 +32,12 @@ class LtsItem extends Model
         return $this->BelongsTo(LtsMeta::class);
     }
 
+    // 定义 belongsTo 关系到 LtsMeta
+    public function ltsMeta()
+    {
+        return $this->belongsTo(LtsMeta::class);
+    }
+
     public function getPathAttribute(){
         // 纠正的mp3 临时播放链接：ly/corrections/ynf230915-1-20231019_03:21:01-14125824-mw231008.mp3
         if($this->mp3 && $this->updated_at->diffInHours() < 24){

@@ -198,9 +198,9 @@ class LyMeta extends Model
         }
 
         if(App::isLocal()){
-            Storage::putFileAs("/ly/audio/$code/$year/", new File($tempFilePath), $fileName);
+            Storage::putFileAs("/ly/audio/$year/$code/", new File($tempFilePath), $fileName);
         }else{
-           Storage::disk('s3')->putFileAs("/ly/audio/$code/$year/", new File($tempFilePath), $fileName);
+           Storage::disk('s3')->putFileAs("/ly/audio/$year/$code/", new File($tempFilePath), $fileName);
         }
         unlink($tempFilePath);
         rmdir(dirname($tempFilePath));

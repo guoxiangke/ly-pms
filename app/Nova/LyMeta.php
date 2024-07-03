@@ -23,6 +23,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use App;
+use Laravel\Nova\Fields\hasManyThrough;
 
 class LyMeta extends Resource
 {   
@@ -189,15 +190,17 @@ class LyMeta extends Resource
                 ->single(),
             Textarea::make(__('Remark'),'remark')->hideFromIndex(),
             BelongsToMany::make(__('Announcers'), 'announcers', Announcer::class)->allowDuplicateRelations(),
+            HasMany::make(__('Ly Episodes'), 'ly_items_with_future', LyItem::class),
+            HasManyThrough::make('Lts Items'),
         ];
 
         // 动态添加LTS的Meta
         if($isLts) {
             $tags = \App\Models\LyMeta::getLtsTags($this->code);
             $local = app()->getLocale();
-            if($local != 'en') app()->setLocale('en'); 
+            if($local != 'en') app()->setLocale('en');
             // tag only has en translation, so if cn, the $currentOptions = []
-            $currentOptions = \App\Models\LtsMeta::withAnyTags($tags, 'lts')->pluck('name','id')
+            $currentOptions = LtsMeta::withAnyTags($tags, 'lts')->pluck('name','id')
                 ->toArray();
             app()->setLocale($local); // rollback local
             $ltsFields = [
@@ -281,7 +284,7 @@ class LyMeta extends Resource
         }else{
             // if(!$isLts) 
             // 动态添加 HasMany lyitem, 原因： 良院的lyMeta没有这些。
-            array_push($defaultFields, HasMany::make(__('Ly Episodes'), 'ly_items_with_future', LyItem::class));
+            // array_push($defaultFields, HasMany::make(__('Ly Episodes'), 'ly_items_with_future', LyItem::class));
         }
         
         return !$isLts?array_merge($defaultFields, $addMetaFields):array_merge($defaultFields,$ltsFields, $addMetaFields);

@@ -72,4 +72,16 @@ class LtsMeta extends Model
         return $this->BelongsTo(LyMeta::class);
     }
 
+    // 定义 belongsTo 关系到 LyMeta
+    public function lyMeta()
+    {
+        return $this->belongsTo(LyMeta::class);
+    }
+
+    // 定义 hasMany 关系到 LtsItem
+    public function ltsItems()
+    {
+        return $this->hasMany(LtsItem::class);
+    }
+
 }

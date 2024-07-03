@@ -84,17 +84,12 @@ class LyItem extends Model implements HasMedia
         if($this->mp3){
             if($this->updated_at->diffInHours() < 24) return $this->mp3;
         }
-        // OLD: /ly/audio/2023/ttb/ttb230726.mp3
-        // New: /ly/audio/ttb/2023/ttb230726.mp3
+        // No old and no new.
         $code = preg_replace('/\d+/', '', $this->alias);
         $alias = $this->alias;
         $year = $this->play_at->format('Y');
         $domain = config('app.url');
-        if($this->is_old){
-            return $domain . "/storage/ly/audio/{$year}/{$code}/{$alias}.mp3"; 
-        }else{
-            return $domain . "/storage/ly/audio/{$code}/{$year}/{$alias}.mp3"; 
-        }
+        return $domain . "/storage/ly/audio/{$year}/{$code}/{$alias}.mp3";
     }
 
     public function getNovaMp3PathAttribute(){

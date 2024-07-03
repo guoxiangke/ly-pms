@@ -13,6 +13,7 @@ use Spatie\Activitylog\LogOptions;
 use Laravel\Scout\Searchable;
 
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\hasManyThrough;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Support\Facades\Storage;
@@ -115,11 +116,25 @@ class LyMeta extends Model
         return Str::startsWith($this->code, 'lts');
     }
 
+    // if($this->isLts)
     public function lts_items($order = "DESC")
     {
         return LtsItem::with('lts_meta')->whereBetween('play_at', [now()->subDays($this->max_list_count), now()])->orderBy('play_at', $order)->get()->filter(fn($ltsItem) => $ltsItem->lts_meta->ly_meta_id == $this->id);
+
     }
 
+    public function ltsItems()
+    {
+        return $this
+            ->hasManyThrough(LtsItem::class, LtsMeta::class)
+            ->withoutGlobalScopes();
+    }
+
+    public function ltsMetas()
+    {
+        return $this->hasMany(LtsMeta::class);
+    }
+    
     // Call to undefined method App\Models\LyMeta::lyItems()
     public function lyitems($order = "DESC"): HasMany
     {
@@ -183,9 +198,9 @@ class LyMeta extends Model
         }
 
         if(App::isLocal()){
-            Storage::putFileAs("/ly/audio/$code/$year/", new File($tempFilePath), $fileName);
+            Storage::putFileAs("/ly/audio/$year/$code/", new File($tempFilePath), $fileName);
         }else{
-           Storage::disk('s3')->putFileAs("/ly/audio/$code/$year/", new File($tempFilePath), $fileName);
+           Storage::disk('s3')->putFileAs("/ly/audio/$year/$code/", new File($tempFilePath), $fileName);
         }
         unlink($tempFilePath);
         rmdir(dirname($tempFilePath));
@@ -200,16 +215,16 @@ class LyMeta extends Model
         switch ($code) {
             case 'ltsnp':
                 $tags[] = '启航课程';
-                $tags[] = '专辑课程';
+                $tags[] = '专题特辑';
                 break;
             case 'ltstpa1':
             case 'ltstpa2':
-                $tags[] = '本科文凭课程';
-                $tags[] = '专辑课程';
+                $tags[] = '普及本科';
+                $tags[] = '专题特辑';
                 break;
             case 'ltstpb1':
             case 'ltstpb2':
-                $tags[] = '进深文凭课程';
+                $tags[] = '普及进深';
                 break;
 
             default:

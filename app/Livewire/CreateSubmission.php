@@ -24,7 +24,7 @@ class CreateSubmission extends Component
     public $title = 'Submission';
     public $hasNewFile = false;
     public $messageTitle = "注意：上传请谨慎";
-    public $message = '本上传功能只验证新提交的文件。<br/>1. 文件一旦SUBMIT(提交)，将进入处理队列，不可更改（修改删除无效）<br/>2. 已提交的文件(SUBMIT)不可更改Name，不要轻易改动Description,<a href="/nova/resources/ly-items"><s>想改动?</s></a><br/>3. 当天可追加提交(再次提交请先刷新本页)';
+    public $message = '';
 
     // [Rule('required', as:'da title', message: '必须上传文件')]
     // [Rule(['files.*' => 'file|max:1024'])]
@@ -34,6 +34,8 @@ class CreateSubmission extends Component
     public function mount()
     {
         $this->user = auth()->user()??User::find(1);
+        $path = route('nova.pages.index', 'ly-items');
+        $this->message = "本上传功能只验证新提交的文件。<br/>1. 文件一旦SUBMIT(提交)，将进入处理队列，不可更改（修改删除无效）<br/>2. 已提交的文件(SUBMIT)不可更改Name，不要轻易改动Description,<a target=\"_blank\" href=\"{$path}\"><s>想改动?请移步</s></a><br/>3. 当天可追加提交(再次提交请先刷新本页)";
     }
 
 

@@ -59,9 +59,9 @@ class TagsSeeder extends Seeder
 
         $ltsCategory = [
             "启航课程"=>"ltsnp",
-            "本科文凭课程"=>"ltsdp",
-            "进深文凭课程"=>"ltshdp",
-            "专辑课程"=>"ltsnop",
+            "普及本科"=>"ltstpa",
+            "普及进深"=>"ltstpb",
+            "专题特辑"=>"ltsnop",
         ];
         foreach ($ltsCategory as $name => $slug) {
             $locale = app()->getLocale();

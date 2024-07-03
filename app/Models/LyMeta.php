@@ -215,16 +215,16 @@ class LyMeta extends Model
         switch ($code) {
             case 'ltsnp':
                 $tags[] = '启航课程';
-                $tags[] = '专辑课程';
+                $tags[] = '专题特辑';
                 break;
             case 'ltstpa1':
             case 'ltstpa2':
-                $tags[] = '本科文凭课程';
-                $tags[] = '专辑课程';
+                $tags[] = '普及本科';
+                $tags[] = '专题特辑';
                 break;
             case 'ltstpb1':
             case 'ltstpb2':
-                $tags[] = '进深文凭课程';
+                $tags[] = '普及进深';
                 break;
 
             default:

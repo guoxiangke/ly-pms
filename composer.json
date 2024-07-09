@@ -19,7 +19,7 @@
         "james-heinrich/getid3": "^1.9",
         "laravel/framework": "^10.9",
         "laravel/jetstream": "^3.2",
-        "laravel/nova": "^4.33",
+        "laravel/nova": "^4.34.3",
         "laravel/octane": "^2.3",
         "laravel/sanctum": "^3.2",
         "laravel/scout": "^10.2",

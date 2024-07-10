@@ -16,14 +16,12 @@ use Laravel\Nova\Fields\Image;
 use Laravel\Nova\Fields\BelongsToMany;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\HasMany;
+use Laravel\Nova\Fields\HasManyThrough;
 use Laravel\Nova\Fields\Select;
-use App\Models\LtsMeta;
 use Spatie\TagsField\Tags;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
-use App;
-use Laravel\Nova\Fields\hasManyThrough;
 
 class LyMeta extends Resource
 {   
@@ -111,7 +109,7 @@ class LyMeta extends Resource
     {
         // https://docs.vapor.build/resources/storage.html
         // https://nova.laravel.com/docs/4.0/resources/fields.html#vapor-image-field
-        // $image = App::isLocal() ? Image::class : VaporImage::class;
+        // $image = \App::isLocal() ? Image::class : VaporImage::class;
 
         $isLts = $this->isLts;
         $model = $this;
@@ -191,6 +189,7 @@ class LyMeta extends Resource
             Textarea::make(__('Remark'),'remark')->hideFromIndex(),
             BelongsToMany::make(__('Announcers'), 'announcers', Announcer::class)->allowDuplicateRelations(),
             HasMany::make(__('Ly Episodes'), 'ly_items_with_future', LyItem::class),
+
             HasManyThrough::make('Lts Items')->showOnDetail(),
         ];
 
@@ -200,7 +199,7 @@ class LyMeta extends Resource
             $local = app()->getLocale();
             if($local != 'en') app()->setLocale('en');
             // tag only has en translation, so if cn, the $currentOptions = []
-            $currentOptions = LtsMeta::withAnyTags($tags, 'lts')->pluck('name','id')
+            $currentOptions = \App\Models\LtsMeta::withAnyTags($tags, 'lts')->pluck('name','id')
                 ->toArray();
             app()->setLocale($local); // rollback local
             $ltsFields = [
@@ -219,7 +218,7 @@ class LyMeta extends Resource
                 Text::make(__('Lts First Play At'), 'lts_first_play', function () use($isLts) {
                         if(!$isLts) return '!lts';
                         $lts_first_play = $this->getMeta('lts_first_play');
-                        $ltsMeta = LtsMeta::find($lts_first_play);
+                        $ltsMeta = \App\Models\LtsMeta::find($lts_first_play);
                         if($ltsMeta) return "<a class='link-default' target='_blank' href='/admin/resources/lts-metas/{$ltsMeta->id}'>{$ltsMeta->name}</a>";
                         return '-';
                     })
@@ -240,7 +239,7 @@ class LyMeta extends Resource
                                 $count = 0;
                                 $ymd = $lts_first_play_at . " 00:00:00";
                                 $dt = Carbon::createFromFormat('Y-m-d H:i:s', $ymd);
-                                $ltsMeta = LtsMeta::find($lts_first_play);
+                                $ltsMeta = \App\Models\LtsMeta::find($lts_first_play);
                                 $ltsMeta->update(['ly_meta_id' => $model->id]);
                                 foreach ($ltsMeta->lts_items_asc as $key => $ltsItem) {
                                     // 从第N个节目开始更新

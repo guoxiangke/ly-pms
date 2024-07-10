@@ -14,7 +14,6 @@ use Laravel\Nova\Fields\Boolean;
 use Laravel\Nova\Fields\Audio;
 
 
-use App;
 use Laravel\Nova\Fields\File;
 use Illuminate\Support\Facades\Auth;
 

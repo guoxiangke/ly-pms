@@ -11,7 +11,6 @@ use Laravel\Nova\Fields\Date;
 use Illuminate\Support\Str;
 use Laravel\Nova\Fields\Audio;
 
-use App;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Nova\Fields\File;
 use Laravel\Nova\Fields\VaporFile;

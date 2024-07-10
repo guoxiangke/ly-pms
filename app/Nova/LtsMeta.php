@@ -15,7 +15,6 @@ use Laravel\Nova\Fields\HasMany;
 use Illuminate\Database\Eloquent\Builder;
 
 use Spatie\TagsField\Tags;
-use App;
 
 class LtsMeta extends Resource
 {   
@@ -100,7 +99,7 @@ class LtsMeta extends Resource
     {
         // https://docs.vapor.build/resources/storage.html
         // https://nova.laravel.com/docs/4.0/resources/fields.html#vapor-image-field
-        $image = App::isLocal() ? Image::class : VaporImage::class;
+        $image = \App::isLocal() ? Image::class : VaporImage::class;
         $model =  $this;
         $meta_fields = config('pms.ltsMeta.extraFields.text');
         $addMetaFields = [];

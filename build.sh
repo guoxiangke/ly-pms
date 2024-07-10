@@ -18,4 +18,4 @@ docker run --rm -v $(pwd):/app -w /app node /bin/bash -c " \
     && npm run build"
 
 
-docker-compose up -d --buld
+docker-compose up -d --build

@@ -190,7 +190,7 @@ class LyMeta extends Resource
             BelongsToMany::make(__('Announcers'), 'announcers', Announcer::class)->allowDuplicateRelations(),
             HasMany::make(__('Ly Episodes'), 'ly_items_with_future', LyItem::class),
 
-            HasManyThrough::make('Lts Items')->showOnDetail(),
+            HasManyThrough::make(__('Lts Episodes'), 'ltsItems', LtsItem::class)->showOnDetail(),
         ];
 
         // 动态添加LTS的Meta

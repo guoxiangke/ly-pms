@@ -76,7 +76,7 @@ class LyItem extends Resource
     {
         $fileFeild = [
             File::make('音频勘误', 'mp3')
-                ->disk('public')
+                ->disk('s3')
                 ->path('ly/corrections')
                 ->storeAs(fn() => $this->alias .'v'.date('His'). '.mp3')
                 ->help('紧急情况下修正 音频错误时，上传新的mp3 ')

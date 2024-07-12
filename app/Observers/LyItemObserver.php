@@ -28,9 +28,9 @@ class LyItemObserver
      */
     public function updated(LyItem $lyItem): void
     {
-        if($lyItem->isDirty('mp3') && $lyItem->mp3){
-            LyMeta::writeID3TagAndSync2S3(storage_path('/app/public/'.$lyItem->mp3), $lyItem->description);
-        }
+        // if($lyItem->isDirty('mp3') && $lyItem->mp3){
+        //     LyMeta::writeID3TagAndSync2S3(storage_path('/app/public/'.$lyItem->mp3), $lyItem->description);
+        // }
     }
 
     /**

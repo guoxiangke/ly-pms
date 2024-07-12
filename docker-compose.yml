@@ -10,7 +10,7 @@ services:
     volumes:
       - ./:/app
       - ./docker-start.sh:/usr/local/bin/start
-      #- ./uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
+      - ./php.ini:/usr/local/etc/php/conf.d/uploads.ini
     entrypoint: /usr/local/bin/start
     # entrypoint: php artisan octane:start --max-requests=1
     environment:

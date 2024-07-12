@@ -48,8 +48,14 @@ Route::middleware([
     Route::get('/pulse', LyPulse::class)->name('pulse');
 });
 
+
+Route::get('/ly/corrections/{mp3}', function (Request $request, $mp3) {
+    $domain =  config('pms.cloudfront_domain');
+    return redirect()->away($domain."/ly/corrections/$mp3");
+});
 Route::get('/storage/ly/corrections/{mp3}', function (Request $request, $mp3) {
-    return redirect()->away("https://ly-pms2023.s3.ap-east-1.amazonaws.com/ly/corrections/$mp3");
+    $domain =  config('pms.cloudfront_domain');
+    return redirect()->away($domain."/ly/corrections/$mp3");
 });
 
 Route::get('/storage/ly/audio/{year}/{code}/{day}.mp3', function (Request $request, $year, $code, $day) {
@@ -96,7 +102,7 @@ Route::get('/storage/ly/audio/{year}/{code}/{day}.mp3', function (Request $reque
 // LTS audio
 Route::get('/storage/ly/audio/{code}/{day}.mp3', function (Request $request, $code, $day) {
     $ip = $request->header('x-forwarded-for')??$request->ip();
-    $domain =  'https://d3ml8yyp1h3hy5.cloudfront.net'; // TODO
+    $domain =  config('pms.cloudfront_domain');
     $url = $request->url();
     $target = basename($url); //cc201221.mp3
 

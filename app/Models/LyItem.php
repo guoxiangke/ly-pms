@@ -81,19 +81,18 @@ class LyItem extends Model implements HasMedia
 
     public function getPathAttribute(){
         // 纠正的mp3 临时播放链接：ly/corrections/ynf230915-1-20231019_03:21:01-14125824-mw231008.mp3
-        if($this->mp3){
-            if($this->updated_at->diffInHours() < 24) return $this->mp3;
-        }
+        $domain = config('app.url');
+        if($this->mp3 && $this->updated_at->diffInHours() < 24) return $domain .'/'. $this->mp3;
         // No old and no new.
         $code = preg_replace('/\d+/', '', $this->alias);
         $alias = $this->alias;
         $year = $this->play_at->format('Y');
-        $domain = config('app.url');
         return $domain . "/storage/ly/audio/{$year}/{$code}/{$alias}.mp3";
     }
 
     public function getNovaMp3PathAttribute(){
         $domain = config('app.url');
+        if($this->mp3 && $this->updated_at->diffInHours() < 24) return '/' . $this->mp3;
         return str_replace($domain.'/storage', '', $this->path);
     }
     // read only attribute.

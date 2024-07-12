@@ -40,9 +40,10 @@ class SyncOpen extends Command
         if(!$lastLyItem){
             $itemCollections = Item::where('id', '>', 0);
         }else{
-            $lastAlias = $lastLyItem->alias;
-            $lastItem = Item::where('alias',$lastAlias)->firstOrFail();
-            $itemCollections = Item::where('id', '>', $lastItem->id);
+            // $lastAlias = $lastLyItem->alias;
+            // $lastItem = Item::where('alias',$lastAlias)->firstOrFail();
+            // $itemCollections = Item::where('id', '>', $lastItem->id);
+            $itemCollections = Item::where('created_at', '>', now()->subDays(7));
         }
         // $itemCollections = Item::where('id', '>', 0);
         $itemCollections->chunkById(2000, function (Collection $items)  {

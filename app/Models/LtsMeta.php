@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use App;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class LtsMeta extends Model
@@ -82,6 +81,13 @@ class LtsMeta extends Model
     public function ltsItems()
     {
         return $this->hasMany(LtsItem::class);
+    }
+
+    public function isLts(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => true,
+        );
     }
 
 }

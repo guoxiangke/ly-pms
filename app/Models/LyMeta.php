@@ -112,8 +112,11 @@ class LyMeta extends Model
     }
 
     // $lyMeta->isLts
-    public function getIsLtsAttribute(){
-        return Str::startsWith($this->code, 'lts');
+    public function isLts(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => Str::startsWith($this->code, 'lts'),
+        );
     }
 
     // if($this->isLts)

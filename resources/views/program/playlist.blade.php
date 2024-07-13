@@ -195,7 +195,7 @@
                     </p>
                     <p class="mt-1 flex text-sm leading-5 text-gray-500">
                       <span class="relative hover:underline">{{$lyItem->description}}
-                      {{$lyItem->episodeTitle}}</span>
+                      {{$lyMeta->isLts?$lyItem->episodeTitle:''}}</span>
                     </p>
                   </div>
                 </div>

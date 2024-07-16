@@ -73,6 +73,7 @@ class LyMeta extends Resource
                 $query->orderBy($field, $order);
             }
         }
+        $query->with('tags');
         return $query;
     }
     /**
@@ -188,8 +189,6 @@ class LyMeta extends Resource
                 ->single(),
             Textarea::make(__('Remark'),'remark')->hideFromIndex(),
             BelongsToMany::make(__('Announcers'), 'announcers', Announcer::class)->allowDuplicateRelations(),
-            HasMany::make(__('Ly Episodes'), 'ly_items_with_future', LyItem::class),
-
             HasManyThrough::make(__('Lts Episodes'), 'ltsItems', LtsItem::class)->showOnDetail(),
         ];
 
@@ -283,7 +282,7 @@ class LyMeta extends Resource
         }else{
             // if(!$isLts) 
             // 动态添加 HasMany lyitem, 原因： 良院的lyMeta没有这些。
-            // array_push($defaultFields, HasMany::make(__('Ly Episodes'), 'ly_items_with_future', LyItem::class));
+            array_push($defaultFields, HasMany::make(__('Ly Episodes'), 'ly_items_with_future', LyItem::class));
         }
         
         return !$isLts?array_merge($defaultFields, $addMetaFields):array_merge($defaultFields,$ltsFields, $addMetaFields);

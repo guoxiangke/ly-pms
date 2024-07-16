@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Log;
 
 use Illuminate\Database\Connection;
 use Illuminate\Database\Events\QueryExecuted;
+use Illuminate\Database\Eloquent\Model;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -26,7 +27,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        if(!App::environment('production')){
+        Model::preventLazyLoading(! app()->isProduction());
+        if(App::environment('local')){
             DB::whenQueryingForLongerThan(1, function (Connection $connection, QueryExecuted $event) {
                 Log::warning(__CLASS__,[$event->time, $event->sql]);
             });

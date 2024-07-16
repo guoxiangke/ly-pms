@@ -14,7 +14,6 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\App;
 use Laravel\Nova\Nova;
 use App\Livewire\LyPulse;
-// use Cookie;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,8 +27,7 @@ use App\Livewire\LyPulse;
 */
 
 Route::get('/', function () {
-    return redirect()->route('nova.pages.home');
-    // return view('welcome');
+    return app()->isLocal()? view('welcome') : redirect()->route('nova.pages.home');
 });
 
 Route::middleware([

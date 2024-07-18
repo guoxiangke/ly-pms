@@ -90,7 +90,7 @@ class LyItem extends Resource
                 ->disk('s3')
                 ->path('ly/corrections')
                 ->storeAs(fn() => $this->alias .'v'.date('His'). '.mp3')
-                ->help('紧急情况下修正 音频错误时，上传新的mp3 ')
+                ->help('如音频错误，请在此上传新的mp3档')
                 ->acceptedTypes('.mp3')
                 ->disableDownload()
         ];

@@ -86,7 +86,7 @@ class LtsItem extends Resource
     {
         return [
             // ID::make()->sortable(),
-            Text::make(__('Episode Title'), fn()=>$this->episodeTitle)->onlyOnIndex(),
+            Text::make(__('Episode Title'), fn()=>$this->episodeTitle)->exceptOnForms(),
             Text::make(__('Episode Alias'),'alias')
                 ->sortable()
                 ->rules('required', 'max:12'),

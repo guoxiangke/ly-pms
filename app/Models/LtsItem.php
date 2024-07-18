@@ -45,7 +45,8 @@ class LtsItem extends Model
         }
         $code = preg_replace('/\d+/', '', $this->alias);
         $alias = $this->alias;
-        return "/storage/ly/audio/{$code}/{$alias}.mp3"; 
+        $domain = config('app.url');
+        return $domain . "/storage/ly/audio/{$code}/{$alias}.mp3"; 
     }
 
     // For nova add /storage/

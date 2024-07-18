@@ -14,8 +14,10 @@
         <div class="p-4">
           <div class="text-gray-900" >
             <p class=" leading-7">{!!$lyMeta->getMeta('description_detail')?:$lyMeta->description!!}</p>
+            @if(!$lyMeta->isLts)
             <p class="mt-1">电邮：{{$lyMeta->getMeta('program_email')}}</p>
             <p class="mt-1">短信：{{$lyMeta->getMeta('program_sms')}} @if($keyword = $lyMeta->getMeta('program_sms_keyword')) {{$keyword}} @endif</p>
+            @endif
           </div>
         </div>
       </div>

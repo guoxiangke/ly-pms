@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 use Nuwave\Lighthouse\GraphQL;
 // use Nuwave\Lighthouse\Support\Contracts\CreatesContext;
 use Nuwave\Lighthouse\Execution\ContextFactory;
-
+use App\Models\LyMeta;
 // use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
 /*
 |--------------------------------------------------------------------------
@@ -108,8 +108,11 @@ Route::get('/today', function (Request $request) {
   return $result['data']['ly_items'];
 });
 
-Route::get('/program/{code}', function (Request $request, $code) {
-    // $lyMeta = LyMeta::whereCode($code)->firstOrFail();
+// ltsnp+cc
+Route::get('/program/{lyMeta:code}', function (Request $request, LyMeta $lyMeta) {
+    $code = $lyMeta->code;
+    $hasManyType = $lyMeta->isLts?"ltsItems":"ly_items";
+    $programType = $lyMeta->isLts?"lts_meta":"ly_meta";
 
     $query = <<<GQL
         {
@@ -123,7 +126,7 @@ Route::get('/program/{code}', function (Request $request, $code) {
             end_at
             remark
             category
-            ly_items {
+            ly_items: $hasManyType {
               data {
                 id
                 alias
@@ -131,7 +134,7 @@ Route::get('/program/{code}', function (Request $request, $code) {
                 play_at
                 path: novaMp3Path
                 link: path
-                program: ly_meta {
+                program: $programType {
                   id
                   name
                   code

@@ -50,7 +50,7 @@ class LtsItem extends Model
     }
 
     // For nova add /storage/
-    public function getNovaPathAttribute(){
+    public function getNovaMp3PathAttribute(){
         // 纠正的mp3 临时播放链接：ly/corrections/ynf230915-1-20231019_03:21:01-14125824-mw231008.mp3
         if($this->mp3 && $this->updated_at->diffInHours() < 24){
             return $this->mp3;

@@ -98,7 +98,7 @@ class LtsItem extends Resource
                     return Str::limit($description, 32);
                 })->onlyOnIndex(),
             Date::make(__('Start Publishing Date'),'play_at')->sortable(),
-            Audio::make('Mp3', fn() => $this->novaPath)->disableDownload(),
+            Audio::make('Mp3', fn() => $this->novaMp3Path)->disableDownload(),
         ];
     }
 

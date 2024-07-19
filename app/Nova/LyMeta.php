@@ -176,8 +176,8 @@ class LyMeta extends Resource
                 ->rules('required', 'max:20')
                 ->hideFromIndex(),
             Date::make(__('Program Start Date'),'begin_at')->sortable()->hideFromIndex(),
-            Date::make(__('Program End Date'),'end_at')->sortable(),
-            Date::make(__('Playlist Unpublish Date'),'unpublished_at')->sortable()->help('节目1.1号停播，end_at=1.1,播放列表最多显示天数，30,  counts_max_list=30, 1.15提前下架，强制不显示,unpublished_at=1.15'),
+            Date::make(__('Program End Date'),'end_at')->sortable()->help('节目最后一集的日期'),
+            Date::make(__('Playlist Unpublish Date'),'unpublished_at')->sortable()->help('播放列表最后一天出街的日期'),
             Text::make(__('Publish Duration'),'counts_max_list')->placeholder('播放列表最多显示天数，31-255')->sortable()->hideFromIndex(),
             Tags::make(__('Production Centre'))
                 ->type('production-centre')
@@ -205,7 +205,7 @@ class LyMeta extends Resource
                 // 起先播放 first_play_lts
                 // 起先播放日期 first_play_lts
                 //current_lts fist_play_at then 1-24...
-                Select::make(__('Lts First Play'), 'lts_first_play')
+                Select::make(__('Assign Subject'), 'lts_first_play')
                     ->options($currentOptions)
                     ->fillUsing(function ($request, $model, $attribute, $requestAttribute) {
                         $model->setMeta('lts_first_play', $request->input($attribute));
@@ -214,7 +214,7 @@ class LyMeta extends Resource
                         return $this->getMeta('lts_first_play');
                     })->onlyOnForms(),
 
-                Text::make(__('Lts First Play At'), 'lts_first_play', function () use($isLts) {
+                Text::make(__('Assign Subject'), 'lts_first_play', function () use($isLts) {
                         if(!$isLts) return '!lts';
                         $lts_first_play = $this->getMeta('lts_first_play');
                         $ltsMeta = \App\Models\LtsMeta::find($lts_first_play);
@@ -223,7 +223,7 @@ class LyMeta extends Resource
                     })
                     ->asHtml()
                     ->onlyOnDetail(),
-                Date::make(__('Lts First Play At'), 'lts_first_play_at')
+                Date::make(__('Assign Start Publishing Date'), 'lts_first_play_at')
                     ->help('请更改时间')
                     ->fillUsing(function ($request, $model, $attribute, $requestAttribute) {
                         $isDirty = $this->getMeta('lts_first_play_at') != $request->input('lts_first_play_at');
@@ -263,7 +263,7 @@ class LyMeta extends Resource
                     ->default(function ($request) use($model) {
                         return $model->getMeta('lts_first_play_at')??1;
                     })->hideFromIndex(),
-                Number::make(__('Lts First Play Index'),'lts_first_play_index')
+                Number::make(__('Assign Start Episode Number'),'lts_first_play_index')
                     ->dependsOn(['code'],
                         function ($field) use($isLts) {
                             if (!$isLts) {

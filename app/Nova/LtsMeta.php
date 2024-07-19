@@ -139,9 +139,9 @@ class LtsMeta extends Resource
             Text::make(__('Announcer'),'author')
                 ->hideFromIndex()
                 ->sortable(),
-            Date::make(__('Start Publishing Date'),'begin_at')->hideFromIndex()->sortable(),
+            Date::make(__('Premiere Date'),'begin_at')->hideFromIndex()->sortable(),
             Textarea::make(__("Remark"), 'remark')->hideFromIndex(),
-            Tags::make(__('Category'),'Tags')
+            Tags::make(__('LTS Program Category'),'Tags')
                 ->type('lts')
                 ->single()
                 ->hideFromIndex(),

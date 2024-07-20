@@ -27,7 +27,7 @@
             <nav class="border-gray-200 bg-gray-50 dark:bg-gray-100 dark:border-gray-50">
               <div class="max-w-screen-xl flex flex-wrap items-center justify-between m-8 py-4" style="margin-top: 0;">
                 <a href="#" class="">
-                    <img src="https://lpyy729.net/images/729ly_logo_50.png" class="h-10" alt="LOGO Logo" />
+                    节目批量上传
                 </a>
               </div>
             </nav>

@@ -13,7 +13,8 @@
                 @foreach ($lyMetas as $lyMeta)
                     <tr class="divide-x divide-gray-200 even:bg-gray-50">
                       <td class="flex items-center justify-center whitespace-nowrap text-sm font-medium text-gray-900 sm:pl-0"><div class="flex-shrink-0">
-                            <img class="h-12 w-12" src="{{$lyMeta->cover}}" alt="{{$lyMeta->name}}">
+                            <img class="h-12 w-12 hidden" src="{{$lyMeta->cover}}" alt="{{$lyMeta->name}}">
+                            {{$lyMeta->code}}
                           </div></td>
 
                       @for ($i = -$before; $i < $after; $i++)

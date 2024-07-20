@@ -43,7 +43,7 @@ Route::middleware([
 
     Route::get('/file/submission', CreateSubmission::class)->name('upload');
 
-    Route::get('/pulse', LyPulse::class)->name('pulse');
+    Route::get('/admin/pulse', LyPulse::class)->name('pulse');
 });
 
 

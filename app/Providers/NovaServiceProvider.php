@@ -6,12 +6,8 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Laravel\Nova\Nova;
 use Laravel\Nova\NovaApplicationServiceProvider;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
-use Laravel\Nova\Menu\Menu;
-use Laravel\Nova\Menu\MenuItem;
 use Illuminate\Support\Facades\Blade;
-use Cookie;
 
 class NovaServiceProvider extends NovaApplicationServiceProvider
 {
@@ -31,7 +27,7 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
             'version' => Nova::version(),
             'year' => date('Y')]);
         });
-        Nova::initialPath('/pulse');
+        Nova::initialPath('/resources/lts-items');
     }
 
     /**
@@ -86,7 +82,6 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
     {
         return [
             new \Badinansoft\LanguageSwitch\LanguageSwitch(),
-            new \Xiangkeguo\Pulse\Pulse(),
             // new \Anaseqal\NovaSidebarIcons\NovaSidebarIcons,
         ];
     }

@@ -23,7 +23,7 @@ class CreateSubmission extends Component
 
     public $title = 'Submission';
     public $hasNewFile = false;
-    public $messageTitle = "注意：上传请谨慎";
+    public $messageTitle = "";
     public $message = '';
 
     // [Rule('required', as:'da title', message: '必须上传文件')]
@@ -33,9 +33,12 @@ class CreateSubmission extends Component
 
     public function mount()
     {
+        $currentLocale = app()->getLocale();
+        app()->setLocale('zh');
+        // dd($currentLocale);
         $this->user = auth()->user()??User::find(1);
         $path = route('nova.pages.index', 'ly-items');
-        $this->message = "本上传功能只验证新提交的文件。<br/>1. 文件一旦SUBMIT(提交)，将进入处理队列，不可更改（修改删除无效）<br/>2. 已提交的文件(SUBMIT)不可更改Name，不要轻易改动Description,<a target=\"_blank\" href=\"{$path}\"><s>想改动?请移步</s></a><br/>3. 当天可追加提交(再次提交请先刷新本页)";
+        $this->message = "上传节目音频注意：<br/>1.本页面只供提交未上传过的节目音频。如节目音频早前已上传，但需要更换，请使用中文事工办公室指定的其他方式。<br/>2. 可以同时上传多个节目音频，惟不可超出音频大小上限。<br/>3. 节目音频格式须为64 kbps、48 kHz、mono、mp3。<br/>4. 节目音频档名须为xxxyymmdd.mp3（xxx为节目代号，yymmdd为播出日期的年年月月日日；良院或指定节目除外）。<br/>5. 节目音频和有关的节目简介，须同时提交。<br/>6. 提交节目简介后如需要修改，请发电邮到program@liangyou.net通知中文事工办公室同工。";
     }
 
 
@@ -48,8 +51,8 @@ class CreateSubmission extends Component
         $fileNames = [];
         $rules = [];
         $messages = [
-            'regex' => 'The :attribute field Name is not match ma?+code+yymmdd.mp3',
-            'unqiue' => 'The :attribute field is already exsits!',
+            'regex' => ':attribute 档名格式错误。',//The :attribute field Name is not match ma?+code+yymmdd.mp3
+            'unqiue' => '第 :attribute 个文件，早前已经上传',//The :attribute field is already exsits!
         ];
         $descriptions = [];
         $aliases = [];
@@ -59,7 +62,6 @@ class CreateSubmission extends Component
         // 1. 名字 要唯一！之前没有上传过！
         $count = 0;
         foreach ($this->files as $key => $file) {
-            // dd($this->files);
             $key = 'files_'.++$count;
             if(!isset($file['oldUuid'])) continue; //只处理新文件！
             if(isset($file['oldUuid'])){
@@ -86,7 +88,7 @@ class CreateSubmission extends Component
             $code = preg_filter('/\d/', '', $alias);
             $lyMeta = LyMeta::active()->whereCode($code)->first();
             if(!$lyMeta){
-                return Validator::make([], [])->after(fn ($validator) => $validator->errors()->add('some_error', "The $key field 命名前缀不存在！"))->validate();
+                return Validator::make([], [])->after(fn ($validator) => $validator->errors()->add('some_error', "第{$count}个文件 系统内未有相关代号的记录。"))->validate();
             }
             $lyMetaIds[$key] = $lyMeta->id;
 
@@ -95,7 +97,7 @@ class CreateSubmission extends Component
             $validator = Validator::make(['alias' => $alias], ['alias' => Rule::unique('ly_items')], $messages);
             if ($validator->fails()) {
                 $this->messageTitle = "注意：{$fileNames[$key]} 存在以下错误！";
-                $this->message = "The $key field is already exsits! <br/>Please change the Name(alias with .mp3) or rePlace & reSubmit!";
+                $this->message = "第{$count}个文件 早前已经上传。 <br/>请检查档名是否有误，修改后再上传。";
             }
             $validated = $validator->validated();
         }
@@ -112,6 +114,7 @@ class CreateSubmission extends Component
                 $tempFilePath = TemporaryUpload::findByMediaUuid($file['uuid'])->getFirstMedia()->getPath();
                 $getID3 = new getID3;
                 $thisFileInfo = $getID3->analyze($tempFilePath);
+                // dd($thisFileInfo);
                 $playtime_strings[$key] = $thisFileInfo['playtime_string'];
                 $filesizes[$key] = $thisFileInfo['filesize'];
 
@@ -121,11 +124,16 @@ class CreateSubmission extends Component
                     )->validate();
                 }
                 if($thisFileInfo['audio']['channelmode'] != 'mono') {
-                    return Validator::make([], [])->after(fn ($validator) => $validator->errors()->add('some_error', "The $key field 不是单声道！")
+                    return Validator::make([], [])->after(fn ($validator) => $validator->errors()->add('some_error', "第{$count}个文件  音频并非单声道（mono）。")
                     )->validate();
                 }
                 if($thisFileInfo['audio']['sample_rate'] != 48000) {
-                    return Validator::make([], [])->after(fn ($validator) => $validator->errors()->add('some_error', "The $key field sample_rate不是48000！")
+                    return Validator::make([], [])->after(fn ($validator) => $validator->errors()->add('some_error', "第{$count}个文件 音频并非48 kHz。")
+                    )->validate();
+                }
+                // "bitrate" => 64000.872433818
+                if($thisFileInfo['audio']['bitrate'] != 64000) {
+                    return Validator::make([], [])->after(fn ($validator) => $validator->errors()->add('some_error', "第{$count}个文件 音频是 {$thisFileInfo['audio']['bitrate']} 并非 64 kbps。")
                     )->validate();
                 }
                 // add to queue
@@ -152,8 +160,8 @@ class CreateSubmission extends Component
         //     ->addFromMediaLibraryRequest($this->files)
         //     ->withCustomProperties('extra_field')
         //     ->toMediaCollection('mp3');
-        $this->messageTitle = "成功提交".count($aliases)."条记录，如继续上传，请刷新页面！";
-        $this->message = 'Your form has been submitted.'.$links;
+        $this->messageTitle = "成功提交".count($aliases)."个音频，如需继续提交，请刷新页面。";
+        $this->message .= $links;
     }
 
     public function render()

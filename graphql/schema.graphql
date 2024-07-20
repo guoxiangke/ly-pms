@@ -69,6 +69,7 @@ type LyMeta {
   announcers: [Announcer!]! @belongsToMany
 
   ly_items: [LyItem]! @hasMany(type: PAGINATOR, defaultCount: 31) @orderBy(column: "alias", direction: DESC)
+  ltsItems: [LtsItem]! @hasManyThrough(type: PAGINATOR, defaultCount: 31) @orderBy(column: "alias", direction: DESC)
   ly_items_with_future: [LyItem]! @hasMany(type: PAGINATOR, defaultCount: 31)
 }
 
@@ -127,4 +128,9 @@ type LtsItem {
   description: String
   play_at: String
   lts_meta: LtsMeta! @belongsTo
+  ly_meta: LyMeta! @belongsTo
+
+  mp3: String
+  path: String
+  novaMp3Path: String
 }

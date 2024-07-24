@@ -38,7 +38,7 @@ class CreateSubmission extends Component
         // dd($currentLocale);
         $this->user = auth()->user()??User::find(1);
         $path = route('nova.pages.index', 'ly-items');
-        $this->message = "上传节目音频注意：<br/>1.本页面只供提交未上传过的节目音频。如节目音频早前已上传，但需要更换，请使用中文事工办公室指定的其他方式。<br/>2. 可以同时上传多个节目音频，惟不可超出音频大小上限。<br/>3. 节目音频格式须为64 kbps、48 kHz、mono、mp3。<br/>4. 节目音频档名须为xxxyymmdd.mp3（xxx为节目代号，yymmdd为播出日期的年年月月日日；良院或指定节目除外）。<br/>5. 节目音频和有关的节目简介，须同时提交。<br/>6. 提交节目简介后如需要修改，请发电邮到program@liangyou.net通知中文事工办公室同工。";
+        $this->message = "";
     }
 
 
@@ -50,6 +50,7 @@ class CreateSubmission extends Component
 
         $fileNames = [];
         $rules = [];
+        // 'unique' => 'The :attribute has already been taken.',
         $messages = [
             'regex' => ':attribute 档名格式错误。',//The :attribute field Name is not match ma?+code+yymmdd.mp3
             'unqiue' => '第 :attribute 个文件，早前已经上传',//The :attribute field is already exsits!
@@ -77,7 +78,7 @@ class CreateSubmission extends Component
             // 验证命名规则
             $validator = Validator::make($fileNames, $rules, $messages);//->validate();
             if ($validator->fails()) {
-                $this->messageTitle = "注意：{$fileNames[$key]} 存在以下错误！";
+                $this->messageTitle = "错误：{$fileNames[$key]}";
             }
 
             $alias = explode('.', $file['name'])[0];
@@ -96,7 +97,7 @@ class CreateSubmission extends Component
             // 验证唯一性：请修改文件名！ // 'required|unqiue:App\Models\LyItem,alias';
             $validator = Validator::make(['alias' => $alias], ['alias' => Rule::unique('ly_items')], $messages);
             if ($validator->fails()) {
-                $this->messageTitle = "注意：{$fileNames[$key]} 存在以下错误！";
+                $this->messageTitle = "错误：{$fileNames[$key]}";
                 $this->message = "第{$count}个文件 早前已经上传。 <br/>请检查档名是否有误，修改后再上传。";
             }
             $validated = $validator->validated();

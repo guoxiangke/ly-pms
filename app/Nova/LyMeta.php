@@ -208,7 +208,11 @@ class LyMeta extends Resource
                 Select::make(__('Assign Subject'), 'lts_first_play')
                     ->options($currentOptions)
                     ->fillUsing(function ($request, $model, $attribute, $requestAttribute) {
-                        $model->setMeta('lts_first_play', $request->input($attribute));
+                        $isDirty = $this->getMeta('lts_first_play') && $this->getMeta('lts_first_play') != $request->input('lts_first_play');
+                        if($isDirty) {
+                            $model->setMeta('lts_first_play', $request->input($attribute));
+                            $this->updateLtsItems($request,$model);
+                        }
                     })
                     ->default(function ($request) {
                         return $this->getMeta('lts_first_play');
@@ -226,42 +230,14 @@ class LyMeta extends Resource
                 Date::make(__('Assign Start Publishing Date'), 'lts_first_play_at')
                     ->help('请更改时间')
                     ->fillUsing(function ($request, $model, $attribute, $requestAttribute) {
-                        $isDirty = $this->getMeta('lts_first_play_at') != $request->input('lts_first_play_at');
+                        $isDirty = $this->getMeta('lts_first_play_at') && $this->getMeta('lts_first_play_at') != $request->input('lts_first_play_at');
                         if($isDirty) {
                             $model->setMeta('lts_first_play_at', $request->input($attribute));
-
-                                $lts_first_play_at = $request->input($attribute);
-                                $lts_first_play = $request->input('lts_first_play');
-                                $lts_first_play_index = $request->input('lts_first_play_index');
-
-                                $schedule = explode(",", $model->rrule_by_day);
-                                $count = 0;
-                                $ymd = $lts_first_play_at . " 00:00:00";
-                                $dt = Carbon::createFromFormat('Y-m-d H:i:s', $ymd);
-                                $ltsMeta = \App\Models\LtsMeta::find($lts_first_play);
-                                $ltsMeta->update(['ly_meta_id' => $model->id]);
-                                foreach ($ltsMeta->lts_items_asc as $key => $ltsItem) {
-                                    // 从第N个节目开始更新
-                                    if ($key + 1 >= $lts_first_play_index) {
-                                        $playAt = $dt->copy()->addDays($count);
-                                                                                
-                                        while (!in_array(Str::upper($playAt->locale('en')->minDayName), $schedule)) {
-                                            $playAt->addDay();
-                                            $count++; // 跳过周日后
-                                        }
-
-                                        $ltsItem->update([
-                                            'play_at' => $playAt
-                                        ]);
-                                        Log::info(__LINE__,[$count, Str::upper($playAt->locale('en')->minDayName), $ltsItem->toArray()]);
-
-                                        $count++;
-                                    }
-                                }
+                            $this->updateLtsItems($request,$model);
                         }
                     })
                     ->default(function ($request) use($model) {
-                        return $model->getMeta('lts_first_play_at')??1;
+                        return $model->getMeta('lts_first_play_at')??now();
                     })->hideFromIndex(),
                 Number::make(__('Assign Start Episode Number'),'lts_first_play_index')
                     ->dependsOn(['code'],
@@ -272,11 +248,15 @@ class LyMeta extends Resource
                         }
                     )
                     ->fillUsing(function ($request, $model, $attribute, $requestAttribute) {
-                        $model->setMeta('lts_first_play_index', $request->input($attribute));
+                        $isDirty = $this->getMeta('lts_first_play_index') && $this->getMeta('lts_first_play_index') != $request->input('lts_first_play_index');
+                        if($isDirty) {
+                            $model->setMeta('lts_first_play_index', $request->input($attribute));
+                            $this->updateLtsItems($request,$model);
+                        }
                     })
                     // https://github.com/laravel/nova-issues/issues/58#issuecomment-419754713
                     ->withMeta(["value" => (int)$model->getMeta('lts_first_play_index')??1])
-                    ->min(1)->max(30)->step(1)
+                    ->min(0)->max(30)->step(1)
                     ->hideFromIndex(),
             ];
         }else{
@@ -288,6 +268,43 @@ class LyMeta extends Resource
         return !$isLts?array_merge($defaultFields, $addMetaFields):array_merge($defaultFields,$ltsFields, $addMetaFields);
     }
 
+    private function updateLtsItems($request,$model)
+    {
+        // code...
+        $lts_first_play_at = $request->input('lts_first_play_at');
+        $lts_first_play = $request->input('lts_first_play');
+        $lts_first_play_index = $request->input('lts_first_play_index');
+
+        if(!$lts_first_play||!$lts_first_play||!$lts_first_play_index) {
+            Log::error(__CLASS__, [__LINE__,$lts_first_play,$lts_first_play,$lts_first_play_index]);
+            return;
+        }
+
+        $schedule = explode(",", $model->rrule_by_day);
+        $count = 0;
+        $ymd = $lts_first_play_at . " 00:00:00";
+        $dt = Carbon::createFromFormat('Y-m-d H:i:s', $ymd);
+        $ltsMeta = \App\Models\LtsMeta::find($lts_first_play);
+        $ltsMeta->update(['ly_meta_id' => $model->id]);
+        foreach ($ltsMeta->lts_items_asc as $key => $ltsItem) {
+            // 从第N个节目开始更新
+            if ($key + 1 >= $lts_first_play_index) {
+                $playAt = $dt->copy()->addDays($count);
+                                                        
+                while (!in_array(Str::upper($playAt->locale('en')->minDayName), $schedule)) {
+                    $playAt->addDay();
+                    $count++; // 跳过周日后
+                }
+
+                $ltsItem->update([
+                    'play_at' => $playAt
+                ]);
+                Log::info(__CLASS__,[__LINE__, $playAt, Str::upper($playAt->locale('en')->minDayName), $ltsItem->alias, $ltsMeta->name]);
+
+                $count++;
+            }
+        }
+    }
     /**
      * Get the cards available for the request.
      *

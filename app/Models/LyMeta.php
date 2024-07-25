@@ -95,7 +95,7 @@ class LyMeta extends Model
         $domain =  config('pms.cloudfront_domain');
         $cover = "{$domain}/ly/image/cover/{$this->code}.jpg";
         return Attribute::make(
-            get: fn () => isset($this->avatar) ? config('pms.uploader_domain'). Storage::url($this->avatar) : $cover,
+            get: fn () => $cover,
         );
     }
 

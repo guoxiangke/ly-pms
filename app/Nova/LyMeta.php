@@ -140,12 +140,13 @@ class LyMeta extends Resource
             Text::make(__('Cover'), function () {
                 return "<img width='40px' src='{$this->cover}' />";
             })->asHtml(),
-            Image::make(__('Cover'))
-                ->path('ly/programs')
+            Image::make(__('Cover'),'avatar')
+                ->disk('s3')
+                ->path('ly/image/cover')
                 ->storeAs(function (Request $request) {
                     return $this->code . '.jpg';
                 })
-                ->acceptedTypes('.jpg')->onlyOnForms(),
+                ->acceptedTypes(['.jpg','.png'])->onlyOnForms(),
             Text::make(__('Program Alias'),'code')
                 ->sortable()
                 ->rules('required', 'max:12'),

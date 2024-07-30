@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use App\Jobs\SyncItemQueue;
 
 use App\Models\Open\Item;
+use App\Models\Open\Program;
 use App\Models\LyMeta;
 use App\Models\LyItem;
 use App\Models\LtsMeta;
@@ -43,7 +44,7 @@ class SyncOpen extends Command
             // $lastAlias = $lastLyItem->alias;
             // $lastItem = Item::where('alias',$lastAlias)->firstOrFail();
             // $itemCollections = Item::where('id', '>', $lastItem->id);
-            $itemCollections = Item::where('created_at', '>', now()->subDays(7));
+            $itemCollections = Item::where('created_at', '>', now()->subDays(3));
         }
         // $itemCollections = Item::where('id', '>', 0);
         $itemCollections->chunkById(2000, function (Collection $items)  {
@@ -79,7 +80,17 @@ class SyncOpen extends Command
                             $alias = $item->alias;
                         }
                     }
-                    $lyMeta = LyMeta::firstOrCreate(['code'=> $code], ['name'=>'CBI_' . $code ,'unpublished_at'=>now()]);
+                    $lyMeta = LyMeta::firstOrCreate(['code'=> $code], ['name'=>'CBI_' . $code]);//,'unpublished_at'=>now()
+                    if($lyMeta->wasRecentlyCreated || Str::startsWith($lyMeta->name, 'CBI_')){
+                        $program = Program::where('alias', $code)->first();
+                        if($program->id){
+                           $lyMeta->update([
+                                'name'=> $program->name,
+                                'description' => $program->brief,
+                                'unpublished_at' => null,
+                            ]); 
+                        }
+                    }
                     $newItem = LyItem::withoutGlobalScopes()->updateOrCreate(['alias' => $alias], [
                         'ly_meta_id'=>$lyMeta->id,
                         // 'play_at'=>$item->play_at,

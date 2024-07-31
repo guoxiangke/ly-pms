@@ -121,7 +121,7 @@ class CreateSubmission extends Component
 
                 if(isset($thisFileInfo['comments']['picture'][0])) {
                     // https://annissimo.com/how-to-throw-validationexception-in-laravel-without-request-validation-helpers-or-manually-creating-a-validator
-                    return Validator::make([], [])->after(fn ($validator) => $validator->errors()->add('some_error', "The $key field 已经有图片了！")//不再处理了.
+                    return Validator::make([], [])->after(fn ($validator) => $validator->errors()->add('some_error', "错误：第{$key}个音频已嵌入图片了！")//不再处理了.
                     )->validate();
                 }
                 if($thisFileInfo['audio']['channelmode'] != 'mono') {

@@ -151,7 +151,7 @@ return [
     'starts_with' => 'The :attribute field must start with one of the following: :values.',
     'string' => 'The :attribute field must be a string.',
     'timezone' => 'The :attribute field must be a valid timezone.',
-    'unique' => '早前已经上传。请检查档名是否有误，修改后再上传。重复指标（判断标准）: :attribute ',
+    'unique' => '早前已经上传。请检查档名是否有误，修改后再上传。',
     'uploaded' => 'The :attribute failed to upload.',
     'uppercase' => 'The :attribute field must be uppercase.',
     'url' => 'The :attribute field must be a valid URL.',

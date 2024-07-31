@@ -30,6 +30,10 @@ Route::get('/', function () {
     return app()->isLocal()? view('welcome') : redirect()->route('nova.pages.home');
 });
 
+Route::get('/login', function () {
+    return redirect()->route('nova.pages.home');
+})->name('login');
+
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),

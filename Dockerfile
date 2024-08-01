@@ -9,6 +9,6 @@ RUN install-php-extensions \
     pcntl \
     bcmath
     
-COPY . /app
+#COPY . /app
 
 WORKDIR /app

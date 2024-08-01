@@ -21,3 +21,6 @@ phpunit.xml
 tests
 storage/clockwork
 bootstrap/cache/*.php
+.env
+.env*
+sftp-config.json

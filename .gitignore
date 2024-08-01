@@ -32,3 +32,4 @@ frankenphp
 frankenphp-worker.php
 .vapor
 .env.staging
+sftp-config.json

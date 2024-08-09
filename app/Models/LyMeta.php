@@ -72,6 +72,7 @@ class LyMeta extends Model
     public function scopeActive($query)
     {
         return $query->whereNull('unpublished_at');
+                ->Orwhere('unpublished_at', '>', now());
     }
 
 

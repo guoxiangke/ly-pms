@@ -128,7 +128,7 @@ class LyMeta extends Resource
         }
 
         $defaultFields = [
-            // ID::make()->sortable(),
+            ID::make()->sortable(),
 
             Text::make(__('Program Title'),'name')
                 ->sortable()
@@ -209,7 +209,7 @@ class LyMeta extends Resource
                 Select::make(__('Assign Subject'), 'lts_first_play')
                     ->options($currentOptions)
                     ->fillUsing(function ($request, $model, $attribute, $requestAttribute) {
-                        $isDirty = $this->getMeta('lts_first_play') && $this->getMeta('lts_first_play') != $request->input('lts_first_play');
+                        $isDirty = $this->getMeta('lts_first_play') != $request->input('lts_first_play');
                         if($isDirty) {
                             $model->setMeta('lts_first_play', $request->input($attribute));
                             $this->updateLtsItems($request,$model);
@@ -231,7 +231,7 @@ class LyMeta extends Resource
                 Date::make(__('Assign Start Publishing Date'), 'lts_first_play_at')
                     ->help('请更改时间')
                     ->fillUsing(function ($request, $model, $attribute, $requestAttribute) {
-                        $isDirty = $this->getMeta('lts_first_play_at') && $this->getMeta('lts_first_play_at') != $request->input('lts_first_play_at');
+                        $isDirty = $this->getMeta('lts_first_play_at') != $request->input('lts_first_play_at');
                         if($isDirty) {
                             $model->setMeta('lts_first_play_at', $request->input($attribute));
                             $this->updateLtsItems($request,$model);
@@ -249,7 +249,7 @@ class LyMeta extends Resource
                         }
                     )
                     ->fillUsing(function ($request, $model, $attribute, $requestAttribute) {
-                        $isDirty = $this->getMeta('lts_first_play_index') && $this->getMeta('lts_first_play_index') != $request->input('lts_first_play_index');
+                        $isDirty = $this->getMeta('lts_first_play_index') != $request->input('lts_first_play_index');
                         if($isDirty) {
                             $model->setMeta('lts_first_play_index', $request->input($attribute));
                             $this->updateLtsItems($request,$model);

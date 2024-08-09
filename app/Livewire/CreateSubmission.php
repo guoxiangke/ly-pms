@@ -26,8 +26,6 @@ class CreateSubmission extends Component
     public $messageTitle = "";
     public $message = '';
 
-    // [Rule('required', as:'da title', message: '必须上传文件')]
-    // [Rule(['files.*' => 'file|max:1024'])]
     public $files = [];
 
 
@@ -52,8 +50,10 @@ class CreateSubmission extends Component
         $rules = [];
         // 'unique' => 'The :attribute has already been taken.',
         $messages = [
+            // The files 1 field format is invalid.
+            // 'regex' => 'The :attribute field format is invalid.',
             'regex' => ':attribute 档名格式错误。',//The :attribute field Name is not match ma?+code+yymmdd.mp3
-            'unqiue' => '第 :attribute 个文件，早前已经上传',//The :attribute field is already exsits!
+            // 'unqiue' => '第 :attribute 个音频，早前已经上传',//The :attribute field is already exsits!
         ];
         $descriptions = [];
         $aliases = [];
@@ -89,7 +89,7 @@ class CreateSubmission extends Component
             $code = preg_filter('/\d/', '', $alias);
             $lyMeta = LyMeta::active()->whereCode($code)->first();
             if(!$lyMeta){
-                return Validator::make([], [])->after(fn ($validator) => $validator->errors()->add('some_error', "第{$count}个文件 系统内未有相关代号的记录。"))->validate();
+                return Validator::make([], [])->after(fn ($validator) => $validator->errors()->add('some_error', "第{$count}个音频 系统内未有相关节目代号的记录。"))->validate();
             }
             $lyMetaIds[$key] = $lyMeta->id;
 
@@ -97,8 +97,9 @@ class CreateSubmission extends Component
             // 验证唯一性：请修改文件名！ // 'required|unqiue:App\Models\LyItem,alias';
             $validator = Validator::make(['alias' => $alias], ['alias' => Rule::unique('ly_items')], $messages);
             if ($validator->fails()) {
-                $this->messageTitle = "错误：{$fileNames[$key]}";
-                $this->message = "第{$count}个文件 早前已经上传。 <br/>请检查档名是否有误，修改后再上传。";
+                // unique error message
+                $this->messageTitle = "错误：第{$count}个音频 {$fileNames[$key]}";
+                // $this->message = "第{$count}个音频 早前已经上传。 <br/>请检查档名是否有误，修改后再上传。";
             }
             $validated = $validator->validated();
         }
@@ -121,20 +122,20 @@ class CreateSubmission extends Component
 
                 if(isset($thisFileInfo['comments']['picture'][0])) {
                     // https://annissimo.com/how-to-throw-validationexception-in-laravel-without-request-validation-helpers-or-manually-creating-a-validator
-                    return Validator::make([], [])->after(fn ($validator) => $validator->errors()->add('some_error', "错误：第{$key}个音频已嵌入图片了！")//不再处理了.
+                    return Validator::make([], [])->after(fn ($validator) => $validator->errors()->add('some_error', "错误：第{$count}个音频已嵌入图片了！")//不再处理了.
                     )->validate();
                 }
                 if($thisFileInfo['audio']['channelmode'] != 'mono') {
-                    return Validator::make([], [])->after(fn ($validator) => $validator->errors()->add('some_error', "第{$count}个文件  音频并非单声道（mono）。")
+                    return Validator::make([], [])->after(fn ($validator) => $validator->errors()->add('some_error', "第{$count}个音频  音频并非单声道（mono）。")
                     )->validate();
                 }
                 if($thisFileInfo['audio']['sample_rate'] != 48000) {
-                    return Validator::make([], [])->after(fn ($validator) => $validator->errors()->add('some_error', "第{$count}个文件 音频并非48 kHz。")
+                    return Validator::make([], [])->after(fn ($validator) => $validator->errors()->add('some_error', "第{$count}个音频 音频并非48 kHz。")
                     )->validate();
                 }
                 // "bitrate" => 64000.872433818
                 if($thisFileInfo['audio']['bitrate'] != 64000) {
-                    return Validator::make([], [])->after(fn ($validator) => $validator->errors()->add('some_error', "第{$count}个文件 音频是 {$thisFileInfo['audio']['bitrate']} 并非 64 kbps。")
+                    return Validator::make([], [])->after(fn ($validator) => $validator->errors()->add('some_error', "第{$count}个音频 音频是 {$thisFileInfo['audio']['bitrate']} 并非 64 kbps。")
                     )->validate();
                 }
                 // add to queue

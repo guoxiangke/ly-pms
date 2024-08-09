@@ -35,8 +35,7 @@ class LyItem extends Model implements HasMedia
     ];
     protected $appends = [
         'path',
-        // 'is_old', // 旧系统的节目 目录结构
-        'is_future', // 明后天的节目
+        'is_published', // 明后天的节目
         'episode_title', // Episode Title
     ];
     
@@ -67,16 +66,16 @@ class LyItem extends Model implements HasMedia
         return $this->BelongsTo(Announcer::class);
     }
 
-    public function getIsOldAttribute()
-    {
-        // production Lanched Date
-        return $this->play_at <  Carbon::createFromFormat('Y-m-d', config('pms.launched_at'));
-    }
-
-
     public function getIsFutureAttribute()
     {
         return $this->play_at > now();
+    }
+
+    public function isPublished(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->play_at < now(),
+        );
     }
 
     public function getPathAttribute(){
@@ -98,5 +97,18 @@ class LyItem extends Model implements HasMedia
     // read only attribute.
     public function getEpisodeTitleAttribute(){
         return $this->ly_meta->name . "-" . $this->play_at->format("Ymd");
+    }
+
+    /**
+     * Determine if the model should be searchable.
+     */
+    public function shouldBeSearchable(): bool
+    {
+        return $this->isPublished();
+    }
+
+    public function toSearchableArray()
+    {
+        return ['id' => (string) $this->id] + $this->toArray();
     }
 }

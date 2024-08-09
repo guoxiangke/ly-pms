@@ -85,7 +85,7 @@ class LtsItem extends Resource
     public function fields(NovaRequest $request)
     {
         return [
-            // ID::make()->sortable(),
+            ID::make()->sortable(),
             Text::make(__('Episode Title'), fn()=>$this->episodeTitle)->exceptOnForms(),
             Text::make(__('Episode Alias'),'alias')
                 ->sortable()

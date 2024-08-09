@@ -8,7 +8,7 @@ use Laravel\Nova\Http\Requests\NovaRequest;
 use Laravel\Nova\Fields\Date;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Fields\Textarea;
-use Laravel\Nova\Fields\Image;
+// use Laravel\Nova\Fields\Image;
 use Laravel\Nova\Fields\BelongsToMany;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\HasMany;
@@ -99,10 +99,11 @@ class LtsMeta extends Resource
     {
         // https://docs.vapor.build/resources/storage.html
         // https://nova.laravel.com/docs/4.0/resources/fields.html#vapor-image-field
-        $image = \App::isLocal() ? Image::class : VaporImage::class;
+        // $image = \App::isLocal() ? Image::class : VaporImage::class;
         $model =  $this;
         $meta_fields = config('pms.ltsMeta.extraFields.text');
         $addMetaFields = [];
+        if($model->id)
         foreach ($meta_fields as $filed) {
             $addMetaFields[] = Text::make(__($filed['field_desc']), $filed['field'])
                 ->fillUsing(function ($request, $model, $attribute, $requestAttribute) {
@@ -114,20 +115,21 @@ class LtsMeta extends Resource
         }
 
         $defaultFields = [
+            ID::make()->sortable(),
             Text::make(__('LTS Subject Title'),'name')
                 ->sortable()
                 ->rules('required', 'max:255'),
             Text::make(__('LTS Subject Prefix'),'code')
                 ->sortable()
                 ->rules('required', 'max:12'),
-            BelongsTo::make(__('LTS Program Title'), 'ly_meta', 'App\Nova\LyMeta')
-                ->relatableQueryUsing(function (NovaRequest $request, Builder $query) {
-                    $query->where('code', 'like', '%lts%');
-                })->withoutTrashed(),
+            // BelongsTo::make(__('LTS Program Title'), 'ly_meta', 'App\Nova\LyMeta')
+            //     ->relatableQueryUsing(function (NovaRequest $request, Builder $query) {
+            //         $query->where('code', 'like', '%lts%');
+            //     })->withoutTrashed(),
             Textarea::make(__('LTS Subject Description'),'description')
                 ->hideFromIndex(),
-            Text::make(__('Number of Episode'),'count')->sortable(),
-            Date::make(__('Production Date'),'made_at')->sortable()->showOnUpdating()->hideFromIndex(),
+            Text::make(__('Number of Episode'),'count')->sortable()->required(),
+            Date::make(__('Production Date'),'made_at')->sortable()->onlyOnForms(),
             Text::make(__('Production Date'), function () {
                 return $this->made_at?$this->made_at->format("Y/m"):'—';
             })->asHtml()->hideWhenUpdating(),

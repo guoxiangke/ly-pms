@@ -29,13 +29,13 @@ class LtsItem extends Model
     // }
     public function lts_meta(): BelongsTo
     {
-        return $this->BelongsTo(LtsMeta::class);
+        return $this->BelongsTo(LtsMeta::class)->withTrashed();
     }
 
     // 定义 belongsTo 关系到 LtsMeta
     public function ltsMeta()
     {
-        return $this->belongsTo(LtsMeta::class);
+        return $this->belongsTo(LtsMeta::class)->withTrashed();
     }
 
     public function getPathAttribute(){
@@ -62,6 +62,6 @@ class LtsItem extends Model
 
     // read only attribute.
     public function getEpisodeTitleAttribute(){
-        return $this->lts_meta->name . "-" . str_replace($this->lts_meta->code, '', $this->alias);
+        return $this->ltsMeta->name . "-" . str_replace($this->ltsMeta->code, '', $this->alias);
     }
 }

@@ -96,13 +96,13 @@ class LyItem extends Model implements HasMedia
     }
     // read only attribute.
     public function getEpisodeTitleAttribute(){
-        return $this->ly_meta->name . "-" . $this->play_at->format("Ymd");
+        return $this->id?$this->ly_meta->name . "-" . $this->play_at->format("Ymd"):'-';
     }
 
     /**
      * Determine if the model should be searchable.
      */
-    public function shouldBeSearchable(): bool
+    public function shouldBeSearchable()
     {
         return $this->isPublished();
     }

@@ -87,6 +87,7 @@ class LtsMeta extends Resource
      */
     public static $search = [
         'name',
+        'code',
     ];
 
     /**

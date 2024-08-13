@@ -15,6 +15,7 @@ class LtsItem extends Model
     use HasHashId;
     use HasFactory;
     use SoftDeletes;
+    protected $with = ['ltsMeta'];
     // use Searchable;
     protected $guarded = ['id', 'created_at', 'updated_at', 'deleted_at'];
     protected $dates = ['created_at', 'updated_at', 'deleted_at', 'play_at'];

@@ -63,6 +63,6 @@ class LtsItem extends Model
 
     // read only attribute.
     public function getEpisodeTitleAttribute(){
-        return $this->ltsMeta->name . "-" . str_replace($this->ltsMeta->code, '', $this->alias);
+        return $this->ltsMeta->name . "-" . filter_var($this->ltsMeta->code, FILTER_SANITIZE_NUMBER_INT) . str_replace($this->ltsMeta->code, '', $this->alias);
     }
 }

@@ -12,6 +12,7 @@ use Laravel\Nova\Fields\Textarea;
 use Laravel\Nova\Fields\BelongsToMany;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\HasMany;
+use Laravel\Nova\Fields\Number;
 use Illuminate\Database\Eloquent\Builder;
 
 use Spatie\TagsField\Tags;
@@ -130,6 +131,10 @@ class LtsMeta extends Resource
             Textarea::make(__('LTS Subject Description'),'description')
                 ->hideFromIndex(),
             Text::make(__('Number of Episode'),'count')->sortable()->required(),
+            Number::make(__('Assign Start Episode Number'),'first_play_id')
+                ->min(0)->max(99)->step(1)
+                ->default(1)
+                ->hideFromIndex(),
             Date::make(__('Production Date'),'made_at')->sortable()->onlyOnForms(),
             Text::make(__('Production Date'), function () {
                 return $this->made_at?$this->made_at->format("Y/m"):'—';

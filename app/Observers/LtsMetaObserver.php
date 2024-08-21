@@ -15,9 +15,9 @@ class LtsMetaObserver
     public function created(LtsMeta $ltsMeta): void
     {
         //vspsa546 => mavspsa501
-        $count = $ltsMeta->count;
-        while ($count--){
-            $index = str_pad($ltsMeta->count-$count, 2, '0', STR_PAD_LEFT);
+        $count = $ltsMeta->count;//8
+        for ($i=$ltsMeta->first_play_id; $i <= $count+$ltsMeta->first_play_id-1; $i++) { 
+            $index = str_pad($i, 2, '0', STR_PAD_LEFT);
             LtsItem::firstOrCreate([
                 'lts_meta_id'=> $ltsMeta->id,
                 'alias'=> $ltsMeta->code . $index,// mavam101-mavam124

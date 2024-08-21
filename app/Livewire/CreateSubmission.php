@@ -89,7 +89,7 @@ class CreateSubmission extends Component
             $code = preg_filter('/\d/', '', $alias);
             $lyMeta = LyMeta::whereCode($code)->first();
             if(!$lyMeta){
-                return Validator::make([], [])->after(fn ($validator) => $validator->errors()->add('some_error', "第{$count}个音频 系统内未有相关节目代号的记录。"))->validate();
+                return Validator::make([], [])->after(fn ($validator) => $validator->errors()->add('some_error', "第{$count}个音频 档名格式错误"))->validate();
             }
             $lyMetaIds[$key] = $lyMeta->id;
 

@@ -122,20 +122,20 @@ class CreateSubmission extends Component
 
                 if(isset($thisFileInfo['comments']['picture'][0])) {
                     // https://annissimo.com/how-to-throw-validationexception-in-laravel-without-request-validation-helpers-or-manually-creating-a-validator
-                    return Validator::make([], [])->after(fn ($validator) => $validator->errors()->add('some_error', "错误：第{$count}个音频已嵌入图片了！<br/>请也检查音频其他格式是否符合要求，即：64 kbps、48 kHz、mono、mp3。")//不再处理了.
+                    return Validator::make([], [])->after(fn ($validator) => $validator->errors()->add('some_error', "错误：第{$count}个音频已嵌入图片了！请也检查音频其他格式是否符合要求，即：64 kbps、48 kHz、mono、mp3。")//不再处理了.
                     )->validate();
                 }
                 if($thisFileInfo['audio']['channelmode'] != 'mono') {
-                    return Validator::make([], [])->after(fn ($validator) => $validator->errors()->add('some_error', "第{$count}个音频  音频并非单声道（mono）。<br/>请也检查音频其他格式是否符合要求，即：64 kbps、48 kHz、mono、mp3。")
+                    return Validator::make([], [])->after(fn ($validator) => $validator->errors()->add('some_error', "第{$count}个音频  音频并非单声道（mono）。请也检查音频其他格式是否符合要求，即：64 kbps、48 kHz、mono、mp3。")
                     )->validate();
                 }
                 if($thisFileInfo['audio']['sample_rate'] != 48000) {
-                    return Validator::make([], [])->after(fn ($validator) => $validator->errors()->add('some_error', "第{$count}个音频 音频并非48 kHz。<br/>请也检查音频其他格式是否符合要求，即：64 kbps、48 kHz、mono、mp3。")
+                    return Validator::make([], [])->after(fn ($validator) => $validator->errors()->add('some_error', "第{$count}个音频 音频并非48 kHz。请也检查音频其他格式是否符合要求，即：64 kbps、48 kHz、mono、mp3。")
                     )->validate();
                 }
                 // "bitrate" => 64000.872433818
                 if($thisFileInfo['audio']['bitrate'] != 64000) {
-                    return Validator::make([], [])->after(fn ($validator) => $validator->errors()->add('some_error', "第{$count}个音频 音频是 {$thisFileInfo['audio']['bitrate']} 并非 64 kbps。<br/>请也检查音频其他格式是否符合要求，即：64 kbps、48 kHz、mono、mp3。")
+                    return Validator::make([], [])->after(fn ($validator) => $validator->errors()->add('some_error', "第{$count}个音频 音频是 {$thisFileInfo['audio']['bitrate']} 并非 64 kbps。请也检查音频其他格式是否符合要求，即：64 kbps、48 kHz、mono、mp3。")
                     )->validate();
                 }
                 // add to queue

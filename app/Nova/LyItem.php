@@ -97,10 +97,6 @@ class LyItem extends Resource
         ];
         return array_merge([ID::make()->sortable()],$fileFeild,
         [
-            // obersive Mp3: 一更新，后台便去处理
-            // Boolean::make('', function(){
-            //     return !$this->is_published;
-            // })->onlyOnIndex(),
             Text::make(__('Episode Title'), fn()=> $this->episodeTitle)->exceptOnForms(),
             Text::make(__('Episode Alias'), 'alias')
                 ->sortable()

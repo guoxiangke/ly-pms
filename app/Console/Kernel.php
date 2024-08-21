@@ -16,7 +16,7 @@ class Kernel extends ConsoleKernel
         // $schedule->command("youtube:get-item")->cron("0 * * * *");
         // # Automatically removing temporary uploads
         $schedule->command('media-library:delete-old-temporary-uploads')->daily();
-        $schedule->command('app:sync-open')->timezone('Asia/Shanghai')->cron('10 0 * * *');
+        $schedule->command('app:sync-open')->timezone('Asia/Shanghai')->cron('30 0 * * *');
     }
 
     /**

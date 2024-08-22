@@ -15,6 +15,7 @@ use Carbon\Carbon;
 use App\Observers\LyItemObserver;
 use getID3;
 use App\Jobs\WriteID3TagAndSync2S3Queue;
+use Illuminate\Support\Facades\Log;
 class CreateSubmission extends Component
 {   
     use WithMedia;
@@ -86,10 +87,12 @@ class CreateSubmission extends Component
             $descriptions[$key] = $file['custom_properties']['description']??'';
 
             // 验证code ma?
-            $code = preg_filter('/\d/', '', $alias);
+            // Use preg_match to find the initial sequence of non-digit characters
+            preg_match('/^[^\d]+/', $alias, $matches);
+            $code = $matches[0]; //nonDigitPrefix
             $lyMeta = LyMeta::whereCode($code)->first();
             if(!$lyMeta){
-                return Validator::make([], [])->after(fn ($validator) => $validator->errors()->add('some_error', "第{$count}个音频 档名格式错误"))->validate();
+                return Validator::make([], [])->after(fn ($validator) => $validator->errors()->add('some_error', "第{$count}个音频 系统内未有相关节目代号的记录"))->validate();
             }
             $lyMetaIds[$key] = $lyMeta->id;
 
@@ -134,7 +137,7 @@ class CreateSubmission extends Component
                     )->validate();
                 }
                 // "bitrate" => 64000.872433818
-                if($thisFileInfo['audio']['bitrate'] != 64000) {
+                if($thisFileInfo['audio']['bitrate'] > 64000.0 && $thisFileInfo['audio']['bitrate'] < 64000.1) {
                     return Validator::make([], [])->after(fn ($validator) => $validator->errors()->add('some_error', "第{$count}个音频 音频是 {$thisFileInfo['audio']['bitrate']} 并非 64 kbps。请也检查音频其他格式是否符合要求，即：64 kbps、48 kHz、mono、mp3。")
                     )->validate();
                 }

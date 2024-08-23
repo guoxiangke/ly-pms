@@ -79,7 +79,7 @@ class CreateSubmission extends Component
             // 验证命名规则
             $validator = Validator::make($fileNames, $rules, $messages);//->validate();
             if ($validator->fails()) {
-                $this->messageTitle = "错误：{$fileNames[$key]}";
+                $this->messageTitle = "错误：";
             }
 
             $alias = explode('.', $file['name'])[0];
@@ -137,7 +137,7 @@ class CreateSubmission extends Component
                     )->validate();
                 }
                 // "bitrate" => 64000.872433818
-                if($thisFileInfo['audio']['bitrate'] > 64000.0 && $thisFileInfo['audio']['bitrate'] < 64000.1) {
+                if($thisFileInfo['audio']['bitrate'] > 63999 && $thisFileInfo['audio']['bitrate'] < 64999) {
                     return Validator::make([], [])->after(fn ($validator) => $validator->errors()->add('some_error', "第{$count}个音频 音频是 {$thisFileInfo['audio']['bitrate']} 并非 64 kbps。请也检查音频其他格式是否符合要求，即：64 kbps、48 kHz、mono、mp3。")
                     )->validate();
                 }

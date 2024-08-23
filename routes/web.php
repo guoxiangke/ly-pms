@@ -51,13 +51,13 @@ Route::middleware([
 });
 
 
-Route::get('/ly/corrections/{mp3}', function (Request $request, $mp3) {
+Route::get('/ly/corrections/{version_folder}/{mp3}', function (Request $request, $version_folder, $mp3) {
     $domain =  config('pms.cloudfront_domain');
-    return redirect()->away($domain."/ly/corrections/$mp3");
+    return redirect()->away($domain."/ly/corrections/$version_folder/$mp3");
 });
-Route::get('/storage/ly/corrections/{mp3}', function (Request $request, $mp3) {
+Route::get('/storage/ly/corrections/{version_folder}/{mp3}', function (Request $request, $version_folder, $mp3) {
     $domain =  config('pms.cloudfront_domain');
-    return redirect()->away($domain."/ly/corrections/$mp3");
+    return redirect()->away($domain."/ly/corrections/$version_folder/$mp3");
 });
 
 Route::get('/storage/ly/audio/{year}/{code}/{day}.mp3', function (Request $request, $year, $code, $day) {

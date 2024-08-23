@@ -16,6 +16,8 @@ use Laravel\Nova\Fields\Audio;
 
 use Laravel\Nova\Fields\File;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use getID3;
 
 class LyItem extends Resource
 {   
@@ -86,14 +88,24 @@ class LyItem extends Resource
      */
     public function fields(NovaRequest $request)
     {
+        $model = $this;
         $fileFeild = [
             File::make('音频勘误', 'mp3')
-                ->disk('s3')
-                ->path('ly/corrections')
-                ->storeAs(fn() => $this->alias .'v'.date('His'). '.mp3')
                 ->help('如音频错误，请在此上传新的mp3档')
                 ->acceptedTypes('.mp3')
+                // ->storeOriginalName($model->alias .'v'.date('His'). '.mp3')
                 ->disableDownload()
+                ->store(function (Request $request, $model) {
+                    $getID3 = new getID3;
+                    $thisFileInfo = $getID3->analyze($request->mp3->getPathname());
+                    return [
+                        'mp3' => $request->mp3->store('ly/corrections/'.$model->alias .'v'.date('His'), 's3'),
+                        'playtime_string' => $thisFileInfo['playtime_string'],
+                    ];
+                })
+                 ->storeAs(function (Request $request, $model) {
+                    return $model->alias .'v'.date('His'). '.mp3';
+                }),
         ];
         return array_merge([ID::make()->sortable()],$fileFeild,
         [
@@ -103,7 +115,7 @@ class LyItem extends Resource
                 ->rules('required', 'max:12'),
             BelongsTo::make(__('Program Title'), 'ly_meta', 'App\Nova\LyMeta')->onlyOnForms(),
             InlineText::make(__('Episode Description'), 'description')->onlyOnIndex(),
-            Text::make(__('Episode Duration'), 'playtime_string')->sortable()->onlyOnIndex(),
+            Text::make(__('Episode Duration'), 'playtime_string')->sortable()->exceptOnForms(),
             Text::make(__('Episode Description'), 'description')
                 ->rules('required', 'max:255')->hideFromIndex(),
             Date::make(__('Start Publishing Date'), 'play_at'),

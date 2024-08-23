@@ -11,7 +11,7 @@
               </thead>
               <tbody class="divide-y divide-gray-200 bg-white">
                 @foreach ($lyMetas as $lyMeta)
-                    <tr class="divide-x divide-gray-200 even:bg-gray-50">
+                    <tr class="divide-x divide-gray-200 even:bg-gray-100">
                       <td class="flex items-left ml-4 whitespace-nowrap text-sm font-medium text-gray-900 sm:pl-0"><div class="flex-shrink-0 text-left">
                             {{$lyMeta->code}}
                           </div></td>

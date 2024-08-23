@@ -89,6 +89,8 @@ class LtsMeta extends Resource
     public static $search = [
         'name',
         'code',
+        'name_en',
+        'id',
     ];
 
     /**
@@ -105,7 +107,7 @@ class LtsMeta extends Resource
         $model =  $this;
         $meta_fields = config('pms.ltsMeta.extraFields.text');
         $addMetaFields = [];
-        if($model->id)
+        if($model->id && $meta_fields)
         foreach ($meta_fields as $filed) {
             $addMetaFields[] = Text::make(__($filed['field_desc']), $filed['field'])
                 ->fillUsing(function ($request, $model, $attribute, $requestAttribute) {
@@ -121,6 +123,9 @@ class LtsMeta extends Resource
             Text::make(__('LTS Subject Title'),'name')
                 ->sortable()
                 ->rules('required', 'max:255'),
+            Text::make(__('LTS Subject English Title'),'name_en')
+                ->sortable()
+                ->hideFromIndex(),
             Text::make(__('LTS Subject Prefix'),'code')
                 ->sortable()
                 ->rules('required', 'max:12'),

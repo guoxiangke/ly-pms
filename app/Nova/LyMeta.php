@@ -98,6 +98,7 @@ class LyMeta extends Resource
     public static $search = [
         'name',
         'code',
+        'id',
     ];
 
     /**

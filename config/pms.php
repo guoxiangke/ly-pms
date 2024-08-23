@@ -55,11 +55,6 @@ return [
 	'ltsMeta'=>[
 		'extraFields' =>  [
 			'text' => [
-	            [
-	                'field' => 'name_en',
-	                'field_desc' => 'LTS Subject English Title',
-	                'placeholder' => '节目英文标题',
-	            ],
 			],
 		],
 	],

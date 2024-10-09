@@ -32,7 +32,7 @@ class LyMeta extends Resource
 
     public static function label()
     {
-        return __('Ly Metas');
+        return __('LY Metas');
     }
 
      /**
@@ -41,11 +41,11 @@ class LyMeta extends Resource
 
     public static function singularLabel()
     {
-       return __('Ly Meta');
+       return __('LY Meta');
     }
 
     // public static function label() { return '良友'; }
-    // public static $priority = 1;
+    public static $priority = 1;
     // public static $group = 'Metadata';
     public static $perPageOptions = [5,10,25,30,50,100];
     
@@ -191,7 +191,7 @@ class LyMeta extends Resource
                 ->single(),
             Textarea::make(__('Remark'),'remark')->hideFromIndex(),
             BelongsToMany::make(__('Announcers'), 'announcers', Announcer::class)->allowDuplicateRelations(),
-            HasManyThrough::make(__('Lts Episodes'), 'ltsItems', LtsItem::class)->showOnDetail(),
+            HasManyThrough::make(__('LTS Episodes'), 'ltsItems', LtsItem::class)->showOnDetail(),
         ];
 
         // 动态添加LTS的Meta
@@ -264,7 +264,7 @@ class LyMeta extends Resource
         }else{
             // if(!$isLts) 
             // 动态添加 HasMany lyitem, 原因： 良院的lyMeta没有这些。
-            array_push($defaultFields, HasMany::make(__('Ly Episodes'), 'ly_items_with_future', LyItem::class));
+            array_push($defaultFields, HasMany::make(__('LY Episodes'), 'ly_items_with_future', LyItem::class));
         }
         
         return !$isLts?array_merge($defaultFields, $addMetaFields):array_merge($defaultFields,$ltsFields, $addMetaFields);

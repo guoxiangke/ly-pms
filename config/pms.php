@@ -46,8 +46,8 @@ return [
 		            ],
 		            [
 		                'field' => 'program_notify_email',
-		                'field_desc' => 'Email to Receive notify',
-		                'placeholder' => '接受上传监控邮件',
+		                'field_desc' => 'Email to Receive Reminder',
+		                'placeholder' => '接收提醒的电邮地址',
 		            ],
 			],
 		],

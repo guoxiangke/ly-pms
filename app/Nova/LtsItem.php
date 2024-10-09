@@ -24,7 +24,7 @@ class LtsItem extends Resource
 
     public static function label()
     {
-        return __('Lts Episodes');
+        return __('LTS Episodes');
     }
 
      /**
@@ -33,11 +33,11 @@ class LtsItem extends Resource
 
     public static function singularLabel()
     {
-       return __('Lts Episode');
+       return __('LTS Episode');
     }
 
     // public static $group = 'Items 列表';
-    public static $priority = 1;
+    public static $priority = 4;
     public static $perPageOptions = [5,10,25,30,50,100];
     public static $perPageViaRelationship = 50;
     /**
@@ -90,7 +90,8 @@ class LtsItem extends Resource
             Text::make(__('Episode Title'), fn()=>$this->episodeTitle)->exceptOnForms(),
             Text::make(__('Episode Alias'),'alias')
                 ->sortable()
-                ->rules('required', 'max:12'),
+                ->help($this->ltsMeta?$this->episodeTitle:"")
+                ->rules('required', 'max:12')->readonly(),
             // BelongsTo::make(__('Episode Title'), 'lts_meta', 'App\Nova\LtsMeta')->searchable(),
             Text::make(__('Episode Description'),'description')
                 ->hideFromIndex(),

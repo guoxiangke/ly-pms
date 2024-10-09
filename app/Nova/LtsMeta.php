@@ -26,7 +26,7 @@ class LtsMeta extends Resource
 
     public static function label()
     {
-        return __('Lts Metas');
+        return __('LTS Metas');
     }
 
      /**
@@ -35,10 +35,10 @@ class LtsMeta extends Resource
 
     public static function singularLabel()
     {
-       return __('Lts Meta');
+       return __('LTS Meta');
     }
 
-    public static $priority = 2;
+    public static $priority = 3;
     public static $perPageOptions = [5,10,25,30,50,100];
     
     // https://trungpv1601.github.io/2020/04/14/Laravel-Nova-Setting-a-default-sort-order-support-multi-columns/
@@ -133,12 +133,13 @@ class LtsMeta extends Resource
             //     ->relatableQueryUsing(function (NovaRequest $request, Builder $query) {
             //         $query->where('code', 'like', '%lts%');
             //     })->withoutTrashed(),
-            Textarea::make(__('LTS Subject Description'),'description')
-                ->hideFromIndex(),
             Text::make(__('Number of Episode'),'count')->sortable()->required(),
             Number::make(__('Assign Start Episode Number'),'first_play_id')
                 ->min(0)->max(99)->step(1)
                 ->default(1)
+                ->hideFromIndex(),
+                
+            Textarea::make(__('LTS Subject Description'),'description')
                 ->hideFromIndex(),
             Date::make(__('Production Date'),'made_at')->sortable()->onlyOnForms(),
             Text::make(__('Production Date'), function () {
@@ -158,7 +159,7 @@ class LtsMeta extends Resource
                 ->type('lts')
                 ->single()
                 ->hideFromIndex(),
-            HasMany::make(__("Lts Episodes"), 'lts_items', LtsItem::class),
+            HasMany::make(__("LTS Episodes"), 'lts_items', LtsItem::class),
         ];
         return array_merge($defaultFields, $addMetaFields);
     }

@@ -37,6 +37,8 @@ class Announcer extends Resource
     }
     
     // public static $group = 'Metadata 元数据';
+    // https://stackoverflow.com/questions/53405577/laravel-nova-reorder-left-navigation-menu-items
+    public static $priority = 5;
 
     public static $perPageOptions = [200,400];
     /**

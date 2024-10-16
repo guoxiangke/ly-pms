@@ -157,7 +157,7 @@ class LyMeta extends Resource
             Tags::make(__('Program Language'))
                 ->type('program-language')
                 ->hideFromIndex()
-                ->single(),
+                ->placeholder('空格查看并选择'),
             Text::make(__('Program Brief Description'),'description')->hideFromIndex(),
             Trix::make(__('Program Full Description'), 'description_detail')
                 ->fillUsing(function ($request, $model, $attribute, $requestAttribute) {
@@ -170,10 +170,12 @@ class LyMeta extends Resource
                 ->single(),
             Tags::make(__('Target Audience'))
                 ->type('target-audience')
-                ->hideFromIndex(),
+                ->hideFromIndex()
+                ->placeholder('空格查看并选择'),
             Tags::make(__('Program Format'))
                 ->type('program-format')
-                ->hideFromIndex(),
+                ->hideFromIndex()
+                ->placeholder('空格查看并选择'),
             Text::make(__('Weekly Broadcast Date'),'rrule_by_day')
                 ->rules('required', 'max:20')
                 ->hideFromIndex(),

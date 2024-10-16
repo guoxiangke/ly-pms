@@ -5,6 +5,11 @@ return [
 		'extraFields' =>  [
 			'text' => [
 		            [
+		                'field' => 'program_station_code',
+		                'field_desc' => 'Program Station Code',
+		                'placeholder' => '节目电台用代号',
+		            ],
+		            [
 		                'field' => 'name_en',
 		                'field_desc' => 'Program English Title',
 		                'placeholder' => '节目英文标题',
@@ -55,6 +60,11 @@ return [
 	'ltsMeta'=>[
 		'extraFields' =>  [
 			'text' => [
+	            [
+	                'field' => 'lts_subject_station_code',
+	                'field_desc' => 'LTS Subject Station Code',
+	                'placeholder' => '良院科目电台用代号',
+	            ],
 			],
 		],
 	],

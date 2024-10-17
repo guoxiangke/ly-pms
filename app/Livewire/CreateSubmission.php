@@ -92,7 +92,7 @@ class CreateSubmission extends Component
             $code = $matches[0]; //nonDigitPrefix
             $lyMeta = LyMeta::whereCode($code)->first();
             if(!$lyMeta){
-                return Validator::make([], [])->after(fn ($validator) => $validator->errors()->add('some_error', "第{$count}个音频 系统内未有相关节目代号的记录"))->validate();
+                return Validator::make([], [])->after(fn ($validator) => $validator->errors()->add('some_error', "第{$count}个音频 系统内未有相关节目代号的记录。 请也检查音频其他格式是否符合要求，即：64 kbps、48 kHz、mono、mp3。"))->validate();
             }
             $lyMetaIds[$key] = $lyMeta->id;
 
@@ -137,7 +137,7 @@ class CreateSubmission extends Component
                     )->validate();
                 }
                 // "bitrate" => 64000.872433818
-                if($thisFileInfo['audio']['bitrate'] > 63999 && $thisFileInfo['audio']['bitrate'] < 64999) {
+                if($thisFileInfo['audio']['bitrate'] < 63999 || $thisFileInfo['audio']['bitrate'] > 64999) {
                     return Validator::make([], [])->after(fn ($validator) => $validator->errors()->add('some_error', "第{$count}个音频 音频是 {$thisFileInfo['audio']['bitrate']} 并非 64 kbps。请也检查音频其他格式是否符合要求，即：64 kbps、48 kHz、mono、mp3。")
                     )->validate();
                 }

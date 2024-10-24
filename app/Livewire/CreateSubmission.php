@@ -161,10 +161,6 @@ class CreateSubmission extends Component
             $links .="\n<li><a target='_blank' href='" . route('nova.pages.detail',['resource'=>'ly-items','resourceId'=>$lyItem->id]) . "'>$fileNames[$key]</a></li>";
         }
         $links .= "</ol>";
-        // $fileSubmission
-        //     ->addFromMediaLibraryRequest($this->files)
-        //     ->withCustomProperties('extra_field')
-        //     ->toMediaCollection('mp3');
         $this->messageTitle = "成功提交".count($aliases)."个音频，如需继续提交，请刷新页面。";
         $this->message .= $links;
     }

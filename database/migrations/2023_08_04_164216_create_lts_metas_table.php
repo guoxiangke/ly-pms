@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('lts_metas', function (Blueprint $table) {
             $table->id();
             $table->string('name')->comment('课程名字');
+            $table->string('name_en')->comment('节目英文标题')->default('');
             $table->string('description')->nullable()->comment('课程描述');
             $table->string('avatar')->nullable()->comment('课程封面，如果有的话，@see cover');;
             $table->string('author')->nullable()->comment('授课老师、分割');
@@ -24,7 +25,7 @@ return new class extends Migration
             $table->timestamp('begin_at')->nullable()->comment('上架时间');
             $table->timestamp('made_at')->nullable()->comment('制作日期');
             $table->foreignId('ly_meta_id')->index()->nullable()->comment('上次上架分类hp、dp');
-
+            $table->unsignedTinyInteger('first_play_id')->default(1);//0-99
             $table->text('remark')->nullable()->comment('备注');
             $table->softDeletes();
             $table->timestamps();

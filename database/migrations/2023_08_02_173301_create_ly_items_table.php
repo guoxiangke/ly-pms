@@ -17,6 +17,11 @@ return new class extends Migration
             $table->foreignId('announcer_id')->nullable()->comment('本次节目的主持人');
             $table->string('alias')->unique()->index(); // mavam101
             $table->text('description')->nullable()->comment('title:节目一句话描述，简体中文');
+            $table->string('program_station_code')
+                ->comment('节目电台用代号')
+                ->nullable()
+                ->default(null)
+                ->index();
             // Not NULL! compute from alias. But need query by date!
             $table->timestamp('play_at')->nullable();
             $table->string('mp3')->nullable()->comment('attachment_mp3 覆盖上传的音频mp3，用于更正音频');// versions-able:with Uploader Uid

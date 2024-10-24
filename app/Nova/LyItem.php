@@ -66,6 +66,7 @@ class LyItem extends Resource
     public static $search = [
         'id',
         'alias',
+        'program_station_code',
         'description',
     ];
 
@@ -113,6 +114,9 @@ class LyItem extends Resource
             Text::make(__('Episode Alias'), 'alias')
                 ->sortable()
                 ->rules('required', 'max:12')->readonly(),
+            Text::make(__('Program Station Code'), 'program_station_code')
+                ->sortable()
+                ->rules('required', 'max:12'),
             BelongsTo::make(__('Program Title'), 'ly_meta', 'App\Nova\LyMeta')->onlyOnForms()->readonly(),
             InlineText::make(__('Episode Description'), 'description')->onlyOnIndex(),
             Text::make(__('Episode Duration'), 'playtime_string')->sortable()->exceptOnForms(),

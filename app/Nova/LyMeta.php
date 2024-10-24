@@ -124,8 +124,8 @@ class LyMeta extends Resource
                     $model->setMeta($attribute, $request->input($attribute));
                 })
                 ->withMeta(["value" => $model->getMeta($filed['field'])])
-                ->hideFromIndex()
-                ->placeholder($filed['placeholder']);
+                ->placeholder('')
+                ->hideFromIndex();
         }
 
         $defaultFields = [
@@ -153,11 +153,13 @@ class LyMeta extends Resource
                 ->rules('required', 'max:12'),
             Tags::make(__('Program Category Title'))
                 ->type('ly')
-                ->single(),
+                ->single()
+                ->help(__("The option“粤语节目”is disabled, please do not select it!")),
             Tags::make(__('Program Language'))
                 ->type('program-language')
                 ->hideFromIndex()
-                ->placeholder('空格查看并选择'),
+                ->placeholder(' ')
+                ->help(__('Press the spacebar to view options and select')),
             Text::make(__('Program Brief Description'),'description')->hideFromIndex(),
             Trix::make(__('Program Full Description'), 'description_detail')
                 ->fillUsing(function ($request, $model, $attribute, $requestAttribute) {
@@ -171,18 +173,20 @@ class LyMeta extends Resource
             Tags::make(__('Target Audience'))
                 ->type('target-audience')
                 ->hideFromIndex()
-                ->placeholder('空格查看并选择'),
+                ->placeholder(' ')
+                ->help(__('Press the spacebar to view options and select')),
             Tags::make(__('Program Format'))
                 ->type('program-format')
                 ->hideFromIndex()
-                ->placeholder('空格查看并选择'),
+                ->placeholder(' ')
+                ->help(__('Press the spacebar to view options and select')),
             Text::make(__('Weekly Broadcast Date'),'rrule_by_day')
                 ->rules('required', 'max:20')
                 ->hideFromIndex(),
             Date::make(__('Program Start Date'),'begin_at')->sortable()->hideFromIndex(),
-            Date::make(__('Program End Date'),'end_at')->sortable()->help('节目最后一集的日期'),
-            Date::make(__('Playlist Unpublish Date'),'unpublished_at')->sortable()->help('播放列表最后一天出街的日期'),
-            Text::make(__('Publish Duration'),'counts_max_list')->placeholder('播放列表最多显示天数，31-255')->sortable()->hideFromIndex(),
+            Date::make(__('Program End Date'),'end_at')->sortable()->help(__('')),
+            Date::make(__('Playlist Unpublish Date'),'unpublished_at')->sortable()->help(__('The last date that the playlist was shown')),
+            Text::make(__('Publish Duration'),'counts_max_list')->sortable()->hideFromIndex(),
             Tags::make(__('Production Centre'))
                 ->type('production-centre')
                 ->hideFromIndex()
@@ -191,7 +195,7 @@ class LyMeta extends Resource
                 ->type('sponsor')
                 ->hideFromIndex()
                 ->single(),
-            Textarea::make(__('Remark'),'remark')->hideFromIndex(),
+            Textarea::make(__('Remark'),'remark')->hideFromIndex()->placeholder(' '),
             BelongsToMany::make(__('Announcers'), 'announcers', Announcer::class)->allowDuplicateRelations(),
             HasManyThrough::make(__('LTS Episodes'), 'ltsItems', LtsItem::class)->showOnDetail(),
         ];

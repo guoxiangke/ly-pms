@@ -91,7 +91,7 @@ class LyItem extends Resource
         $model = $this;
         $fileFeild = [
             File::make(__('Replace Audio'), 'mp3')
-                ->help('如音频错误，请在此上传新的mp3档')
+                ->help(__('If the audio is wrong, please upload a new mp3 file here'))
                 ->acceptedTypes('.mp3')
                 // ->storeOriginalName($model->alias .'v'.date('His'). '.mp3')
                 ->disableDownload()
@@ -117,7 +117,7 @@ class LyItem extends Resource
             InlineText::make(__('Episode Description'), 'description')->onlyOnIndex(),
             Text::make(__('Episode Duration'), 'playtime_string')->sortable()->exceptOnForms(),
             Text::make(__('Episode Description'), 'description')
-                ->rules('required', 'max:255')->hideFromIndex(),
+                ->rules('required', 'max:255')->hideFromIndex()->placeholder(''),
             Date::make(__('Start Publishing Date'), 'play_at'),
             
             // TODO: 不要跳转，不要统计, aws直链

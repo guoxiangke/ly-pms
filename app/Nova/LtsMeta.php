@@ -114,8 +114,7 @@ class LtsMeta extends Resource
                     $model->setMeta($attribute, $request->input($attribute));
                 })
                 ->withMeta(["value" => $model->getMeta($filed['field'])])
-                ->hideFromIndex()
-                ->placeholder($filed['placeholder']);
+                ->hideFromIndex();
         }
 
         $defaultFields = [
@@ -125,6 +124,7 @@ class LtsMeta extends Resource
                 ->rules('required', 'max:255'),
             Text::make(__('LTS Subject English Title'),'name_en')
                 ->sortable()
+                ->placeholder('')
                 ->hideFromIndex(),
             Text::make(__('LTS Subject Prefix'),'code')
                 ->sortable()
@@ -140,6 +140,7 @@ class LtsMeta extends Resource
                 ->hideFromIndex(),
                 
             Textarea::make(__('LTS Subject Description'),'description')
+                ->placeholder(' ')
                 ->hideFromIndex(),
             Date::make(__('Production Date'),'made_at')->sortable()->onlyOnForms(),
             Text::make(__('Production Date'), function () {
@@ -154,7 +155,7 @@ class LtsMeta extends Resource
                 ->hideFromIndex()
                 ->sortable(),
             Date::make(__('Premiere Date'),'begin_at')->hideFromIndex()->sortable(),
-            Textarea::make(__("Remark"), 'remark')->hideFromIndex(),
+            Textarea::make(__("Remark"), 'remark')->placeholder(' ')->hideFromIndex(),
             Tags::make(__('LTS Program Category'),'Tags')
                 ->type('lts')
                 ->single()

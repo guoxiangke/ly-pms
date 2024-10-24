@@ -1,4 +1,10 @@
 {
+  "Press the spacebar to view options and select": "按一下空格键，即可查看选项并选择",
+  "The option“粤语节目”is disabled, please do not select it!": "“粤语节目”此项已停用，请勿选择！",
+  "The last date that the playlist was shown": "播放列表最后一天出街的日期",
+  "The broadcast date of the last episode": "节目最后一集的日期",
+  "If the audio is wrong, please upload a new mp3 file here": "如音频错误，请在此上传新的mp3档",
+  "Choose an option": "请选择",
   "Show Content": "显示内容",
   "Hide Content": "隐藏内容",
   "View": "查看",

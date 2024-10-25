@@ -6,6 +6,7 @@ use Nuwave\Lighthouse\GraphQL;
 // use Nuwave\Lighthouse\Support\Contracts\CreatesContext;
 use Nuwave\Lighthouse\Execution\ContextFactory;
 use App\Models\LyMeta;
+use App\Models\LyItem;
 // use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
 /*
 |--------------------------------------------------------------------------
@@ -20,6 +21,19 @@ use App\Models\LyMeta;
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
+});
+
+Route::middleware('auth:sanctum')->post('/ly_items', function (Request $request) {
+    $user = $request->user();
+    if($user->id !== 1) return abort(403, 'Unauthorized action.');
+    $alias = $request->input('alias');
+    $lyItem = LyItem::whereAlias($alias)->firstOrFail();
+    if($request->input('description')){
+      $lyItem->update($request->only(['description', 'program_station_code']));
+    }else{
+      $lyItem->update($request->only(['program_station_code']));
+    }
+    return ['success'];
 });
 
 Route::get('/categories', function (Request $request) {

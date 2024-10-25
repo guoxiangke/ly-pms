@@ -25,7 +25,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::middleware('auth:sanctum')->post('/ly_items', function (Request $request) {
     $user = $request->user();
-    if($user->id !== 1) return abort(403, 'Unauthorized action.');
+    if($user->id !== 2) return abort(403, 'Unauthorized action.');
     $alias = $request->input('alias');
     $lyItem = LyItem::whereAlias($alias)->firstOrFail();
     if($request->input('description')){

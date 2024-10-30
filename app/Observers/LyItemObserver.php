@@ -14,13 +14,26 @@ class LyItemObserver
      */
     public function created(LyItem $lyItem): void
     {
-        if($lyItem->play_at) return ;// 514
-        $ymd = preg_replace('/\D+/', '', $lyItem->alias) . " 00:00:00";
-        $play_at = Carbon::createFromFormat('ymd H:i:s', $ymd);
-        $lyItem->update([
-            'play_at' => $play_at
-        ]);
-        Log::debug(__CLASS__,[$lyItem->alias]);
+        // 自动赋值或创建lyMeta并赋值
+        if(!$lyItem->ly_meta_id){
+            $code = preg_replace('/[^a-zA-Z]/', '', $lyItem->alias);
+            $lymeta = LyMeta::firstOrCreate(['code'=>$code],[
+                'code'=>$code,
+                'name'=>'CB_API',
+            ]);
+            $lyItem->update([
+                'ly_meta_id' => $lymeta->id
+            ]);
+            Log::info(__CLASS__,['created ly_meta by API']);
+        }
+
+        if(!$lyItem->play_at){
+            $ymd = preg_replace('/\D+/', '', $lyItem->alias) . " 00:00:00";
+            $play_at = Carbon::createFromFormat('ymd H:i:s', $ymd);
+            $lyItem->update([
+                'play_at' => $play_at
+            ]);
+        }
     }
 
     /**

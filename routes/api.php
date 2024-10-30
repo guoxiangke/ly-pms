@@ -27,7 +27,10 @@ Route::middleware('auth:sanctum')->post('/ly_items', function (Request $request)
     $user = $request->user();
     if($user->id !== 2) return abort(403, 'Unauthorized action.');
     $alias = $request->input('alias');
-    $lyItem = LyItem::whereAlias($alias)->firstOrFail();
+    $lyItem = LyItem::firstOrCreate(['alias'=>$alias], $request->only(['alias', 'description', 'program_station_code']));
+    
+    if($lyItem->wasRecentlyCreated) return ['success'];
+
     if($request->input('description')){
       $lyItem->update($request->only(['description', 'program_station_code']));
     }else{

@@ -118,15 +118,23 @@ class LyMeta extends Resource
 
         $meta_fields = config('pms.lyMeta.extraFields.text');
         $addMetaFields = [];
-        foreach ($meta_fields as $filed) {
-            $addMetaFields[] = Text::make(__($filed['field_desc']), $filed['field'])
+        if($this->id)
+            foreach ($meta_fields as $filed) {
+                $addMetaFields[] = Text::make(__($filed['field_desc']), $filed['field'])
+                    ->fillUsing(function ($request, $model, $attribute, $requestAttribute) {
+                        $model->setMeta($attribute, $request->input($attribute));
+                    })
+                    ->withMeta(["value" => $model->getMeta($filed['field'])])
+                    ->placeholder('')
+                    ->hideFromIndex();
+            }
+        if($this->id)
+            $addMetaFields[] = Trix::make(__('Program Full Description'), 'description_detail')
                 ->fillUsing(function ($request, $model, $attribute, $requestAttribute) {
                     $model->setMeta($attribute, $request->input($attribute));
                 })
-                ->withMeta(["value" => $model->getMeta($filed['field'])])
-                ->placeholder('')
+                ->withMeta(["value" => $model->getMeta('description_detail')])
                 ->hideFromIndex();
-        }
 
         $defaultFields = [
             ID::make()->sortable(),
@@ -161,12 +169,6 @@ class LyMeta extends Resource
                 ->placeholder(' ')
                 ->help(__('Press the spacebar to view options and select')),
             Text::make(__('Program Brief Description'),'description')->hideFromIndex(),
-            Trix::make(__('Program Full Description'), 'description_detail')
-                ->fillUsing(function ($request, $model, $attribute, $requestAttribute) {
-                    $model->setMeta($attribute, $request->input($attribute));
-                })
-                ->withMeta(["value" => $model->getMeta('description_detail')])
-                ->hideFromIndex(),
             Tags::make(__('Program Nature'))
                 ->type('program-nature')
                 ->single(),
@@ -182,11 +184,12 @@ class LyMeta extends Resource
                 ->help(__('Press the spacebar to view options and select')),
             Text::make(__('Weekly Broadcast Date'),'rrule_by_day')
                 ->rules('required', 'max:20')
+                ->help('MO,TU,WE,TH,FR,SA,SU')
                 ->hideFromIndex(),
             Date::make(__('Program Start Date'),'begin_at')->sortable()->hideFromIndex(),
             Date::make(__('Program End Date'),'end_at')->sortable()->help(__('')),
             Date::make(__('Playlist Unpublish Date'),'unpublished_at')->sortable()->help(__('The last date that the playlist was shown')),
-            Text::make(__('Publish Duration'),'counts_max_list')->sortable()->hideFromIndex(),
+            Text::make(__('Publish Duration'),'counts_max_list')->sortable()->hideFromIndex()->required()->default(30),
             Tags::make(__('Production Centre'))
                 ->type('production-centre')
                 ->hideFromIndex()

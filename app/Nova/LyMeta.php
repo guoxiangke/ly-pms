@@ -135,14 +135,14 @@ class LyMeta extends Resource
                 })
                 ->withMeta(["value" => $model->getMeta('description_detail')])
                 ->hideFromIndex();
-            
+
             $addMetaFields[] = Image::make(__('Cover'),'avatar')
                 ->disk('s3')
                 ->path('ly/image/cover')
                 ->storeAs(function (Request $request) {
                     return $this->code . '.jpg';
                 })
-                ->acceptedTypes(['.jpg','.png'])->onlyOnForms(),
+                ->acceptedTypes(['.jpg','.png'])->onlyOnForms();
         }
 
         $defaultFields = [

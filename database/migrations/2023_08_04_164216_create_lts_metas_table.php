@@ -25,7 +25,8 @@ return new class extends Migration
             $table->timestamp('begin_at')->nullable()->comment('上架时间');
             $table->timestamp('made_at')->nullable()->comment('制作日期');
             $table->foreignId('ly_meta_id')->index()->nullable()->comment('上次上架分类hp、dp');
-            $table->unsignedTinyInteger('first_play_id')->default(1);//0-99
+            $table->unsignedSmallInteger('first_play_id')->default(1);
+            // ALTER TABLE lts_metas MODIFY COLUMN first_play_id SMALLINT UNSIGNED DEFAULT 1;
             $table->text('remark')->nullable()->comment('备注');
             $table->softDeletes();
             $table->timestamps();

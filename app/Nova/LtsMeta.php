@@ -130,13 +130,10 @@ class LtsMeta extends Resource
             Text::make(__('LTS Subject Prefix'),'code')
                 ->sortable()
                 ->rules('required', 'max:12'),
-            // BelongsTo::make(__('LTS Program Title'), 'ly_meta', 'App\Nova\LyMeta')
-            //     ->relatableQueryUsing(function (NovaRequest $request, Builder $query) {
-            //         $query->where('code', 'like', '%lts%');
-            //     })->withoutTrashed(),
             Text::make(__('Number of Episode'),'count')->sortable()->required(),
             Number::make(__('Assign Start Episode Number'),'first_play_id')
-                ->min(0)->max(99)->step(1)
+                ->help(__('eg: vspsa546 which not from vspsa501'))
+                ->min(0)->max(65535)->step(1)
                 ->default(1)
                 ->hideFromIndex(),
                 

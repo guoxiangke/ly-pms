@@ -13,8 +13,8 @@ return [
      * array <string, string>
     */
     'supported-languages' => [
-        'en' => 'EN',
-        'zh' => 'CN',
+        'en' => '🇺🇸 English',
+        'zh' => '🇨🇳 中文',
     ],
 
 

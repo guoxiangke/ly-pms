@@ -13,19 +13,19 @@ return new class extends Migration
     {
         Schema::create('lts_metas', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->comment('课程名字');
-            $table->string('name_en')->comment('节目英文标题')->default('');
-            $table->string('description')->nullable()->comment('课程描述');
+            $table->string('name')->comment('良院科目标题');
+            $table->string('name_en')->comment('良院科目英文标题')->default('');
+            $table->string('description')->nullable()->comment('良院科目简介');
             $table->string('avatar')->nullable()->comment('课程封面，如果有的话，@see cover');;
-            $table->string('author')->nullable()->comment('授课老师、分割');
-            $table->string('code')->comment('课程代码')->unique();
-            $table->unsignedTinyInteger('count')->comment('课程数量');
+            $table->string('author')->nullable()->comment('主持，授课老师、分割');
+            $table->string('code')->comment('良院科目网络用代号前缀')->unique();
+            $table->unsignedTinyInteger('count')->comment('节数');
             $table->unsignedInteger('wx_index')->unique()->nullable()->comment('微信编号');
 
-            $table->timestamp('begin_at')->nullable()->comment('上架时间');
+            $table->timestamp('begin_at')->nullable()->comment('首播日期');
             $table->timestamp('made_at')->nullable()->comment('制作日期');
             $table->foreignId('ly_meta_id')->index()->nullable()->comment('上次上架分类hp、dp');
-            $table->unsignedSmallInteger('first_play_id')->default(1);
+            $table->unsignedSmallInteger('first_play_id')->comment('设定开播集次')->default(1);
             // ALTER TABLE lts_metas MODIFY COLUMN first_play_id SMALLINT UNSIGNED DEFAULT 1;
             $table->text('remark')->nullable()->comment('备注');
             $table->softDeletes();

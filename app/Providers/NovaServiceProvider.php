@@ -28,6 +28,7 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
             'year' => date('Y')]);
         });
         Nova::initialPath('/resources/lts-items');
+        Nova::withoutGlobalSearch();
     }
 
     /**
@@ -69,7 +70,7 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
     protected function dashboards()
     {
         return [
-            new \App\Nova\Dashboards\Main,
+            // new \App\Nova\Dashboards\Main,
         ];
     }
 

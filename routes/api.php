@@ -38,8 +38,9 @@ Route::middleware('auth:sanctum')->post('/ly_items', function (Request $request)
     if($lyItem->wasRecentlyCreated) return ['success'];
 
     if($request->input('description')){
-      $lyItem->update($request->only(['description', 'program_station_code']));
-    }else{
+      $lyItem->update($request->only(['description']));
+    }
+    if($request->input('program_station_code')){
       $lyItem->update($request->only(['program_station_code']));
     }
     return ['success'];

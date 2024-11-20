@@ -149,7 +149,7 @@ class LtsMeta extends Resource
                 ->type('production-centre')
                 ->hideFromIndex()
                 ->single(),
-            Text::make(__('Announcer'),'author')
+            Text::make(__('Announcer'),'announcer')
                 ->hideFromIndex()
                 ->sortable(),
             Date::make(__('Premiere Date'),'begin_at')->hideFromIndex()->sortable(),

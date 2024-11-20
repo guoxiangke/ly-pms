@@ -108,7 +108,7 @@ type LtsMeta {
   id: ID!
   name: String!
   description: String
-  author: String
+  announcer: String
   code: String!
   count: Int!
   index: Int!

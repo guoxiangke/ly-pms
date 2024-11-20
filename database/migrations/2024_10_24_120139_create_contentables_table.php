@@ -11,16 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('contents', function (Blueprint $table) {
+        Schema::create('contentables', function (Blueprint $table) {
             $table->id();
             // Generates contentable_id and contentable_type
-            // $table->morphs('contentable'); // 多态关联字段
-            $table->string('title')->index();
-            $table->text('summary')->nullable();//by AI?
-            $table->longText('body')->nullable();
-            $table->foreignId('user_id');
-            $table->softDeletes();
-            $table->timestamps();
+            $table->morphs('contentable'); // 多态关联字段
+            $table->foreignId('content_id');
         });
     }
 
@@ -29,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('contents');
+        Schema::dropIfExists('contentables');
     }
 };

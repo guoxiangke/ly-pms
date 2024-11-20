@@ -20,6 +20,9 @@ use Deligoez\LaravelModelHashId\Traits\HasHashId;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
+use App\Traits\Contentable;
+use App\Traits\Cliptable;
+
 class LyItem extends Model implements HasMedia
 {
     use HasHashId;
@@ -28,6 +31,9 @@ class LyItem extends Model implements HasMedia
     use SoftDeletes;
     // use Searchable;
     // use LogsActivity;
+    
+    use Contentable;
+    use Cliptable;
 
     protected $guarded = ['id', 'created_at', 'updated_at', 'deleted_at'];
     protected $dates = ['created_at', 'updated_at', 'deleted_at', 'play_at'];

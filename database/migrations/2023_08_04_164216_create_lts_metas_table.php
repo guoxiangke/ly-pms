@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('description')->nullable()->comment('良院科目简介');
             $table->string('avatar')->nullable()->comment('课程封面，如果有的话，@see cover');;
             $table->string('author')->nullable()->comment('主持，授课老师、分割');
+            // ALTER TABLE `lts_metas` CHANGE `author` `announcer` VARCHAR(255);
             $table->string('code')->comment('良院科目网络用代号前缀')->unique();
             $table->unsignedTinyInteger('count')->comment('节数');
             $table->unsignedInteger('wx_index')->unique()->nullable()->comment('微信编号');

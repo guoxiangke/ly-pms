@@ -7,6 +7,7 @@ use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Fields\BelongsTo;
+use Laravel\Nova\Fields\MorphMany;
 use Laravel\Nova\Fields\Date;
 use Illuminate\Support\Str;
 use Laravel\Nova\Fields\Audio;
@@ -101,6 +102,7 @@ class LtsItem extends Resource
                 })->onlyOnIndex(),
             Date::make(__('Start Publishing Date'),'play_at')->sortable(),
             Audio::make('Mp3', fn() => $this->novaMp3Path)->disableDownload(),
+            MorphMany::make('Contents'),
         ];
     }
 

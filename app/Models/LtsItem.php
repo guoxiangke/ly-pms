@@ -6,15 +6,21 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use App;
 use Laravel\Scout\Searchable;
 use Deligoez\LaravelModelHashId\Traits\HasHashId;
+
+use App\Traits\Contentable;
+use App\Traits\Cliptable;
 
 class LtsItem extends Model
 {
     use HasHashId;
     use HasFactory;
     use SoftDeletes;
+
+    use Contentable;
+    use Cliptable;
+
     protected $with = ['ltsMeta'];
     // use Searchable;
     protected $guarded = ['id', 'created_at', 'updated_at', 'deleted_at'];

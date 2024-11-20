@@ -7,7 +7,8 @@ use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Laravel\Nova\Fields\Text;
 use Outl1ne\NovaInlineTextField\InlineText;
-use Laravel\Nova\Fields\BelongsTo;
+    use Laravel\Nova\Fields\BelongsTo;
+    use Laravel\Nova\Fields\MorphMany;
 use Laravel\Nova\Fields\Date;
 use Illuminate\Support\Str;
 use Laravel\Nova\Fields\Boolean;
@@ -116,7 +117,7 @@ class LyItem extends Resource
                 ->rules('required', 'max:12')->readonly(),
             Text::make(__('Program Station Code'), 'program_station_code')
                 ->sortable()
-                ->rules('required', 'max:12'),
+                ->rules('max:12'),
             BelongsTo::make(__('Program Title'), 'ly_meta', 'App\Nova\LyMeta')->onlyOnForms()->readonly(),
             InlineText::make(__('Episode Description'), 'description')->onlyOnIndex(),
             Text::make(__('Episode Duration'), 'playtime_string')->sortable()->exceptOnForms(),
@@ -127,6 +128,7 @@ class LyItem extends Resource
             // TODO: 不要跳转，不要统计, aws直链
             Audio::make('Mp3', fn() => $this->novaMp3Path)->disableDownload()->onlyOnDetail(),
             Text::make('', fn() => '<a target="_blank" href="'.$this->path.'" dusk="ComputedField-download-link" tabindex="0" class="cursor-pointer text-gray-500 inline-flex items-center"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="16" height="16" class="inline-block mr-2" role="presentation" view-box="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg><span class="class mt-1">'.__('Download').'</span></a>')->asHtml()->onlyOnDetail(),
+            MorphMany::make('Contents'),
         ]);
 
     }

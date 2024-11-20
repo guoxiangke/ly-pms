@@ -21,7 +21,8 @@ return new class extends Migration
             $table->timestamp('begin_at')->nullable()->comment('节目启播日期');
             $table->timestamp('end_at')->nullable()->comment('节目停播日期');
             $table->timestamp('unpublished_at')->nullable()->comment('播放列表下线日期');
-            $table->unsignedTinyInteger('counts_max_list')->default(30)->comment('每集节目显示天数');//max_show_counts 播放列表最多显示天数，Publish duration：31-255
+            $table->unsignedSmallInteger('counts_max_list')->default(30)->comment('每集节目显示天数');//max_show_counts 播放列表最多显示天数，Publish duration：31-255
+            // ALTER TABLE `ly_metas` MODIFY `counts_max_list` SMALLINT UNSIGNED DEFAULT 30;
             $table->foreignId('make_id')->comment('制作中心')->nullable();
             $table->string('avatar')->comment('节目图')->nullable();
             $table->text('remark')->nullable()->comment('备注');

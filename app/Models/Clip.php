@@ -3,24 +3,18 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Model;
+use App;
 use Laravel\Scout\Searchable;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\MediaLibrary\HasMedia;
-use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Content extends Model implements HasMedia
+class Clip extends Model
 {
     use HasFactory;
     use SoftDeletes;
-    protected $guarded = ['id', 'created_at', 'updated_at', 'deleted_at'];
     // if(App::isProduction()) use Searchable;
-
-    use InteractsWithMedia;
-    // hasManyHymns
-    // hasMnayScriptures From Bible
 
     public function lyItems(): MorphToMany
     {

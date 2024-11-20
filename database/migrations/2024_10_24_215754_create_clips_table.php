@@ -11,12 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('marks', function (Blueprint $table) {
+        Schema::create('clips', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id');
-            $table->morphs('markable');
-            $table->integer('begin_at')->default(0)->comment('单位s');// 00:00=》0
-            $table->integer('length')->default(0)->comment('单位s');
+            // 00:00=>0
+            // 01:00=>60
+            $table->unsignedInteger('begin_at')->default(0)->comment('单位s');
+            $table->unsignedInteger('length')->default(0)->comment('单位s');
+            $table->text('title')->nullable()->comment('不可为空');
+            $table->text('ars_summary')->nullable();
+            $table->foreignId('user_id');
             $table->softDeletes();
             $table->timestamps();
         });

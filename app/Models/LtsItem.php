@@ -11,6 +11,7 @@ use Deligoez\LaravelModelHashId\Traits\HasHashId;
 
 use App\Traits\Contentable;
 use App\Traits\Cliptable;
+use App\Traits\Attachmentable;
 
 class LtsItem extends Model
 {
@@ -20,6 +21,7 @@ class LtsItem extends Model
 
     use Contentable;
     use Cliptable;
+    use Attachmentable;
 
     protected $with = ['ltsMeta'];
     // use Searchable;

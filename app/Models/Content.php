@@ -4,33 +4,36 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Database\Eloquent\Relations\morphedByMany;
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Scout\Searchable;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\MediaLibrary\HasMedia;
-use Spatie\MediaLibrary\InteractsWithMedia;
+use App\Traits\Attachmentable;
 
-class Content extends Model implements HasMedia
+class Content extends Model
 {
     use HasFactory;
     use SoftDeletes;
+    use Attachmentable;//attachments()
+
     protected $guarded = ['id', 'created_at', 'updated_at', 'deleted_at'];
     // if(App::isProduction()) use Searchable;
 
-    use InteractsWithMedia;
-    // hasManyHymns
-    // hasMnayScriptures From Bible
-
-    public function lyItems(): MorphToMany
+    public function lyItems()
     {
         return $this->morphedByMany(LyItem::class, 'contentable');
     }
 
-    public function ltsItems(): MorphToMany
+    public function ltsItems()
     {
         return $this->morphedByMany(LtsItem::class, 'contentable');
     }
+
+    // public function attachments()
+    // {
+    //     return $this->morphedByMany(Attachment::class, 'contentable');
+    // }
+
 
     public function user(): BelongsTo
     {

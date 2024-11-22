@@ -11,14 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('clips', function (Blueprint $table) {
+        Schema::create('attachments', function (Blueprint $table) {
             $table->id();
-            // 00:00=>0
-            // 01:00=>60
-            $table->unsignedInteger('begin_at')->default(0)->comment('单位s');
-            $table->unsignedInteger('length')->default(0)->comment('单位s');
-            $table->text('title')->nullable()->comment('不可为空');
-            $table->text('ars_summary')->nullable();
+            $table->string('name');
+            $table->string('path');
+            $table->string('description')->nullable();
+            $table->string('mime_type')->nullable();
             $table->foreignId('user_id');
             $table->softDeletes();
             $table->timestamps();
@@ -30,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('clips');
+        Schema::dropIfExists('attachments');
     }
 };

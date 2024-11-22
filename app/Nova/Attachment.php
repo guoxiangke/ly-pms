@@ -5,31 +5,28 @@ namespace App\Nova;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Http\Requests\NovaRequest;
-use Laravel\Nova\Fields\Text;
-use Laravel\Nova\Fields\File;
-use Laravel\Nova\Fields\Textarea;
-use Laravel\Nova\Fields\Markdown;
-use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\MorphToMany;
 use Laravel\Nova\Fields\MorphMany;
-use Illuminate\Support\Facades\Storage;
+use Laravel\Nova\Fields\Text;
+use Laravel\Nova\Fields\BelongsTo;
+use Laravel\Nova\Fields\File;
 
-class Content extends Resource
+class Attachment extends Resource
 {
     public static $displayInNavigation = false;
     /**
      * The model the resource corresponds to.
      *
-     * @var class-string<\App\Models\Content>
+     * @var class-string<\App\Models\Attachment>
      */
-    public static $model = \App\Models\Content::class;
+    public static $model = \App\Models\Attachment::class;
 
     /**
      * The single value that should be used to represent the resource when being displayed.
      *
      * @var string
      */
-    public static $title = 'id';
+    public static $title = 'name';
 
     /**
      * The columns that should be searched.
@@ -50,18 +47,29 @@ class Content extends Resource
     {
         return [
             ID::make()->sortable(),
-            Text::make('title')->required(),
-            Textarea::make('summary')->hideFromIndex()->alwaysShow(),
-            Markdown::make('body')->hideFromIndex(),
+            Text::make('name')->onlyOnIndex(),
+            File::make(__('Attachment'), 'path')
+                ->acceptedTypes(['.pdf','.doc','.docx'])
+                ->store(function (Request $request, $model) {
+                    return [
+                        'name' => $request->path->getClientOriginalName(),
+                        'path' => $request->path->store('ly/attachment', 's3'),
+                        'mime_type' => $request->path->getMimeType(),
+                    ];
+                }),
+            Text::make('description'),
             BelongsTo::make('user')->default(\Auth::user()->id)->withoutTrashed()->withMeta(['extraAttributes' => ['readonly' => true]]),
+
             MorphToMany::make(__('LY Episodes'), 'lyItems', LyItem::class)->hideFromDetail(fn () => $this->lyItems->isEmpty()),
             MorphToMany::make(__('LTS Episodes'), 'ltsItems', LtsItem::class)->hideFromDetail(fn () => $this->ltsItems->isEmpty()),
-            // MorphMany::make('Attachments'),
-            // MorphMany::make(__('Attachment'), 'attachments', Attachment::class),
+            MorphToMany::make(__('Contents'), 'content', Content::class)->hideFromDetail(fn () => $this->content->isEmpty()),
+
+            // MorphMany::make(__('Contents'), 'contents', Content::class),
+            
+            // MorphToMany::make('Content'),
+            // MorphMany::make('Content'),//$attachment->contents()->attach($content->id);
         ];
     }
-    // https://github.com/spatie/laravel-medialibrary/issues/3729
-    // https://github.com/laravel/nova-issues/issues/2334#issuecomment-709422756
 
     /**
      * Get the cards available for the request.

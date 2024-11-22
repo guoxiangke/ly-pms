@@ -103,6 +103,7 @@ class LtsItem extends Resource
             Date::make(__('Start Publishing Date'),'play_at')->sortable(),
             Audio::make('Mp3', fn() => $this->novaMp3Path)->disableDownload(),
             MorphMany::make('Contents'),
+            // MorphMany::make('Attachments'),
         ];
     }
 

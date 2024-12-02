@@ -126,7 +126,7 @@ class LtsMeta extends Resource
                 ->sortable()
                 ->placeholder('')
                 ->hideFromIndex()
-                ->rules('required', 'max:12'),
+                ->rules('required', 'max:255'),
             Text::make(__('LTS Subject Prefix'),'code')
                 ->sortable()
                 ->rules('required', 'max:12'),

@@ -7,7 +7,6 @@ use Nuwave\Lighthouse\GraphQL;
 use Nuwave\Lighthouse\Execution\ContextFactory;
 use App\Models\LyMeta;
 use App\Models\LyItem;
-use Illuminate\Support\Arr;
 // use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
 /*
 |--------------------------------------------------------------------------
@@ -133,7 +132,7 @@ Route::get('/today', function (Request $request) {
   $createsContext = app(ContextFactory::class);
   $context = $createsContext->generate($request);
   $result = $graphQL->executeQueryString($query, $context);
-  return Arr::shuffle($result['data']['ly_items']);
+  return collect($result['data']['ly_items'])->shuffle()->all();
 });
 
 // ltsnp+cc

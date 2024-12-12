@@ -7,6 +7,7 @@ use Nuwave\Lighthouse\GraphQL;
 use Nuwave\Lighthouse\Execution\ContextFactory;
 use App\Models\LyMeta;
 use App\Models\LyItem;
+use Illuminate\Support\Arr;
 // use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
 /*
 |--------------------------------------------------------------------------
@@ -70,7 +71,10 @@ Route::get('/categories', function (Request $request) {
     $createsContext = app(ContextFactory::class);
     $context = $createsContext->generate($request);
     $result = $graphQL->executeQueryString($query, $context);
-    return ['data' => $result['data']['data']];
+    // pop last one: 粤语节目
+    $data = $result['data']['data'];
+    array_pop($data);
+    return ['data' => $data];
 });
 Route::get('/programs', function (Request $request) {
     $query = <<<GQL
@@ -129,7 +133,7 @@ Route::get('/today', function (Request $request) {
   $createsContext = app(ContextFactory::class);
   $context = $createsContext->generate($request);
   $result = $graphQL->executeQueryString($query, $context);
-  return $result['data']['ly_items'];
+  return Arr::shuffle($result['data']['ly_items']);
 });
 
 // ltsnp+cc

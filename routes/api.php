@@ -132,7 +132,8 @@ Route::get('/today', function (Request $request) {
   $createsContext = app(ContextFactory::class);
   $context = $createsContext->generate($request);
   $result = $graphQL->executeQueryString($query, $context);
-  return collect($result['data']['ly_items'])->shuffle()->all();
+  $data = $result['data']['ly_items']['data'];
+  return ['data' => collect($data)->shuffle()];
 });
 
 // ltsnp+cc

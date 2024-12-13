@@ -14,8 +14,8 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\App;
 use Laravel\Nova\Nova;
 use App\Livewire\LyPulse;
-use App\Livewire\CustomerSearch;
-Route::get('/search', CustomerSearch::class)->name('search');
+// use App\Livewire\CustomerSearch;
+// Route::get('/search', CustomerSearch::class)->name('search');
 /*
 |--------------------------------------------------------------------------
 | Web Routes

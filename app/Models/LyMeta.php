@@ -127,11 +127,13 @@ class LyMeta extends Model
 
     }
 
-    public function ltsItems()
+    // ltsScopeItems
+    public function ltsItems($order = "DESC")
     {
         return $this
             ->hasManyThrough(LtsItem::class, LtsMeta::class)
-            ->withoutGlobalScopes();
+            ->whereBetween('play_at', [now()->subDays($this->max_list_count), now()])
+            ->orderBy('play_at', $order);
     }
 
     public function ltsMetas()

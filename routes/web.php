@@ -14,7 +14,8 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\App;
 use Laravel\Nova\Nova;
 use App\Livewire\LyPulse;
-
+use App\Livewire\CustomerSearch;
+Route::get('/search', CustomerSearch::class)->name('search');
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -138,11 +139,10 @@ Route::get('/program/{code}', function (Request $request, $code) {
         // 可以预先设置下线时间！
         if($lyMeta->unpublished_at && $lyMeta->unpublished_at < now()) abort(403);
         if($lyMeta->isLts){
-            $playlist = $lyMeta->lts_items($order);
+            $playlist = $lyMeta->ltsItems($order)->get();
         }else{
             $playlist = $lyMeta->ly_items($order)->get();
         }
-        // dd($lyMeta->toArray(), $playlist);
     }else{
         $order = $request->query('order')?'DESC':'ASC';
         if($order == 'DESC'){

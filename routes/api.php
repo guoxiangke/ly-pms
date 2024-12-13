@@ -132,8 +132,34 @@ Route::get('/today', function (Request $request) {
   $createsContext = app(ContextFactory::class);
   $context = $createsContext->generate($request);
   $result = $graphQL->executeQueryString($query, $context);
-  $data = $result['data']['ly_items']['data'];
-  return ['data' => collect($data)->shuffle()];
+  $data1 = $result['data']['ly_items']['data'];
+
+  $query = <<<GQL
+    {
+      lts_items(play_at: "$now 00:00:00") {
+        data {
+          id
+          description
+          alias
+          play_at
+          path: novaMp3Path
+          link: path
+          program: ly_meta {
+            id
+            name
+            code
+          }
+        }
+      }
+    }
+  GQL;
+  $graphQL = app(GraphQL::class);
+  $createsContext = app(ContextFactory::class);
+  $context = $createsContext->generate($request);
+  $result = $graphQL->executeQueryString($query, $context);
+  $data2 = $result['data']['lts_items']['data'];
+
+  return ['data' => collect(array_merge($data1,$data2))->shuffle()];
 });
 
 // ltsnp+cc

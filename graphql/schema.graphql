@@ -28,6 +28,7 @@ type Query {
     lts_metas: [LtsMeta!]! @all
     lts_meta(id: Int! @eq): LtsMeta @find
     lts_item(id: Int! @eq): LtsItem @find
+    lts_items(play_at: String! @eq): [LtsItem!]! @paginate(defaultCount: 100)
 
     tags: [Tag!]! @all(model: "App\\Models\\Tag")
     tags_by_type(withType: String! @scope): [Tag!] @all(model: "App\\Models\\Tag")
@@ -128,7 +129,7 @@ type LtsItem {
   description: String
   play_at: String
   lts_meta: LtsMeta! @belongsTo
-  ly_meta: LyMeta! @belongsTo
+  ly_meta: LyMeta @hasOneThrough(relation: "lyMeta")
 
   mp3: String
   path: String

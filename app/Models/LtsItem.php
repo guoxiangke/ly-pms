@@ -36,15 +36,28 @@ class LtsItem extends Model
     // public function getPlayAtAttribute($value){
     //     if(!$value) return now();
     // }
-    public function lts_meta(): BelongsTo
-    {
-        return $this->BelongsTo(LtsMeta::class)->withTrashed();
-    }
+    
+    // public function lts_meta(): BelongsTo
+    // {
+    //     return $this->BelongsTo(LtsMeta::class)->withTrashed();
+    // }
 
     // 定义 belongsTo 关系到 LtsMeta
     public function ltsMeta()
     {
         return $this->belongsTo(LtsMeta::class)->withTrashed();
+    }
+
+    public function lyMeta()
+    {
+        return $this->hasOneThrough(
+            LyMeta::class,    // 最终关联的目标模型
+            LtsMeta::class,   // 中间模型
+            'id',             // 中间模型的外键（LtsMeta 表的主键）
+            'id',             // 目标模型的外键（LyMeta 表的主键）
+            'lts_meta_id',    // 当前模型在中间模型中的外键（LtsItem 表中的外键）
+            'ly_meta_id'      // 中间模型到目标模型的外键（LtsMeta 表中的外键）
+        );
     }
 
     public function getPathAttribute(){

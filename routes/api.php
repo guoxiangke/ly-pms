@@ -166,7 +166,7 @@ Route::get('/today', function (Request $request) {
 Route::get('/program/{lyMeta:code}', function (Request $request, LyMeta $lyMeta) {
     $code = $lyMeta->code;
     $hasManyType = $lyMeta->isLts?"ltsItems":"ly_items";
-    $programType = $lyMeta->isLts?"lts_meta":"ly_meta";
+    $programType = $lyMeta->isLts?"ly_meta":"ly_meta";
 
     $query = <<<GQL
         {

@@ -73,7 +73,7 @@ class LtsItem extends Resource
      */
     public static function indexQuery(NovaRequest $request, $query)
     {
-        $query = $query->with('lts_meta');
+        $query = $query->with('ltsMeta');
 
         return $query;
     }
@@ -93,7 +93,7 @@ class LtsItem extends Resource
                 ->sortable()
                 ->help($this->ltsMeta?$this->episodeTitle:"")
                 ->rules('required', 'max:12')->readonly(),
-            // BelongsTo::make(__('Episode Title'), 'lts_meta', 'App\Nova\LtsMeta')->searchable(),
+            // BelongsTo::make(__('Episode Title'), 'ltsMeta', 'App\Nova\LtsMeta')->searchable(),
             Text::make(__('Episode Description'),'description')
                 ->hideFromIndex(),
             Text::make(__('Episode Description'),'description')

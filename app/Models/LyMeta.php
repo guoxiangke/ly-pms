@@ -123,7 +123,7 @@ class LyMeta extends Model
     // if($this->isLts)
     public function lts_items($order = "DESC")
     {
-        return LtsItem::with('lts_meta')->whereBetween('play_at', [now()->subDays($this->max_list_count), now()])->orderBy('play_at', $order)->get()->filter(fn($ltsItem) => $ltsItem->lts_meta->ly_meta_id == $this->id);
+        return LtsItem::with('ltsMeta')->whereBetween('play_at', [now()->subDays($this->max_list_count), now()])->orderBy('play_at', $order)->get()->filter(fn($ltsItem) => $ltsItem->ltsMeta->ly_meta_id == $this->id);
 
     }
 

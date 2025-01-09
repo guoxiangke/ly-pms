@@ -37,11 +37,6 @@ class LtsItem extends Model
     //     if(!$value) return now();
     // }
     
-    // public function lts_meta(): BelongsTo
-    // {
-    //     return $this->BelongsTo(LtsMeta::class)->withTrashed();
-    // }
-
     // 定义 belongsTo 关系到 LtsMeta
     public function ltsMeta()
     {

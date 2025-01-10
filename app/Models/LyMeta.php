@@ -136,6 +136,13 @@ class LyMeta extends Model
             ->orderBy('play_at', $order);
     }
 
+    public function lts_items_with_future($order = "DESC")
+    {
+        return $this
+            ->hasManyThrough(LtsItem::class, LtsMeta::class)
+            ->orderBy('play_at', $order);
+    }
+
     public function ltsMetas()
     {
         return $this->hasMany(LtsMeta::class);

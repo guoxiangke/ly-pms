@@ -202,7 +202,7 @@ class LyMeta extends Resource
                 ->single(),
             Textarea::make(__('Remark'),'remark')->hideFromIndex()->placeholder(' '),
             BelongsToMany::make(__('Announcers'), 'announcers', Announcer::class)->allowDuplicateRelations(),
-            HasManyThrough::make(__('LTS Episodes'), 'ltsItems', LtsItem::class)->showOnDetail(),
+            HasManyThrough::make(__('LTS Episodes'), 'lts_items_with_future', LtsItem::class)->showOnDetail(),
         ];
 
         // 动态添加LTS的Meta

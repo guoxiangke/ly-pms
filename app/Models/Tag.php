@@ -14,6 +14,9 @@ class Tag extends SpatieTag
     protected $appends = ['ly_metas'];
     
     public function getLyMetasAttribute(){
-        return LyMeta::withAnyTags($this)->get();
+        return LyMeta::withAnyTags($this)
+            ->active()
+            ->isActive()
+            ->get();
     }
 }

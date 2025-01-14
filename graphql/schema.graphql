@@ -102,7 +102,7 @@ type Tag @model(class: "App\\Models\\Tag") {
   name: String!
   type: String
   order_column: Int
-  ly_metas: [LyMeta!]
+  ly_metas: [LyMeta!] @all(scopes: ["isActive","active"])
 }
 
 type LtsMeta {

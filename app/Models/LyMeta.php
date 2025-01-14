@@ -76,6 +76,13 @@ class LyMeta extends Model
     }
 
 
+    public function scopeIsActive($query)
+    {
+        return $query->whereNull('begin_at')
+                ->Orwhere('begin_at', '<=', now());
+    }
+
+
     public function scopeNotLts($query)
     {
         return $query->whereNot('code','like','lts%');

@@ -15,8 +15,7 @@ class Tag extends SpatieTag
     
     public function getLyMetasAttribute(){
         return LyMeta::withAnyTags($this)
-            ->active()
-            ->isActive()
+            ->active() # 理论上不应该在这里加限制条件
             ->get();
     }
 }

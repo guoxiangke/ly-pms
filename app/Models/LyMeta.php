@@ -71,17 +71,14 @@ class LyMeta extends Model
 
     public function scopeActive($query)
     {
-        return $query->whereNull('end_at')
-                ->Orwhere('end_at', '>', now());
+        return $query->where(function ($query) {
+            $query->whereNull('end_at')
+                  ->orWhere('end_at', '>', now());
+        })->where(function ($query) {
+            $query->whereNull('begin_at')
+                  ->orWhere('begin_at', '<=', now());
+        });
     }
-
-
-    public function scopeIsActive($query)
-    {
-        return $query->whereNull('begin_at')
-                ->Orwhere('begin_at', '<=', now());
-    }
-
 
     public function scopeNotLts($query)
     {

@@ -80,10 +80,6 @@ Route::get('/storage/ly/audio/{year}/{code}/{day}.mp3', function (Request $reque
     $target = basename($url); //cc201221.mp3
 
     $tags = [];
-    // TODO 一些直播的節目，直接使用官網的連結
-    // if(in_array($tmpCode, ['cc','dy','gf'])){
-    //     $domain =  'https://lpyy729.net';
-    // }
     $tags['metric'] = 'lyOpen';
     $tags['host'] = $domain;
     $tags['keyword'] = $code;

@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Storage;
 
 class Content extends Resource
 {
-    public static $displayInNavigation = false;
+    public static $displayInNavigation = true;
     /**
      * The model the resource corresponds to.
      *

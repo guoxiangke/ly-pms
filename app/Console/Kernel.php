@@ -18,8 +18,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('media-library:delete-old-temporary-uploads')->daily();
         // $schedule->command('app:sync-open')->timezone('Asia/Shanghai')->cron('0 5 * * *');
         $schedule->command("app:sync-content-mw")->cron("15 0 * * *");
+        $schedule->command("app:sync-content-cmw")->cron("20 0 * * *");
         // $schedule->command("app:sync-content-it")->cron("17 0 * * *");
-        // $schedule->command("app:sync-content-cmw")->cron("20 0 * * *");
     }
 
     /**

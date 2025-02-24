@@ -53,7 +53,7 @@ class Content extends Resource
             Text::make('title')->required(),
             Textarea::make('summary')->hideFromIndex()->alwaysShow(),
             Markdown::make('body')->hideFromIndex(),
-            BelongsTo::make('user')->default(\Auth::user()->id)->withoutTrashed()->withMeta(['extraAttributes' => ['readonly' => true]]),
+            // BelongsTo::make('user')->default(\Auth::user()->id)->withoutTrashed()->withMeta(['extraAttributes' => ['readonly' => true]]),
             MorphToMany::make(__('LY Episodes'), 'lyItems', LyItem::class)->hideFromDetail(fn () => $this->lyItems->isEmpty()),
             MorphToMany::make(__('LTS Episodes'), 'ltsItems', LtsItem::class)->hideFromDetail(fn () => $this->ltsItems->isEmpty()),
             // MorphMany::make('Attachments'),

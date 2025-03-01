@@ -35,7 +35,7 @@
         "outl1ne/nova-inline-text-field": "^2.0",
         "plank/laravel-metable": "^5.4",
         "spatie/laravel-activitylog": "^4.7",
-        "spatie/laravel-medialibrary-pro": "dev-main",
+        "spatie/laravel-medialibrary-pro": "dev-production",
         "spatie/laravel-permission": "^5.10",
         "spatie/nova-tags-field": "^4.0",
         "typesense/typesense-php": "^4.9"

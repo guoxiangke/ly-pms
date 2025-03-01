@@ -203,15 +203,6 @@
                 </div>
 
                 <div class="flex shrink-0 items-center gap-x-4">
-                    <div data-url="{{$lyItem->path}}" 
-                        title="下载音频 ({{$lyItem->filesize?:'6.9M'}})"
-                        class="preventEvents downloads cursor-pointer text-gray-400  hover:text-gray-600">
-                      <svg 
-                        class="h-5 w-5 flex-none " viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                          <title></title>
-                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M 15 4 L 15 20.5625 L 9.71875 15.28125 L 8.28125 16.71875 L 15.28125 23.71875 L 16 24.40625 L 16.71875 23.71875 L 23.71875 16.71875 L 22.28125 15.28125 L 17 20.5625 L 17 4 Z M 7 26 L 7 28 L 25 28 L 25 26 Z"/></svg>
-                      </svg>
-                    </div>
                     @if(Route::current()->getName() != "share.lyItem")
                     <div class="group relative" title="分享音频">
 
@@ -262,37 +253,6 @@
 
         
 
-        // click to download
-        links.forEach(link => {
-          link.addEventListener('click', function (e) {
-            e.preventDefault();
-            const url = e.target.getAttribute('data-url');
-            const filename = url.split('/').pop();
-            e.currentTarget.className += " img-rotate";
-            fetchDown(url, filename, e);
-          });
-        });
-
-        // download function
-        function fetchDown (url, saveas, e) {
-          e.currentTarget.className += " text-gray-600";
-          fetch(url)
-          .then(res => {
-            if (res.status != 200) { throw new Error("Bad server response"); }
-            return res.blob();
-          })
-          .then(data => {
-            var url = window.URL.createObjectURL(data),
-                anchor = document.createElement("a");
-            anchor.href = url;
-            anchor.download = saveas;
-            anchor.click();
-            window.URL.revokeObjectURL(url);
-            e.target.classList.toggle('img-rotate');
-            e.target.classList.toggle('text-gray-600');
-          })
-          .catch(err => console.error(err));
-        }
 
         function copyToClipboard(text) {
           if (window.clipboardData && window.clipboardData.setData) {

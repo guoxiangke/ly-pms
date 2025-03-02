@@ -34,9 +34,10 @@ class SyncContentCmw extends Command
         $lyItems = LyItem::where('alias', 'like', 'cmw%')->orderBy('play_at', 'asc')->get();
         $count = 0;
         foreach ($lyItems as $lyItem) {
-            if($lyItem->contents()->count()) continue;//已经有内容的跳过
             $alias = 'mw'. $fromDate->copy()->addDays($count++)->format('ymd');
-            Log::info( $alias . ' => ' . $lyItem->alias);
+            if($lyItem->isFuture) break;//只同步到今天的
+            if($lyItem->contents()->count()) continue;//已经有内容的跳过
+            Log::info('SyncContentCmw',[$alias, $lyItem->alias]);
             $mwLyItem = LyItem::where('alias', $alias)->first();
             $content = $mwLyItem->contents()->first();
             if($content) $lyItem->contents()->attach($content->id);

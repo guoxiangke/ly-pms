@@ -29,7 +29,7 @@ class Content extends Resource
      *
      * @var string
      */
-    public static $title = 'id';
+    public static $title = 'title';
 
     /**
      * The columns that should be searched.
@@ -38,6 +38,7 @@ class Content extends Resource
      */
     public static $search = [
         'id',
+        'title',
     ];
 
     /**

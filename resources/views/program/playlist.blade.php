@@ -220,6 +220,9 @@
           </li>
           @endforeach
         </ul>
+        @foreach($lyItem->contents as $content)
+        <div class="mt-4  bg-gray-50 space-y-6 leading-loose max-w-3xl mx-auto shadow-md rounded-lg p-6 text-gray-800 text-lg leading-relaxed font-serif space-y-4 text-justify">{!! Illuminate\Mail\Markdown::parse($content->body) !!}</div>
+        @endforeach
       </div>
     </div>
     @endif

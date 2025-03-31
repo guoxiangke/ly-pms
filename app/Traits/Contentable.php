@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
 trait Contentable
 {
     // 定义多态的正向多对多关联 如：Tag::class
-    public function contents(): MorphToMany
+    public function contents()
     {
         return $this->morphToMany(Content::class, 'contentable');
     }

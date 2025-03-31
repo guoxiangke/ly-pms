@@ -69,15 +69,22 @@ class LyMeta extends Model
     }
 
 
+    // public function scopeActive($query)
+    // {
+    //     return $query->where(function ($query) {
+    //         $query->whereNull('end_at')
+    //               ->orWhere('end_at', '>', now());
+    //     })->where(function ($query) {
+    //         $query->whereNull('begin_at')
+    //               ->orWhere('begin_at', '<=', now());
+    //     });
+    // }
+
+    // for 随身听 节目已停播，还没有下线，还有30天才下线播放列表
     public function scopeActive($query)
     {
-        return $query->where(function ($query) {
-            $query->whereNull('end_at')
-                  ->orWhere('end_at', '>', now());
-        })->where(function ($query) {
-            $query->whereNull('begin_at')
-                  ->orWhere('begin_at', '<=', now());
-        });
+        return $query->whereNull('end_at')
+            ->orWhere('unpublished_at', '>=', now());
     }
 
     public function scopeNotLts($query)

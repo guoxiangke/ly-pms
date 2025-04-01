@@ -21,7 +21,7 @@ class LyPulse extends Component
             $after = 21;
         }
         // 这个需求很复杂！
-        $lyMetas = LyMeta::active()->notLts()->orderBy('code')->get();
+        $lyMetas = LyMeta::playlistActive()->notLts()->orderBy('code')->get();
         $lyItems = LyItem::whereBetween('play_at',[now()->subDay($before)->startOfDay(),now()->addDays($after)->startOfDay()])->get()->groupBy('ly_meta_id');
         return view('livewire.ly-pulse',compact('lyMetas', 'lyItems', 'before', 'after'))
             ->layout('layouts.pulse');

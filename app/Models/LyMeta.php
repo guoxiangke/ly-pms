@@ -116,6 +116,7 @@ class LyMeta extends Model
     {
         return $this->HasMany(LyItem::class)
             ->whereBetween('play_at', [now()->subDays($this->max_list_count), now()])
+            ->with('contents')
             ->orderBy('alias', $order);
     }
 

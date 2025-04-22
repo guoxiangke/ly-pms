@@ -180,7 +180,7 @@ Route::get('/program/{lyMeta:code}', function (Request $request, LyMeta $lyMeta)
             end_at
             remark
             category
-            ly_items: $hasManyType {
+            ly_items: $hasManyType (first: $lyMeta->max_list_count) {
               data {
                 id
                 alias

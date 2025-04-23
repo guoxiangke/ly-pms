@@ -72,7 +72,7 @@ type LyMeta {
   category: String
   announcers: [Announcer!]! @belongsToMany
 
-  ly_items: [LyItem]! @hasMany(type: PAGINATOR, maxCount: 366) @orderBy(column: "alias", direction: DESC)
+  lyItems: [LyItem]! @hasMany(type: PAGINATOR, maxCount: 366) @orderBy(column: "alias", direction: DESC)
   ltsItems: [LtsItem]! @hasManyThrough(type: PAGINATOR, maxCount: 366) @orderBy(column: "alias", direction: DESC)
   ly_items_with_future: [LyItem]! @hasMany(type: PAGINATOR, maxCount: 366)
 }

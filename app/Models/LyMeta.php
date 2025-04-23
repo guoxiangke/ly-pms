@@ -163,9 +163,10 @@ class LyMeta extends Model
     // Call to undefined method App\Models\LyMeta::lyItems()
     public function lyitems($order = "DESC"): HasMany
     {
-        return $this->ly_items($order);
+        return $this->HasMany(LyItem::class)
+            ->with('contents')
+            ->orderBy('alias', $order);
     }
-
     // 后台显示，包含 明后天的及31天以外的节目
     public function ly_items_with_future(): HasMany
     {

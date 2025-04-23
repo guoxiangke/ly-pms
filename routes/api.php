@@ -165,7 +165,7 @@ Route::get('/today', function (Request $request) {
 // ltsnp+cc
 Route::get('/program/{lyMeta:code}', function (Request $request, LyMeta $lyMeta) {
     $code = $lyMeta->code;
-    $hasManyType = $lyMeta->isLts?"ltsItems":"ly_items";
+    $hasManyType = $lyMeta->isLts?"ltsItems":"lyItems";
     $programType = $lyMeta->isLts?"ly_meta":"ly_meta";
 
     $query = <<<GQL
@@ -180,7 +180,7 @@ Route::get('/program/{lyMeta:code}', function (Request $request, LyMeta $lyMeta)
             end_at
             remark
             category
-            ly_items: $hasManyType (first: $lyMeta->max_list_count) {
+            ly_items: $hasManyType (first:$lyMeta->counts_max_list) {
               data {
                 id
                 alias

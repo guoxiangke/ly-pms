@@ -119,6 +119,21 @@ class LyMeta extends Model
             ->with('contents')
             ->orderBy('alias', $order);
     }
+    
+    // // Call to undefined method App\Models\LyMeta::lyItems()
+    // public function lyitems($order = "DESC"): HasMany
+    // {
+    //     return $this->HasMany(LyItem::class)
+    //         ->with('contents')
+    //         ->orderBy('alias', $order);
+    // }
+    public function lyItems($order = "DESC"): HasMany
+    {
+        return $this->HasMany(LyItem::class)
+            ->whereBetween('play_at', [now()->subDays($this->max_list_count), now()])
+            ->with('contents')
+            ->orderBy('alias', $order);
+    }
 
     public function getMaxListCountAttribute(){
         return $maxCounts = $this->counts_max_list??31;
@@ -158,14 +173,6 @@ class LyMeta extends Model
     public function ltsMetas()
     {
         return $this->hasMany(LtsMeta::class);
-    }
-    
-    // Call to undefined method App\Models\LyMeta::lyItems()
-    public function lyitems($order = "DESC"): HasMany
-    {
-        return $this->HasMany(LyItem::class)
-            ->with('contents')
-            ->orderBy('alias', $order);
     }
     // 后台显示，包含 明后天的及31天以外的节目
     public function ly_items_with_future(): HasMany

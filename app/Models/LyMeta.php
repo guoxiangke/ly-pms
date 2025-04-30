@@ -115,28 +115,18 @@ class LyMeta extends Model
     public function ly_items($order = "DESC"): HasMany
     {
         return $this->HasMany(LyItem::class)
-            ->whereBetween('play_at', [now()->subDays($this->max_list_count), now()])
+            ->whereBetween('play_at', [now()->subDays($this->counts_max_list), now()])
             ->with('contents')
             ->orderBy('alias', $order);
     }
     
-    // // Call to undefined method App\Models\LyMeta::lyItems()
-    // public function lyitems($order = "DESC"): HasMany
-    // {
-    //     return $this->HasMany(LyItem::class)
-    //         ->with('contents')
-    //         ->orderBy('alias', $order);
-    // }
-    public function lyItems($order = "DESC"): HasMany
+    public function lyItems(string $order = "DESC", int $maxDays = 365): HasMany
     {
-        return $this->HasMany(LyItem::class)
-            ->whereBetween('play_at', [now()->subDays($this->max_list_count), now()])
+        // Log::error(__FILE__,[__LINE__, $this->counts_max_list, $maxDays]);
+        return $this->hasMany(LyItem::class)
+            ->whereBetween('play_at', [now()->subDays($this->counts_max_list??$maxDays), now()])
             ->with('contents')
             ->orderBy('alias', $order);
-    }
-
-    public function getMaxListCountAttribute(){
-        return $maxCounts = $this->counts_max_list??31;
     }
 
     // $lyMeta->isLts
@@ -150,7 +140,7 @@ class LyMeta extends Model
     // if($this->isLts)
     public function lts_items($order = "DESC")
     {
-        return LtsItem::with('ltsMeta')->whereBetween('play_at', [now()->subDays($this->max_list_count), now()])->orderBy('play_at', $order)->get()->filter(fn($ltsItem) => $ltsItem->ltsMeta->ly_meta_id == $this->id);
+        return LtsItem::with('ltsMeta')->whereBetween('play_at', [now()->subDays($this->counts_max_list), now()])->orderBy('play_at', $order)->get()->filter(fn($ltsItem) => $ltsItem->ltsMeta->ly_meta_id == $this->id);
 
     }
 
@@ -159,7 +149,7 @@ class LyMeta extends Model
     {
         return $this
             ->hasManyThrough(LtsItem::class, LtsMeta::class)
-            ->whereBetween('play_at', [now()->subDays($this->max_list_count), now()])
+            ->whereBetween('play_at', [now()->subDays($this->counts_max_list), now()])
             ->orderBy('play_at', $order);
     }
 

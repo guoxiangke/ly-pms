@@ -120,11 +120,10 @@ class LyMeta extends Model
             ->orderBy('alias', $order);
     }
     
-    public function lyItems(string $order = "DESC", int $maxDays = 365): HasMany
+    public function lyItems(string $order = "DESC"): HasMany
     {
-        // Log::error(__FILE__,[__LINE__, $this->counts_max_list, $maxDays]);
         return $this->hasMany(LyItem::class)
-            ->whereBetween('play_at', [now()->subDays($this->counts_max_list??$maxDays), now()])
+            ->whereBetween('play_at', [now()->subDays($this->counts_max_list??366), now()])
             ->with('contents')
             ->orderBy('alias', $order);
     }

@@ -148,7 +148,7 @@ class LyMeta extends Model
     {
         return $this
             ->hasManyThrough(LtsItem::class, LtsMeta::class)
-            ->whereBetween('play_at', [now()->subDays($this->counts_max_list), now()])
+            ->whereBetween('play_at', [now()->subDays($this->counts_max_list??366), now()])
             ->orderBy('play_at', $order);
     }
 

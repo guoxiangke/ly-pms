@@ -90,7 +90,7 @@ Route::get('/storage/ly/audio/{year}/{code}/{day}.mp3', function (Request $reque
     $fields['ip'] = $ip;
 
     $protocolLine = [
-        'name' => 'click',
+        'name' => 'clicks',
         'tags' => $tags,
         'fields' => $fields
     ];
@@ -117,7 +117,7 @@ Route::get('/storage/ly/audio/{code}/{day}.mp3', function (Request $request, $co
     $fields['ip'] = $ip;
 
     $protocolLine = [
-        'name' => 'click',
+        'name' => 'clicks',
         'tags' => $tags,
         'fields' => $fields
     ];

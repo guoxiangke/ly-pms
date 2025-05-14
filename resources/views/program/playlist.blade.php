@@ -213,6 +213,18 @@
                       </svg>
                       </a>
                     </div>
+
+                    @if($lyItem->contents->count())
+
+                    <div class="group relative" title="节目文本">
+                      <a href="{{Route('share.lyItem', $lyItem->hashId)}}" target="_blank">
+                      <svg 
+                        class="share cursor-pointer h-5 w-5 flex-none text-gray-400  hover:text-gray-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M 16 2 C 14.743378 2 13.85942 2.8933056 13.416016 4 L 11 4 L 10 4 L 5 4 L 5 29 L 27 29 L 27 4 L 22 4 L 21 4 L 18.583984 4 C 18.14058 2.8933056 17.256622 2 16 2 z M 16 4 C 16.56503 4 17 4.4349698 17 5 L 17 6 L 18 6 L 20 6 L 20 8 L 12 8 L 12 6 L 15 6 L 15 5 C 15 4.4349698 15.43497 4 16 4 z M 7 6 L 10 6 L 10 10 L 22 10 L 22 6 L 25 6 L 25 27 L 7 27 L 7 6 z M 12 14 L 12 16 L 15 16 L 15 23 L 17 23 L 17 16 L 20 16 L 20 14 L 12 14 z"/></svg>
+                      </svg>
+                      </a>
+                    </div>
+                    @endif
                     @endif
                 </div>
               </div>
@@ -220,9 +232,9 @@
           </li>
           @endforeach
         </ul>
-        @if(Route::current()->getName() != "share.lyItem")
+        @if($lyItem->contents->count())
           @foreach($lyItem->contents as $content)
-          <div class="mt-4 hidden bg-gray-50 space-y-6 leading-loose max-w-3xl mx-auto shadow-md rounded-lg p-6 text-gray-800 text-lg leading-relaxed font-serif space-y-4 text-justify">{!! Illuminate\Mail\Markdown::parse($content->body) !!}</div>
+          <div class="mt-4 bg-gray-50 space-y-6 leading-loose max-w-3xl mx-auto shadow-md rounded-lg p-6 text-gray-800 text-lg leading-relaxed font-serif space-y-4 text-justify">{!! Illuminate\Mail\Markdown::parse($content->body) !!}</div>
           @endforeach
         @endif
       </div>

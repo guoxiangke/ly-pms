@@ -19,7 +19,7 @@ class Kernel extends ConsoleKernel
         // $schedule->command('app:sync-open')->timezone('Asia/Shanghai')->cron('0 5 * * *');
         $schedule->command("app:sync-content-mw")->timezone('Asia/Shanghai')->cron("15 0 * * *");
         $schedule->command("app:sync-content-cmw")->timezone('Asia/Shanghai')->cron("20 0 * * *");
-        // $schedule->command("app:sync-content-it")->cron("17 0 * * *");
+        $schedule->command("app:sync-content-it")->timezone('Asia/Shanghai')->cron("17 0 * * *");
     }
 
     /**

@@ -28,7 +28,7 @@ class SyncContentIt extends Command
      *
      * @var string
      */
-    protected $description = '从资源库同步it旷野吗哪的内容（从index获取链接）';
+    protected $description = '从资源库同步it的内容（从index获取链接）';
 
     private $contentSyncService;
     public function __construct(ContentSyncService $contentSyncService)
@@ -42,7 +42,7 @@ class SyncContentIt extends Command
     public function handle()
     {
         if(App::environment('local')) {
-            $this->sync(20000);
+            $this->sync(10);
         }else{
             $this->sync();
         }
@@ -53,7 +53,7 @@ class SyncContentIt extends Command
         $code = 'it';
         $lyMeta = LyMeta::where('code', $code)->first();
         $url = "https://r1.zyqstx.net/sermon/sermon-it?start=0&limit={$limit}";
-        $response = Http::get($url);
+        $response = Http::timeout(60)->get($url);
         $dom = HtmlDomParser::str_get_html($response->body());
 
         $items = [];
@@ -67,7 +67,7 @@ class SyncContentIt extends Command
             // 如果已经存在，则跳过
             if($lyItem && $lyItem->contents()->count()) continue;
             $url = 'https://r1.zyqstx.net' . $link;
-            $items = array_unshift($items, compact('lyItem', 'url', 'alias'));
+            array_unshift($items, compact('lyItem', 'url', 'alias'));
         }
         // joomla ?start=0&limit={$limit} 在url添加一个什么query，可以反向排序，
         foreach ($items as $item) {

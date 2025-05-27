@@ -192,12 +192,11 @@
                     </svg>
                   </div>
                   <div class="min-w-0 flex-auto">
-                    <p class="text-base  leading-6 text-gray-900">
-                      {{$lyMeta->name}}-{{$lyItem->play_at?$lyItem->play_at->format('Ymd'):''}}
+                    <p class="text-base  leading-6 text-gray-900">{{$lyItem->description}}
                     </p>
                     <p class="mt-1 flex text-sm leading-5 text-gray-500">
-                      <span class="relative hover:underline">{{$lyItem->description}}
-                      {{$lyMeta->isLts?$lyItem->episodeTitle:''}}</span>
+                      <span class="relative hover:underline">
+                      {{$lyMeta->name}}-{{$lyItem->play_at?$lyItem->play_at->format('Ymd'):''}}</span>
                     </p>
                   </div>
                 </div>

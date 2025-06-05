@@ -44,6 +44,10 @@ class ContentSyncService
             'body' => $markdown,
             'user_id' => 1
         ]);
+        if($content->id == 549) {
+            Log::debug('lyItem : detach 549' . $alias . ' - ' . $content->id);
+            return $lyItem->contents()->detach(549);
+        }
 
         Log::info('lyItem: ' . $alias . ' - ' . $content->id);
         // 创建或更新lyItem

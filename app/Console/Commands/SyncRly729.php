@@ -123,8 +123,10 @@ class SyncRly729 extends Command
                     $audioUrl = $matches[1][$key];
                     $audioHtml = $audioHtml . "\r\n<audio href='{$audioUrl}' id='{$articleId}' controls />\r\n\r\n";
                     $path = "/rly/mp3/$articleId.mp3";
-                    if(!Storage::disk($disk)->exists($path))
+                    if(!Storage::disk($disk)->exists($path)){
                         Storage::disk($disk)->put($path, file_get_contents($audioUrl));
+                        Log::info("Saved mp3");
+                    }
                     continue;
                 }else{
                     $lyItems[] = compact('code','alias');
@@ -181,6 +183,8 @@ class SyncRly729 extends Command
                     Log::info('新关联: ' . $lyItem['alias'] . ' - ' . $content->id. ' : ' . $lyItem->id);
                 }
             }
+            // unset 清理内存
+            unset($content, $lyItems, $pdfFiles, $markdown, $audioHtml, $articleBody, $articleTitle);
         }
 
     }

@@ -49,7 +49,7 @@ class SyncRly729 extends Command
 
         $disk = 's3';
 
-        for ($articleId=398; $articleId < 25449 ; $articleId++) {
+        for ($articleId=1974; $articleId < 25449 ; $articleId++) {
             Log::info("Processing Article Id: $articleId");
             $url = "https://r.729ly.net/?option=com_content&view=article&id={$articleId}";
             // $url = 'https://r1.zyqstx.net/exposition/exposition-ttb-cttb/exposition-ttb-cttb-guide/exposition-ttb-cttb-0001-guide01-20200330';
@@ -136,8 +136,11 @@ class SyncRly729 extends Command
                 // 不使用 articleTitle ，而page-header
                 // $pageTitle = $dom->findOne('.page-header')->text();
                 $markdown = "{$articleTitle}\r\n\r\n" .$audioHtml. $markdown;
-                Log::info("Saved md: {$articleId}-{$articleTitle}");
-                Storage::disk($disk)->put("/rly/contents/$articleId.md", $markdown);
+                $path = "/rly/contents/$articleId.md";
+                if(!Storage::disk($disk)->exists($path)){
+                    Storage::disk($disk)->put($path, $markdown);
+                    Log::info("Saved md: {$articleId}-{$articleTitle}");
+                }
             }
             if(empty($lyItems)){
                 continue;
@@ -170,7 +173,6 @@ class SyncRly729 extends Command
             foreach ($lyItems as $lyItem) {
                 $alias = $lyItem['alias'];
                 $lyItem = LyItem::where('alias', $alias)->first();
-                dd($lyItem,$alias);
                 // 说明已导入
                 if($lyItem->contents->count()){
                     Log::info('已关联: ' . $lyItem['alias'] . ' - ' . $content->id. ' : ' . $lyItem->id);

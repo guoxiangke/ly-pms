@@ -48,8 +48,9 @@ class SyncRly729 extends Command
         // 12332 2 pdf
 
         $disk = 's3';
+        ini_set('memory_limit', '256M');
 
-        for ($articleId=1974; $articleId < 25449 ; $articleId++) {
+        for ($articleId=5845; $articleId < 25449 ; $articleId++) {
             Log::info("Processing Article Id: $articleId");
             $url = "https://r.729ly.net/?option=com_content&view=article&id={$articleId}";
             // $url = 'https://r1.zyqstx.net/exposition/exposition-ttb-cttb/exposition-ttb-cttb-guide/exposition-ttb-cttb-0001-guide01-20200330';

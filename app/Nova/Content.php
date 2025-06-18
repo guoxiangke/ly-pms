@@ -55,9 +55,9 @@ class Content extends Resource
             Textarea::make('summary')->hideFromIndex()->alwaysShow(),
             Markdown::make('body')->hideFromIndex(),
             BelongsTo::make('user')->default(\Auth::user()->id)->withoutTrashed()->withMeta(['extraAttributes' => ['readonly' => true]])->onlyOnForms(),
+            MorphMany::make('Attachments'),
             MorphToMany::make(__('LY Episodes'), 'lyItems', LyItem::class)->hideFromDetail(fn () => $this->lyItems->isEmpty()),
             MorphToMany::make(__('LTS Episodes'), 'ltsItems', LtsItem::class)->hideFromDetail(fn () => $this->ltsItems->isEmpty()),
-            // MorphMany::make('Attachments'),
             // MorphMany::make(__('Attachment'), 'attachments', Attachment::class),
         ];
     }

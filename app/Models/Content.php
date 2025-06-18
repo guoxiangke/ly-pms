@@ -36,12 +36,6 @@ class Content extends Model implements HasMedia
         return $this->morphedByMany(LtsItem::class, 'contentable');
     }
 
-    // public function attachments()
-    // {
-    //     return $this->morphedByMany(Attachment::class, 'contentable');
-    // }
-
-
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

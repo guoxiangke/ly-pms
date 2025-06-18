@@ -15,12 +15,7 @@ class Attachment extends Model
     use SoftDeletes;
 
     use Contentable;
-    // // 定义多态的正向多对多关联 如：Tag::class
-    // public function contents(): MorphToMany
-    // {
-    //     return $this->morphToMany(Content::class, 'contentable');
-    // }
-
+    
     protected $guarded = ['id', 'created_at', 'updated_at', 'deleted_at'];
 
     public function lyItems(): MorphToMany
@@ -32,10 +27,10 @@ class Attachment extends Model
     {
         return $this->morphedByMany(LtsItem::class, 'attachmentable');
     }
-    
-    public function content(): MorphToMany
+
+    public function contents()
     {
-        return $this->morphedByMany(LtsItem::class, 'attachmentable');
+        return $this->morphedByMany(Content::class, 'attachmentable');
     }
 
     public function user(): BelongsTo

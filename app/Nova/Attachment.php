@@ -47,7 +47,7 @@ class Attachment extends Resource
     public function fields(NovaRequest $request)
     {
         return [
-            // ID::make()->sortable(),
+            ID::make()->sortable(),
             Text::make('name')->onlyOnIndex(),
             File::make(__('Attachment'), 'path')
                 ->acceptedTypes(['.pdf','.doc','.docx'])

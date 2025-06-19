@@ -214,7 +214,7 @@
                     </div>
 
                     @if($lyItem->contents->count())
-                    @if(in_array($lyMeta->code,['mw','tmw','hmw','cmw','it']))
+                    @if(in_array($lyMeta->code,['mw','tmw','hmw','cmw','it','aw','gw']))
                     <div class="group relative" title="节目文本">
                       <a href="{{Route('share.lyItem', $lyItem->hashId)}}" target="_blank">
                       <svg 
@@ -233,9 +233,17 @@
           @endforeach
         </ul>
         @if(Route::current()->getName() == "share.lyItem" && $lyItem->contents->count())
-          @if(in_array($lyMeta->code,['mw','tmw','hmw','cmw','it']))
+          @if(in_array($lyMeta->code,['mw','tmw','hmw','cmw','it','aw','gw']))
           @foreach($lyItem->contents as $content)
-          <div class="mt-4 bg-gray-50 space-y-6 leading-loose max-w-3xl mx-auto shadow-md rounded-lg p-6 text-gray-800 text-lg leading-relaxed font-serif space-y-4 text-justify">{!! Illuminate\Mail\Markdown::parse($content->body) !!}</div>
+          <div class="mt-4 bg-gray-50 space-y-6 leading-loose max-w-3xl mx-auto shadow-md rounded-lg p-6 text-gray-800 text-lg leading-relaxed font-serif space-y-4 text-justify">
+          @if($lyMeta->code=='aw' && $content->attachments->count())
+            @foreach($content->attachments as $attachment)
+              <p><a target="_blank" title="右键 链接 另存为" class="text-red-600 hover:text-red-800" href="{{Storage::disk('s3')->url($attachment->path)}}">{{$attachment->name??'下载'}}</a></p>
+            @endforeach
+          @endif
+          {!! Illuminate\Mail\Markdown::parse($content->body) !!}
+          </div>
+
           @endforeach
           @endif
         @endif

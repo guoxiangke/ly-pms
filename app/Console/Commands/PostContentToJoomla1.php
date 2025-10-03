@@ -8,14 +8,21 @@ use App\Services\JoomlaContentService;
 use Exception;
 use Illuminate\Support\Facades\Log;
 
-class PostContentToJoomla extends Command
+class PostContentToJoomla1 extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'sync:rly
+    // 情况4: devotionals-psalm191225 → mpa-psalm-191225
+    // 情况5: devotionals-dy191203 → dy-daily-bread-191203
+    // 情况6: devotionals-dy-church-calendar-250905 → dy-church-calendar-250905
+    
+    // 处理情况7: "alias": "exposition-dy-dy-verses-20250912", =》 dy250912
+    // 处理情况8: "alias": "exposition-ttb-cttb-0001-guide01-20200330",=》ttb200330
+    
+    protected $signature = 'sync:rly1
                             {--sourceCategory=22 : Source category ID(s) - comma separated (e.g., 525,526,1452)}
                             {--destCategory=21 : Destination category ID (default: 13)}
                             {--limit=0 : Limit number of articles to process per category (0 = no limit)}
@@ -26,7 +33,7 @@ class PostContentToJoomla extends Command
      *
      * @var string
      */
-    protected $description = 'Import articles from source API to Joomla destination (extracts alias from HTML MP3 files for special cases)';
+    protected $description = 'Import articles from source API to Joomla destination (supports multiple source categories for special alias formats)';
 
     /**
      * Source API configuration
@@ -56,6 +63,10 @@ class PostContentToJoomla extends Command
      */
     public function handle()
     {
+        // 临时提升内存限制以处理大量数据
+        $originalMemoryLimit = ini_get('memory_limit');
+        ini_set('memory_limit', '512M');
+        
         $sourceCategoryParam = $this->option('sourceCategory');
         $destCategory = $this->option('destCategory');
         $limit = (int) $this->option('limit');
@@ -101,10 +112,19 @@ class PostContentToJoomla extends Command
             // 显示总体结果统计
             $this->displayOverallResults($categoryResults, $totalSuccessCount, $totalErrorCount, $totalArticlesProcessed);
 
+            // 恢复原始内存限制并清理
+            ini_set('memory_limit', $originalMemoryLimit);
+            gc_collect_cycles();
+
             return $totalErrorCount > 0 ? Command::FAILURE : Command::SUCCESS;
 
         } catch (Exception $e) {
             $this->error("Fatal error: " . $e->getMessage());
+            
+            // 即使出错也要恢复内存限制
+            ini_set('memory_limit', $originalMemoryLimit);
+            gc_collect_cycles();
+            
             return Command::FAILURE;
         }
     }
@@ -188,7 +208,7 @@ class PostContentToJoomla extends Command
             $progressBar = $this->output->createProgressBar(count($articles));
             $progressBar->start();
 
-            foreach ($articles as $article) {
+            foreach ($articles as $index => $article) {
                 try {
                     $result = $this->processArticle($article, $destCategory, $dryRun);
                     
@@ -196,28 +216,22 @@ class PostContentToJoomla extends Command
                         $successCount++;
                         if ($dryRun) {
                             $this->line("\n✓ Would process: {$article['title']}");
-                            $this->line("  Article ID: {$result['article_id']}");
-                            $this->line("  MP3 URL: {$result['mp3_url']}");
-                            $this->line("  Extracted alias: {$result['extracted_alias']}");
-                            $this->line("  Extracted publish date: {$result['extracted_publish_date']}");
-                            $this->line("  Original publish date: {$result['original_publish_date']}");
+                            $this->line("  Source alias: {$result['source_alias']}");
+                            $this->line("  Dest alias: {$result['dest_alias']}");
+                            $this->line("  Publish date: {$result['publish_date']}");
                         } else {
                             $this->line("\n✓ {$result['action']}: {$article['title']} (ID: {$result['id']})");
-                            $this->line("  Article ID: {$result['article_id']}");
-                            $this->line("  MP3 URL: {$result['mp3_url']}");
-                            $this->line("  Extracted alias: {$result['extracted_alias']}");
-                            if (isset($result['extracted_publish_date'])) {
-                                $this->line("  Extracted publish date: {$result['extracted_publish_date']}");
-                            }
-                            if (isset($result['original_publish_date'])) {
-                                $this->line("  Original publish date: {$result['original_publish_date']}");
+                            $this->line("  Alias: {$result['source_alias']} → {$result['dest_alias']}");
+                            if (isset($result['publish_date'])) {
+                                $this->line("  Publish date: {$result['publish_date']}");
                             }
                         }
                     } else {
                         $errorCount++;
                         $this->line("\n✗ Failed: {$article['title']} - {$result['error']}");
                         Log::error(__CLASS__ . " - Category {$sourceCategory}", [
-                            'article' => $article,
+                            'article_id' => $article['id'] ?? 'unknown',
+                            'article_title' => $article['title'] ?? 'unknown',
                             'error' => $result['error']
                         ]);
                     }
@@ -227,7 +241,15 @@ class PostContentToJoomla extends Command
                     $this->line("\n✗ Error processing {$article['title']}: " . $e->getMessage());
                 }
                 
+                // 释放已处理的文章数据
+                unset($result, $articles[$index]);
+                
                 $progressBar->advance();
+                
+                // 每处理50篇文章强制进行垃圾回收
+                if (($index + 1) % 50 === 0) {
+                    gc_collect_cycles();
+                }
             }
 
             $progressBar->finish();
@@ -379,10 +401,14 @@ class PostContentToJoomla extends Command
         // 3. 移除 {attachments} 标签
         $content = preg_replace('/\{attachments\}/', '', $content);
         
-        // 4. 移除空的 <p> 标签
+        // 4. 移除语言标签 <p>普通话</p> 和 <p>粤语</p>
+        $content = preg_replace('/<p>\s*普通话\s*<\/p>/', '', $content);
+        $content = preg_replace('/<p>\s*粤语\s*<\/p>/', '', $content);
+        
+        // 5. 移除空的 <p> 标签
         $content = preg_replace('/<p>\s*<\/p>/', '', $content);
         
-        // 5. 清理多余的换行符和空白字符
+        // 6. 清理多余的换行符和空白字符
         $content = preg_replace('/\r\n\s*\r\n/', "\r\n", $content);
         $content = trim($content);
         
@@ -403,18 +429,17 @@ class PostContentToJoomla extends Command
             $title = $article['title'] ?? '';
             $originalContent = $article['content'] ?? '';
             $content = $this->cleanContent($originalContent);
-            $articleId = $article['id'] ?? '';
-            $publishDate = $article['publish_up'] ?? '';
+            $sourceAlias = $article['alias'] ?? '';
 
-            if (empty($title) || empty($articleId)) {
+            if (empty($title) || empty($sourceAlias)) {
                 return [
                     'success' => false,
-                    'error' => 'Missing title or article ID'
+                    'error' => 'Missing title or alias'
                 ];
             }
 
-            // 从HTML中提取alias
-            $aliasResult = $this->extractAliasFromHtml($articleId);
+            // 处理特殊alias格式
+            $aliasResult = $this->processSpecialAlias($sourceAlias);
             
             if (!$aliasResult['success']) {
                 return [
@@ -423,22 +448,26 @@ class PostContentToJoomla extends Command
                 ];
             }
             
-            $destAlias = $aliasResult['alias'];
-            $mp3Url = $aliasResult['mp3_url'];
-            $extractedPublishDate = $aliasResult['publish_date'];
+            $destAlias = $aliasResult['dest_alias'];
+            $publishDate = $aliasResult['publish_date'];
 
-            // 如果是dry run模式，显示详细信息
+            if (!$publishDate) {
+                return [
+                    'success' => false,
+                    'error' => "Cannot extract valid date from alias: {$sourceAlias}"
+                ];
+            }
+
+            // 如果是dry run模式，只显示信息不实际操作
             if ($dryRun) {
                 return [
                     'success' => true,
                     'action' => 'would_process',
                     'id' => 'dry_run',
                     'title' => $title,
-                    'article_id' => $articleId,
-                    'mp3_url' => $mp3Url,
-                    'extracted_alias' => $destAlias,
-                    'extracted_publish_date' => $extractedPublishDate,
-                    'original_publish_date' => $publishDate
+                    'source_alias' => $sourceAlias,
+                    'dest_alias' => $destAlias,
+                    'publish_date' => $publishDate
                 ];
             }
 
@@ -448,7 +477,7 @@ class PostContentToJoomla extends Command
                 'featured' => 0,
                 'access' => 1, // 公开访问
                 'language' => '*', // 所有语言
-                'publish_up' => $extractedPublishDate ?: $publishDate, // 优先使用从alias提取的日期
+                'publish_up' => $publishDate, // 发布开始时间
             ];
 
             // 使用JoomlaContentService创建或更新文章
@@ -465,11 +494,9 @@ class PostContentToJoomla extends Command
                 'action' => $result['action'],
                 'id' => $result['id'],
                 'url' => $result['url'] ?? '',
-                'article_id' => $articleId,
-                'mp3_url' => $mp3Url,
-                'extracted_alias' => $destAlias,
-                'extracted_publish_date' => $extractedPublishDate,
-                'original_publish_date' => $publishDate
+                'source_alias' => $sourceAlias,
+                'dest_alias' => $destAlias,
+                'publish_date' => $publishDate
             ];
 
         } catch (Exception $e) {
@@ -481,65 +508,157 @@ class PostContentToJoomla extends Command
     }
 
     /**
-     * 从HTML页面中提取MP3文件的alias
+     * 处理特殊alias格式
+     * 4. devotionals-psalm191225 → mpa-psalm-191225 (2019-12-25)
+     * 5. devotionals-dy191203 → dy-daily-bread-191203 (2019-12-03)
+     * 6. devotionals-dy-church-calendar-250905 → dy-church-calendar-250905 (2025-09-05)
+     * 7. exposition-dy-dy-verses-20250912 → dy250912 (2025-09-12)
+     * 8. exposition-ttb-cttb-*-YYYYMMDD → ttbYYMMDD
+     *    exposition-ttb-cttb-0001-guide01-20200330 → ttb200330 (2020-03-30)
+     *    exposition-ttb-cttb-1254-revelation17-20250116 → ttb250116 (2025-01-16)
+     *    exposition-ttb-cttb-0068-genesis59-20200701 → ttb200701 (2020-07-01)
+     *    exposition-ttb-cttb-0101-matthew28-20200817 → ttb200817 (2020-08-17)
      *
-     * @param int $articleId
+     * @param string $sourceAlias
      * @return array
      */
-    private function extractAliasFromHtml(int $articleId): array
+    private function processSpecialAlias(string $sourceAlias): array
     {
-        try {
-            $url = "https://r.729ly.net/?option=com_content&view=article&id={$articleId}";
-            $this->line("  Fetching HTML from: {$url}");
-            
-            $response = Http::timeout(30)->get($url);
-            
-            if (!$response->successful()) {
-                return [
-                    'success' => false,
-                    'error' => "Failed to fetch HTML from {$url}, HTTP status: {$response->status()}"
-                ];
-            }
-            
-            $html = $response->body();
-            
-            // 使用正则表达式提取MP3文件URL
-            $pattern = "/file:\s*'(https:\/\/[^\/]+\/ly\/audio\/(?:[^\/]+\/)*([^\/]+)\.mp3)/";
-            preg_match_all($pattern, $html, $matches);
-            
-            if (empty($matches[2])) {
-                return [
-                    'success' => false,
-                    'error' => "No MP3 file found in HTML content for article {$articleId}"
-                ];
-            }
-            
-            // 获取第一个匹配的MP3文件名作为alias
-            $mp3Url = $matches[1][0];
-            $alias = $matches[2][0];
-            
-            // 从alias中提取日期部分进行解析 (如: dr221120 -> 221120)
-            $dateString = substr($alias, -6); // 获取最后6位作为日期
+        // 情况4: devotionals-psalm191225 → mpa-psalm-191225
+        if (preg_match('/^devotionals-psalm(\d{6})$/', $sourceAlias, $matches)) {
+            $dateString = $matches[1]; // 191225
+            $destAlias = "mpa-psalm-{$dateString}";
             $publishDate = $this->parseDateString($dateString);
+            
+            if (!$publishDate) {
+                return [
+                    'success' => false,
+                    'error' => "Cannot parse date from psalm alias: {$sourceAlias} (date: {$dateString})"
+                ];
+            }
             
             return [
                 'success' => true,
-                'alias' => $alias,
-                'mp3_url' => $mp3Url,
+                'dest_alias' => $destAlias,
                 'publish_date' => $publishDate
             ];
+        }
+        
+        // 情况5: devotionals-dy191203 → dy-daily-bread-191203
+        if (preg_match('/^devotionals-dy(\d{6})$/', $sourceAlias, $matches)) {
+            $dateString = $matches[1]; // 191203
+            $destAlias = "dy-daily-bread-{$dateString}";
+            $publishDate = $this->parseDateString($dateString);
             
-        } catch (Exception $e) {
+            if (!$publishDate) {
+                return [
+                    'success' => false,
+                    'error' => "Cannot parse date from dy alias: {$sourceAlias} (date: {$dateString})"
+                ];
+            }
+            
             return [
-                'success' => false,
-                'error' => "Exception when extracting alias from HTML: " . $e->getMessage()
+                'success' => true,
+                'dest_alias' => $destAlias,
+                'publish_date' => $publishDate
             ];
         }
+        
+        // 情况6: devotionals-dy-church-calendar-250905 → dy-church-calendar-250905
+        if (preg_match('/^devotionals-dy-church-calendar-(\d{6})$/', $sourceAlias, $matches)) {
+            $dateString = $matches[1]; // 250905
+            $destAlias = "dy-church-calendar-{$dateString}";
+            $publishDate = $this->parseDateString($dateString);
+            
+            if (!$publishDate) {
+                return [
+                    'success' => false,
+                    'error' => "Cannot parse date from church-calendar alias: {$sourceAlias} (date: {$dateString})"
+                ];
+            }
+            
+            return [
+                'success' => true,
+                'dest_alias' => $destAlias,
+                'publish_date' => $publishDate
+            ];
+        }
+        
+        // 情况7: exposition-dy-dy-verses-20250912 → dy250912
+        if (preg_match('/^exposition-dy-dy-verses-(\d{8})$/', $sourceAlias, $matches)) {
+            $fullDateString = $matches[1]; // 20250912
+            $dateString = substr($fullDateString, 2); // 250912 (去掉前两位年份)
+            $destAlias = "dy{$dateString}";
+            $publishDate = $this->parseDateString($dateString);
+            
+            if (!$publishDate) {
+                return [
+                    'success' => false,
+                    'error' => "Cannot parse date from dy-verses alias: {$sourceAlias} (date: {$dateString})"
+                ];
+            }
+            
+            return [
+                'success' => true,
+                'dest_alias' => $destAlias,
+                'publish_date' => $publishDate
+            ];
+        }
+        
+        // 情况8: exposition-ttb-cttb-* → ttb250116
+        // 匹配所有 exposition-ttb-cttb-XXXX-YYYY-YYYYMMDD 格式，提取最后的日期
+        if (preg_match('/^exposition-ttb-cttb-.*-(\d{8})$/', $sourceAlias, $matches)) {
+            $fullDateString = $matches[1]; // 20200330 (第1个捕获组是日期)
+            $dateString = substr($fullDateString, 2); // 200330 (去掉前两位年份)
+            $destAlias = "ttb{$dateString}";
+            $publishDate = $this->parseDateString($dateString);
+            
+            if (!$publishDate) {
+                return [
+                    'success' => false,
+                    'error' => "Cannot parse date from ttb alias: {$sourceAlias} (date: {$dateString})"
+                ];
+            }
+            
+            return [
+                'success' => true,
+                'dest_alias' => $destAlias,
+                'publish_date' => $publishDate
+            ];
+        }
+        
+        // 情况9: exposition-bs-* → bs250914
+        // 匹配 exposition-bs-XXXX-bs250914 格式，提取最后的bs+日期
+        if (preg_match('/^exposition-bs-.*-(bs\d{6})$/', $sourceAlias, $matches)) {
+            $destAlias = $matches[1]; // bs250914
+            $dateString = substr($destAlias, 2); // 250914 (去掉前缀bs)
+            $publishDate = $this->parseDateString($dateString);
+            
+            if (!$publishDate) {
+                return [
+                    'success' => false,
+                    'error' => "Cannot parse date from bs alias: {$sourceAlias} (date: {$dateString})"
+                ];
+            }
+            
+            return [
+                'success' => true,
+                'dest_alias' => $destAlias,
+                'publish_date' => $publishDate
+            ];
+        }
+        
+        // 如果都不匹配，返回错误
+        return [
+            'success' => false,
+            'error' => "Unsupported alias format: {$sourceAlias}. Expected formats: devotionals-psalm191225, devotionals-dy191203, devotionals-dy-church-calendar-250905, exposition-dy-dy-verses-YYYYMMDD, exposition-ttb-cttb-*-YYYYMMDD, or exposition-bs-*-bs250914"
+        ];
     }
 
     /**
      * 解析日期字符串 YYMMDD 格式
-     * 支持19XXXX (2019年) 和 25XXXX (2025年) 格式
+     * 例如：191225 → 2019-12-25 00:00:00
+     *      250905 → 2025-09-05 00:00:00
      *
      * @param string $dateString
      * @return string|null
@@ -551,31 +670,22 @@ class PostContentToJoomla extends Command
         }
         
         // 解析日期：YYMMDD
-        $yearPrefix = substr($dateString, 0, 2); // YY
-        $month = substr($dateString, 2, 2);      // MM
-        $day = substr($dateString, 4, 2);        // DD
-        
-        // 根据年份前缀确定完整年份
-        if ($yearPrefix === '19') {
-            $year = '2019';
-        } elseif ($yearPrefix === '25') {
-            $year = '2025';
-        } else {
-            // 其他年份的处理逻辑，可以根据需要扩展
-            $year = '20' . $yearPrefix;
-        }
+        $year = '20' . substr($dateString, 0, 2); // YY → 20YY
+        $month = substr($dateString, 2, 2);       // MM
+        $day = substr($dateString, 4, 2);         // DD
         
         // 验证日期是否有效
         if (checkdate((int)$month, (int)$day, (int)$year)) {
             return "{$year}-{$month}-{$day} 00:00:00";
         } else {
-            \Log::warning("Invalid date parsed from string", [
+            Log::warning("Invalid date string", [
                 'date_string' => $dateString,
                 'year' => $year,
                 'month' => $month,
                 'day' => $day
             ]);
-            return null;
         }
+        
+        return null;
     }
 }

@@ -8,15 +8,17 @@ use App\Services\JoomlaContentService;
 use Exception;
 use Illuminate\Support\Facades\Log;
 
-class PostContentToJoomla extends Command
+class PostContentToJoomla0 extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'sync:rly
-                            {--sourceCategory=22 : Source category ID(s) - comma separated (e.g., 525,526,1452)}
+    // 规则的，可以从// 处理alias: 提取最后6位字符
+            // 例如：sermon-gw-gw250809 → gw250809
+    protected $signature = 'sync:rly0
+                            {--sourceCategory=22 : Source category ID(s) - comma separated (e.g., 722,723,724)}
                             {--destCategory=21 : Destination category ID (default: 13)}
                             {--limit=0 : Limit number of articles to process per category (0 = no limit)}
                             {--dry-run : Show what would be imported without actually doing it}';
@@ -26,7 +28,7 @@ class PostContentToJoomla extends Command
      *
      * @var string
      */
-    protected $description = 'Import articles from source API to Joomla destination (extracts alias from HTML MP3 files for special cases)';
+    protected $description = 'Import articles from source API to Joomla destination (supports multiple source categories)';
 
     /**
      * Source API configuration
@@ -89,7 +91,7 @@ class PostContentToJoomla extends Command
 
                 $categoryResult = $this->processCategorySync($sourceCategory, $destCategory, $limit, $dryRun);
                 
-                $categoryResults[$sourceCategory] = $categoryResult;
+                $categoryResults[] = $categoryResult;
                 $totalSuccessCount += $categoryResult['success_count'];
                 $totalErrorCount += $categoryResult['error_count'];
                 $totalArticlesProcessed += $categoryResult['articles_processed'];
@@ -196,30 +198,20 @@ class PostContentToJoomla extends Command
                         $successCount++;
                         if ($dryRun) {
                             $this->line("\n✓ Would process: {$article['title']}");
-                            $this->line("  Article ID: {$result['article_id']}");
-                            $this->line("  MP3 URL: {$result['mp3_url']}");
-                            $this->line("  Extracted alias: {$result['extracted_alias']}");
-                            $this->line("  Extracted publish date: {$result['extracted_publish_date']}");
-                            $this->line("  Original publish date: {$result['original_publish_date']}");
+                            $this->line("  Source alias: {$result['source_alias']}");
+                            $this->line("  Dest alias: {$result['dest_alias']}");
+                            $this->line("  Publish date: {$result['publish_date']}");
                         } else {
                             $this->line("\n✓ {$result['action']}: {$article['title']} (ID: {$result['id']})");
-                            $this->line("  Article ID: {$result['article_id']}");
-                            $this->line("  MP3 URL: {$result['mp3_url']}");
-                            $this->line("  Extracted alias: {$result['extracted_alias']}");
-                            if (isset($result['extracted_publish_date'])) {
-                                $this->line("  Extracted publish date: {$result['extracted_publish_date']}");
-                            }
-                            if (isset($result['original_publish_date'])) {
-                                $this->line("  Original publish date: {$result['original_publish_date']}");
+                            $this->line("  Alias: {$result['source_alias']} → {$result['dest_alias']}");
+                            if (isset($result['publish_date'])) {
+                                $this->line("  Publish date: {$result['publish_date']}");
                             }
                         }
                     } else {
                         $errorCount++;
                         $this->line("\n✗ Failed: {$article['title']} - {$result['error']}");
-                        Log::error(__CLASS__ . " - Category {$sourceCategory}", [
-                            'article' => $article,
-                            'error' => $result['error']
-                        ]);
+                        Log::error(__CLASS__ . " - Category {$sourceCategory}", $article);
                     }
                     
                 } catch (Exception $e) {
@@ -295,7 +287,8 @@ class PostContentToJoomla extends Command
         
         // 按分类显示汇总
         $summaryData = [];
-        foreach ($categoryResults as $categoryId => $result) {
+        foreach ($categoryResults as $index => $result) {
+            $categoryId = array_keys($categoryResults)[$index] ?? 'Unknown';
             $categoryTitle = $result['category_info']['title'] ?? 'Unknown';
             
             $summaryData[] = [
@@ -379,10 +372,14 @@ class PostContentToJoomla extends Command
         // 3. 移除 {attachments} 标签
         $content = preg_replace('/\{attachments\}/', '', $content);
         
-        // 4. 移除空的 <p> 标签
+        // 4. 移除语言标签 <p>普通话</p> 和 <p>粤语</p>
+        $content = preg_replace('/<p>\s*普通话\s*<\/p>/', '', $content);
+        $content = preg_replace('/<p>\s*粤语\s*<\/p>/', '', $content);
+        
+        // 5. 移除空的 <p> 标签
         $content = preg_replace('/<p>\s*<\/p>/', '', $content);
         
-        // 5. 清理多余的换行符和空白字符
+        // 6. 清理多余的换行符和空白字符
         $content = preg_replace('/\r\n\s*\r\n/', "\r\n", $content);
         $content = trim($content);
         
@@ -403,59 +400,67 @@ class PostContentToJoomla extends Command
             $title = $article['title'] ?? '';
             $originalContent = $article['content'] ?? '';
             $content = $this->cleanContent($originalContent);
-            $articleId = $article['id'] ?? '';
-            $publishDate = $article['publish_up'] ?? '';
+            $sourceAlias = $article['alias'] ?? '';
 
-            if (empty($title) || empty($articleId)) {
+            if (empty($title) || empty($sourceAlias)) {
                 return [
                     'success' => false,
-                    'error' => 'Missing title or article ID'
+                    'error' => 'Missing title or alias'
                 ];
             }
 
-            // 从HTML中提取alias
-            $aliasResult = $this->extractAliasFromHtml($articleId);
+            // 处理alias: 提取最后6位字符
+            // 例如：sermon-gw-gw250809 → gw250809
+            //      sermon-gaw-gaw250809 → gaw250809
+            // $destAlias = substr($sourceAlias, -6);
+            $parts = explode('-', $sourceAlias); 
+            $destAlias = end($parts);
             
-            if (!$aliasResult['success']) {
+            if (empty($destAlias)) {
                 return [
                     'success' => false,
-                    'error' => $aliasResult['error']
+                    'error' => "Cannot extract destination alias from: {$sourceAlias}"
                 ];
             }
-            
-            $destAlias = $aliasResult['alias'];
-            $mp3Url = $aliasResult['mp3_url'];
-            $extractedPublishDate = $aliasResult['publish_date'];
 
-            // 如果是dry run模式，显示详细信息
+            // 从alias中提取日期信息
+            // 例如：gw250809 → 最后6位 250809 → 2025-08-09
+            $publishDate = $this->extractPublishDateFromAlias($destAlias);
+            
+            if (!$publishDate) {
+                return [
+                    'success' => false,
+                    'error' => "Cannot extract valid date from alias: {$destAlias}"
+                ];
+            }
+
+            // 如果是dry run模式，只显示信息不实际操作
             if ($dryRun) {
                 return [
                     'success' => true,
                     'action' => 'would_process',
                     'id' => 'dry_run',
                     'title' => $title,
-                    'article_id' => $articleId,
-                    'mp3_url' => $mp3Url,
-                    'extracted_alias' => $destAlias,
-                    'extracted_publish_date' => $extractedPublishDate,
-                    'original_publish_date' => $publishDate
+                    'source_alias' => $sourceAlias,
+                    'dest_alias' => $destAlias,
+                    'publish_date' => $publishDate
                 ];
             }
 
-            // 准备选项（不包含catid，因为作为独立参数传递）
+            // 准备选项
             $options = [
                 'state' => 1, // 发布状态
                 'featured' => 0,
                 'access' => 1, // 公开访问
                 'language' => '*', // 所有语言
-                'publish_up' => $extractedPublishDate ?: $publishDate, // 优先使用从alias提取的日期
+                'publish_up' => $publishDate, // 发布开始时间
             ];
 
             // 使用JoomlaContentService创建或更新文章
             $result = $this->joomlaService->createOrUpdateArticle(
                 $title,
                 $content,
-                $destAlias,
+                $destAlias, // 使用提取的最后6位字符
                 $options,
                 $destCategory // 传递目标分类ID
             );
@@ -465,11 +470,8 @@ class PostContentToJoomla extends Command
                 'action' => $result['action'],
                 'id' => $result['id'],
                 'url' => $result['url'] ?? '',
-                'article_id' => $articleId,
-                'mp3_url' => $mp3Url,
-                'extracted_alias' => $destAlias,
-                'extracted_publish_date' => $extractedPublishDate,
-                'original_publish_date' => $publishDate
+                'source_alias' => $sourceAlias,
+                'dest_alias' => $destAlias
             ];
 
         } catch (Exception $e) {
@@ -481,101 +483,38 @@ class PostContentToJoomla extends Command
     }
 
     /**
-     * 从HTML页面中提取MP3文件的alias
+     * 从alias中提取发布日期
+     * 例如：gw250809 → 2025-08-09 00:00:00
+     *      gaw250719 → 2025-07-19 00:00:00
      *
-     * @param int $articleId
-     * @return array
-     */
-    private function extractAliasFromHtml(int $articleId): array
-    {
-        try {
-            $url = "https://r.729ly.net/?option=com_content&view=article&id={$articleId}";
-            $this->line("  Fetching HTML from: {$url}");
-            
-            $response = Http::timeout(30)->get($url);
-            
-            if (!$response->successful()) {
-                return [
-                    'success' => false,
-                    'error' => "Failed to fetch HTML from {$url}, HTTP status: {$response->status()}"
-                ];
-            }
-            
-            $html = $response->body();
-            
-            // 使用正则表达式提取MP3文件URL
-            $pattern = "/file:\s*'(https:\/\/[^\/]+\/ly\/audio\/(?:[^\/]+\/)*([^\/]+)\.mp3)/";
-            preg_match_all($pattern, $html, $matches);
-            
-            if (empty($matches[2])) {
-                return [
-                    'success' => false,
-                    'error' => "No MP3 file found in HTML content for article {$articleId}"
-                ];
-            }
-            
-            // 获取第一个匹配的MP3文件名作为alias
-            $mp3Url = $matches[1][0];
-            $alias = $matches[2][0];
-            
-            // 从alias中提取日期部分进行解析 (如: dr221120 -> 221120)
-            $dateString = substr($alias, -6); // 获取最后6位作为日期
-            $publishDate = $this->parseDateString($dateString);
-            
-            return [
-                'success' => true,
-                'alias' => $alias,
-                'mp3_url' => $mp3Url,
-                'publish_date' => $publishDate
-            ];
-            
-        } catch (Exception $e) {
-            return [
-                'success' => false,
-                'error' => "Exception when extracting alias from HTML: " . $e->getMessage()
-            ];
-        }
-    }
-
-    /**
-     * 解析日期字符串 YYMMDD 格式
-     * 支持19XXXX (2019年) 和 25XXXX (2025年) 格式
-     *
-     * @param string $dateString
+     * @param string $alias
      * @return string|null
      */
-    private function parseDateString(string $dateString): ?string
+    private function extractPublishDateFromAlias(string $alias): ?string
     {
-        if (strlen($dateString) !== 6) {
-            return null;
+        // 提取最后6位数字：YYMMDD格式
+        if (preg_match('/(\d{6})$/', $alias, $matches)) {
+            $dateString = $matches[1];
+            
+            // 解析日期：YYMMDD
+            $year = '20' . substr($dateString, 0, 2); // YY → 20YY
+            $month = substr($dateString, 2, 2);       // MM
+            $day = substr($dateString, 4, 2);         // DD
+            
+            // 验证日期是否有效
+            if (checkdate((int)$month, (int)$day, (int)$year)) {
+                return "{$year}-{$month}-{$day} 00:00:00";
+            } else {
+                \Log::warning("Invalid date extracted from alias", [
+                    'alias' => $alias,
+                    'extracted_date' => $dateString,
+                    'year' => $year,
+                    'month' => $month,
+                    'day' => $day
+                ]);
+            }
         }
         
-        // 解析日期：YYMMDD
-        $yearPrefix = substr($dateString, 0, 2); // YY
-        $month = substr($dateString, 2, 2);      // MM
-        $day = substr($dateString, 4, 2);        // DD
-        
-        // 根据年份前缀确定完整年份
-        if ($yearPrefix === '19') {
-            $year = '2019';
-        } elseif ($yearPrefix === '25') {
-            $year = '2025';
-        } else {
-            // 其他年份的处理逻辑，可以根据需要扩展
-            $year = '20' . $yearPrefix;
-        }
-        
-        // 验证日期是否有效
-        if (checkdate((int)$month, (int)$day, (int)$year)) {
-            return "{$year}-{$month}-{$day} 00:00:00";
-        } else {
-            \Log::warning("Invalid date parsed from string", [
-                'date_string' => $dateString,
-                'year' => $year,
-                'month' => $month,
-                'day' => $day
-            ]);
-            return null;
-        }
+        return null;
     }
 }

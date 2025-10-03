@@ -7,6 +7,8 @@ use Nuwave\Lighthouse\GraphQL;
 use Nuwave\Lighthouse\Execution\ContextFactory;
 use App\Models\LyMeta;
 use App\Models\LyItem;
+use App\Models\Content;
+use Illuminate\Support\Facades\Log;
 // use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
 /*
 |--------------------------------------------------------------------------
@@ -43,6 +45,41 @@ Route::middleware('auth:sanctum')->post('/ly_items', function (Request $request)
     if($request->input('program_station_code')){
       $lyItem->update($request->only(['program_station_code']));
     }
+    return ['success'];
+});
+
+
+Route::middleware('auth:sanctum')->post('/contents', function (Request $request) {
+    $user = $request->user();
+    if($user->id !== 2) return abort(403, 'Unauthorized action.');
+    $alias = $request->input('alias');// mw251002
+
+
+    $code = preg_replace('/[^a-zA-Z]/', '', $alias);
+    $lyMeta = LyMeta::where(['code'=>$code])->firstOrFail();
+    // $lyItem = LyItem::where(['alias'=>$alias])->firstOrFail();
+    // $data['alias'] = $alias;
+    $data['description'] = $request->input('title');
+    $data['ly_meta_id'] = $lyMeta->id;
+    $lyItem = LyItem::firstOrCreate(['alias'=>$alias], $data);
+
+    $newBody = $request->input('content');
+    $content = Content::firstOrCreate([
+        'title' => $request->input('title')
+    ],[
+        'body' => $newBody,
+        'user_id' => 2
+    ]);
+
+    if (!$content->wasRecentlyCreated) {
+      if($content->body != $newBody){
+        $content->body   = $newBody;
+        $content->user_id = 2;
+        $content->save();
+      }
+    }
+    Log::info('lyItem: ' . $alias . ' - ' . $content->id);
+    $lyItem->contents()->syncWithoutDetaching($content->id);
     return ['success'];
 });
 

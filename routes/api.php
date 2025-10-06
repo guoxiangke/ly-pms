@@ -54,32 +54,31 @@ Route::middleware('auth:sanctum')->post('/contents', function (Request $request)
     if($user->id !== 2) return abort(403, 'Unauthorized action.');
     $alias = $request->input('alias');// mw251002
 
-
     $code = preg_replace('/[^a-zA-Z]/', '', $alias);
     $lyMeta = LyMeta::where(['code'=>$code])->firstOrFail();
-    // $lyItem = LyItem::where(['alias'=>$alias])->firstOrFail();
-    // $data['alias'] = $alias;
-    $data['description'] = $request->input('title');
+
+    $newBody = $request->input('content');
+    $newTitle = $request->input('title');
+
+    $data['description'] = $newTitle;
     $data['ly_meta_id'] = $lyMeta->id;
     $lyItem = LyItem::firstOrCreate(['alias'=>$alias], $data);
 
-    $newBody = $request->input('content');
-    $content = Content::firstOrCreate([
-        'title' => $request->input('title')
-    ],[
-        'body' => $newBody,
-        'user_id' => 2
-    ]);
-
-    if (!$content->wasRecentlyCreated) {
-      if($content->body != $newBody){
-        $content->body   = $newBody;
-        $content->user_id = 2;
-        $content->save();
-      }
+    // 如果已经存在（有且仅有1个 contents）
+    $content = $lyItem->contents()->first();
+    if ($content) {
+        $content->update([
+            'title' => $newTitle,
+            'body' => $newBody,
+        ]);
+    } else {
+        $content = $lyItem->contents()->create([
+            'title' => $newTitle,
+            'body' => $newBody,
+            'user_id' => 2,
+        ]);
     }
     Log::info('lyItem: ' . $alias . ' - ' . $content->id);
-    $lyItem->contents()->syncWithoutDetaching($content->id);
     return ['success'];
 });
 

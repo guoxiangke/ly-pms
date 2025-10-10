@@ -175,5 +175,17 @@ Route::get('/share/{hashId}', function ($hashId) {
     }
 
     $playlist = collect([$item]);
-    return view('program/playlist', compact('lyMeta', 'playlist'));
+        $isShowContent = in_array($lyMeta->code,[
+        'mw',
+        'tmw',
+        'hmw',
+        'cmw',
+        'it',
+        'gw',
+        'aw',
+        'vp',
+        'dr',
+    ]);
+    
+    return view('program/playlist', compact('lyMeta', 'playlist', 'isShowContent'));
 })->name('share.lyItem');

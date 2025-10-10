@@ -148,8 +148,20 @@ Route::get('/program/{code}', function (Request $request, $code) {
         }
         $lyMeta = $ltsMeta;
     }
+
+    $isShowContent = in_array($lyMeta->code,[
+        'mw',
+        'tmw',
+        'hmw',
+        'cmw',
+        'it',
+        'gw',
+        'aw',
+        'vp',
+        'dr',
+    ]);
     
-    return view('program/playlist', compact('lyMeta', 'playlist', 'order'));
+    return view('program/playlist', compact('lyMeta', 'playlist', 'order', 'isShowContent'));
 })->name('playlist');
 
 Route::get('/share/{hashId}', function ($hashId) {

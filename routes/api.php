@@ -64,7 +64,7 @@ Route::middleware('auth:sanctum')->post('/contents', function (Request $request)
     $newBody = preg_replace('/<p>\s*<\/p>/', '', $newBody);
     // 5. 清理多余的换行符和空白字符
     $newBody = preg_replace('/\r\n\s*\r\n/', "\r\n", $newBody);
-    $newBody = trim($content);
+    $newBody = trim($newBody);
     $newTitle = $request->input('title');
 
     $data['description'] = $newTitle;

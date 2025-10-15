@@ -58,6 +58,13 @@ Route::middleware('auth:sanctum')->post('/contents', function (Request $request)
     $lyMeta = LyMeta::where(['code'=>$code])->firstOrFail();
 
     $newBody = $request->input('content');
+    // 3. 移除 {attachments} 标签
+    $newBody = preg_replace('/\{attachments\}/', '', $newBody);
+    // 4. 移除空的 <p> 标签
+    $newBody = preg_replace('/<p>\s*<\/p>/', '', $newBody);
+    // 5. 清理多余的换行符和空白字符
+    $newBody = preg_replace('/\r\n\s*\r\n/', "\r\n", $newBody);
+    $newBody = trim($content);
     $newTitle = $request->input('title');
 
     $data['description'] = $newTitle;

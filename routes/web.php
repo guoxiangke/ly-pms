@@ -159,6 +159,7 @@ Route::get('/program/{code}', function (Request $request, $code) {
         'aw',
         'vp',
         'dr',
+        'pk',
     ]);
     
     return view('program/playlist', compact('lyMeta', 'playlist', 'order', 'isShowContent'));
@@ -185,6 +186,7 @@ Route::get('/share/{hashId}', function ($hashId) {
         'aw',
         'vp',
         'dr',
+        'pk',
     ]);
     
     return view('program/playlist', compact('lyMeta', 'playlist', 'isShowContent'));

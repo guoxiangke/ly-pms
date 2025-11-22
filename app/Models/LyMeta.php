@@ -25,6 +25,8 @@ use getID3;
 use getid3_writetags;
 use Illuminate\Support\Facades\Log;
 
+use App\Traits\isShowContent;
+
 class LyMeta extends Model
 {
     use HasFactory;
@@ -34,6 +36,8 @@ class LyMeta extends Model
 
     // use Searchable;
     // use LogsActivity;
+    use isShowContent;
+    
     protected static $recordEvents = ['updated','deleted'];
     public function getActivitylogOptions(): LogOptions
     {

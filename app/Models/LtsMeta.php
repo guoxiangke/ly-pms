@@ -13,6 +13,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+use App\Traits\isShowContent;
+
 class LtsMeta extends Model
 {
     use HasFactory;
@@ -20,6 +22,7 @@ class LtsMeta extends Model
     use Metable;
     use SoftDeletes;
     // use Searchable;
+    use isShowContent;
 
     protected $guarded = ['id', 'created_at', 'updated_at', 'deleted_at'];
 

@@ -32,10 +32,11 @@ class JoomlaContentService
      * @param string $alias 文章别名
      * @param array $options 可选参数
      * @param int|null $categoryId 分类ID，如果提供则使用此ID，否则根据alias自动解析
+     * @param array|null $tags Tags数组，格式为[tag_id, tag_id2, ...]
      * @return array 创建或更新结果
      * @throws Exception
      */
-    public function createOrUpdateArticle(string $title, string $content, string $alias, array $options = [], ?int $categoryId = null)
+    public function createOrUpdateArticle(string $title, string $content, string $alias, array $options = [], ?int $categoryId = null, ?array $tags = null)
     {
         // 检查文章是否已存在
         $existingArticleId = $this->getArticleIdByAlias($alias);
@@ -46,14 +47,14 @@ class JoomlaContentService
                 'existing_id' => $existingArticleId
             ]);
             
-            return $this->updateArticle($existingArticleId, $title, $content, $alias, $options, $categoryId);
+            return $this->updateArticle($existingArticleId, $title, $content, $alias, $options, $categoryId, $tags);
         } else {
             Log::info('Article does not exist, creating new', [
                 'alias' => $alias
             ]);
             
             try {
-                return $this->createArticle($title, $content, $alias, $options, $categoryId);
+                return $this->createArticle($title, $content, $alias, $options, $categoryId, $tags);
             } catch (Exception $e) {
                 // 如果创建失败并且错误信息包含"same alias"，尝试再次查找并更新
                 if (str_contains($e->getMessage(), 'same alias') || str_contains($e->getMessage(), 'Another Article')) {
@@ -238,10 +239,11 @@ class JoomlaContentService
      * @param string $alias 文章别名
      * @param array $options 可选参数
      * @param int|null $categoryId 分类ID，如果提供则使用此ID，否则根据alias自动解析
+     * @param array|null $tags Tags数组，格式为[tag_id, tag_id2, ...]
      * @return array 创建结果
      * @throws Exception
      */
-    public function createArticle(string $title, string $content, string $alias, array $options = [], ?int $categoryId = null)
+    public function createArticle(string $title, string $content, string $alias, array $options = [], ?int $categoryId = null, ?array $tags = null)
     {
         // 确定要使用的分类ID
         if ($categoryId !== null) {
@@ -263,10 +265,15 @@ class JoomlaContentService
             'language' => $options['language'] ?? '*',
             'metadesc' => $options['meta_desc'] ?? '',
             'metakey' => $options['meta_keys'] ?? '',
-            'state' => (int) ($options['state'] ?? 1),
+            'state' => (int) ($options['state'] ?? 0),
             'featured' => (int) ($options['featured'] ?? 0),
             'access' => (int) ($options['access'] ?? 1),
         ];
+
+        // 添加tags（如果提供）
+        if ($tags !== null && !empty($tags)) {
+            $articleData['tags'] = $tags;
+        }
 
         // 添加发布时间（必须设置，如果没有提供则使用当前时间）
         if (isset($options['publish_up']) && !empty($options['publish_up'])) {
@@ -329,10 +336,11 @@ class JoomlaContentService
      * @param string $alias 文章别名
      * @param array $options 可选参数
      * @param int|null $categoryId 分类ID，如果提供则使用此ID，否则根据alias自动解析
+     * @param array|null $tags Tags数组，格式为[tag_id, tag_id2, ...]
      * @return array 更新结果
      * @throws Exception
      */
-    public function updateArticle(int $articleId, string $title, string $content, string $alias, array $options = [], ?int $categoryId = null)
+    public function updateArticle(int $articleId, string $title, string $content, string $alias, array $options = [], ?int $categoryId = null, ?array $tags = null)
     {
         // 确定要使用的分类ID
         if ($categoryId !== null) {
@@ -354,10 +362,15 @@ class JoomlaContentService
             'language' => $options['language'] ?? '*',
             'metadesc' => $options['meta_desc'] ?? '',
             'metakey' => $options['meta_keys'] ?? '',
-            'state' => (int) ($options['state'] ?? 1),
+            'state' => (int) ($options['state'] ?? 0),
             'featured' => (int) ($options['featured'] ?? 0),
             'access' => (int) ($options['access'] ?? 1),
         ];
+
+        // 添加tags（如果提供）
+        if ($tags !== null && !empty($tags)) {
+            $articleData['tags'] = $tags;
+        }
 
         // 添加发布时间（必须设置，如果没有提供则使用当前时间）
         if (isset($options['publish_up']) && !empty($options['publish_up'])) {

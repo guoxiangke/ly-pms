@@ -39,7 +39,7 @@ class LtsMeta extends Model
     ];
 
     public function getCategoryAttribute(){
-        return $this->tags()->firstOrNew(['name'=>'noTagName'])->name;
+        return $this->tags()->first()?->name ?? 'noTagName';
     }
     
     public function getCoverAttribute(){

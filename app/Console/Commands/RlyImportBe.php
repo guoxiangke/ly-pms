@@ -44,6 +44,7 @@ class RlyImportBe extends Command
         // 使用你提供的Joomla配置
         // $this->joomlaUrl = 'http://138';
         // $this->apiToken = 'c2hhMjU22ZDA4NzIx';
+    }
 
     /**
      * Get all tags from Joomla API

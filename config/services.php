@@ -31,4 +31,15 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'joomla' => [
+        'source' => [
+            'url' => env('JOOMLA_SOURCE_URL'),
+            'api_token' => env('JOOMLA_SOURCE_API_TOKEN'),
+        ],
+        'destination' => [
+            'url' => env('JOOMLA_DES_URL'),
+            'api_token' => env('JOOMLA_DES_API_TOKEN'),
+        ],
+    ],
+
 ];

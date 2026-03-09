@@ -116,7 +116,7 @@ class SyncRly729 extends Command
             $audioHtml='';
             foreach ($matches[2] as $key => $alias) {
                 // ttb250331
-                $code = substr($alias, 0, -6);;
+                $code = substr($alias, 0, -6);
                 // 如果 PMS 没有这个 LyItem，则跳过(不创建新的lyItem)
                 $lyItem = LyItem::where('alias', $alias)->first();
                 if(!$lyItem){
@@ -166,11 +166,16 @@ class SyncRly729 extends Command
             // 关联PDF File
             foreach ($pdfFiles as $name => $path) {
                 Log::info('关联PDF File: ' . $path . ' - '. $content->id);
-                $content
-                   ->addMediaFromDisk($path, $disk)
-                   ->usingName($name) // 下载讲义
-                   ->preservingOriginal()
-                   ->toMediaCollection();
+                $url = config('pms.cloudfront_domain') ."/rly/attachments/".$path;
+                // 例外： gl_ it_
+
+                
+                // $content
+                //    ->addMediaFromUrl($url)
+                //    // ->addMediaFromDisk($path, $disk)
+                //    ->usingName($name) // 下载讲义
+                //    ->preservingOriginal()
+                //    ->toMediaCollection();
             }
             // 判断是否有content，如果已有，不再创建，再看下一个是否有，没有则关联
             foreach ($lyItems as $lyItem) {

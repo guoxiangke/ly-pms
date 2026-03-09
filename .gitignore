@@ -34,3 +34,4 @@ frankenphp-worker.php
 .env.staging
 sftp-config.json
 /public/vendor
+.claude

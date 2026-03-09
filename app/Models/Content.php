@@ -40,4 +40,18 @@ class Content extends Model implements HasMedia
     {
         return $this->belongsTo(User::class);
     }
+
+
+    // 定义虚拟属性的 getter
+    public function getPdfFileAttribute()
+    {
+        $attachment = $this->attachments()->latest()->first();
+        return $attachment ? $attachment->path : null;
+    }
+    
+    // 定义虚拟属性的 setter（阻止实际保存）
+    public function setPdfFileAttribute($value)
+    {
+        // 什么都不做，阻止保存到数据库
+    }
 }

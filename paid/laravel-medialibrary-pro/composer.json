@@ -1,5 +1,6 @@
 {
     "name": "spatie/laravel-medialibrary-pro",
+    "version": "3.0.0",
     "description": "Handle media in a Laravel app",
     "keywords": [
         "spatie",

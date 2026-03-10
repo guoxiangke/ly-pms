@@ -13,10 +13,8 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         // $schedule->command('inspire')->hourly();
-        // $schedule->command("youtube:get-item")->cron("0 * * * *");
         // # Automatically removing temporary uploads
         $schedule->command('media-library:delete-old-temporary-uploads')->daily();
-        // $schedule->command('app:sync-open')->timezone('Asia/Shanghai')->cron('0 5 * * *');
         $schedule->command("app:sync-content-mw")->timezone('Asia/Shanghai')->cron("15 0 * * *");
         $schedule->command("app:sync-content-cmw")->timezone('Asia/Shanghai')->cron("20 0 * * *");
         $schedule->command("app:sync-content-it")->timezone('Asia/Shanghai')->cron("17 0 * * *");

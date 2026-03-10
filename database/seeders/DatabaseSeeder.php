@@ -23,7 +23,7 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             TagsSeeder::class,
-            LyMetaSeeder::class,
+            // LyMetaSeeder::class,
             LtsMetaSeeder::class,
         ]);
     }

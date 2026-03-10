@@ -52,12 +52,12 @@ class LtsMeta extends Model
 
     public function lts_items(): HasMany
     {
-        return $this->HasMany(LtsItem::class)->orderBy('alias', 'DESC');
+        return $this->HasMany(LtsItem::class)->with('contents.attachments')->orderBy('alias', 'DESC');
     }
 
     public function lts_items_asc(): HasMany
     {
-        return $this->HasMany(LtsItem::class)->orderBy('alias', 'ASC');
+        return $this->HasMany(LtsItem::class)->with('contents.attachments')->orderBy('alias', 'ASC');
     }
 
     // FE显示，bu包含 明后天的及31天以外的节目

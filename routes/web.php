@@ -129,6 +129,7 @@ Route::get('/program/{code}', function (Request $request, $code) {
     $lyMeta = lyMeta::where('code', $code)->first();
 
     if(!$lyMeta) $ltsMeta = ltsMeta::where('code', $code)->first();
+    if(!$lyMeta && !$ltsMeta) abort(404);
     if($lyMeta){
         $order = $request->query('order')?'ASC':'DESC';
         // $isUnpublished '已下线，不可访问该播放列表'
@@ -155,11 +156,11 @@ Route::get('/program/{code}', function (Request $request, $code) {
 
 Route::get('/share/{hashId}', function ($hashId) {
     if(Str::startsWith($hashId, 'lts')){ //lts-item
-        $item = LtsItem::findOrFail(LtsItem::keyFromHashId($hashId));
-        $lyMeta = $item->lts_meta->ly_meta;
+        $item = LtsItem::with(['ltsMeta.ly_meta', 'contents.attachments'])->findOrFail(LtsItem::keyFromHashId($hashId));
+        $lyMeta = $item->ltsMeta->ly_meta;
     }
     if(Str::startsWith($hashId, 'lyi')){ //ly-item
-        $item = LyItem::findOrFail(LyItem::keyFromHashId($hashId));
+        $item = LyItem::with(['ly_meta', 'contents.attachments'])->findOrFail(LyItem::keyFromHashId($hashId));
         $lyMeta = $item->ly_meta;
     }
 

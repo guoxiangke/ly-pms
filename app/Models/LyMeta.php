@@ -120,15 +120,15 @@ class LyMeta extends Model
     {
         return $this->HasMany(LyItem::class)
             ->whereBetween('play_at', [now()->subDays($this->counts_max_list), now()])
-            ->with('contents')
+            ->with('contents.attachments')
             ->orderBy('alias', $order);
     }
-    
+
     public function lyItems(string $order = "DESC"): HasMany
     {
         return $this->hasMany(LyItem::class)
             ->whereBetween('play_at', [now()->subDays($this->counts_max_list??366), now()])
-            ->with('contents')
+            ->with('contents.attachments')
             ->orderBy('alias', $order);
     }
 
@@ -143,7 +143,7 @@ class LyMeta extends Model
     // if($this->isLts)
     public function lts_items($order = "DESC")
     {
-        return LtsItem::with('ltsMeta')->whereBetween('play_at', [now()->subDays($this->counts_max_list), now()])->orderBy('play_at', $order)->get()->filter(fn($ltsItem) => $ltsItem->ltsMeta->ly_meta_id == $this->id);
+        return LtsItem::with(['ltsMeta', 'contents.attachments'])->whereBetween('play_at', [now()->subDays($this->counts_max_list), now()])->orderBy('play_at', $order)->get()->filter(fn($ltsItem) => $ltsItem->ltsMeta->ly_meta_id == $this->id);
 
     }
 
@@ -152,6 +152,7 @@ class LyMeta extends Model
     {
         return $this
             ->hasManyThrough(LtsItem::class, LtsMeta::class)
+            ->with('contents.attachments')
             ->whereBetween('play_at', [now()->subDays($this->counts_max_list??366), now()])
             ->orderBy('play_at', $order);
     }
@@ -160,6 +161,7 @@ class LyMeta extends Model
     {
         return $this
             ->hasManyThrough(LtsItem::class, LtsMeta::class)
+            ->with('contents.attachments')
             ->orderBy('play_at', $order);
     }
 

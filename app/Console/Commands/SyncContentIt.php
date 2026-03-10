@@ -69,7 +69,6 @@ class SyncContentIt extends Command
             $url = 'https://r1.zyqstx.net' . $link;
             array_unshift($items, compact('lyItem', 'url', 'alias'));
         }
-        // joomla ?start=0&limit={$limit} 在url添加一个什么query，可以反向排序，
         foreach ($items as $item) {
             $this->contentSyncService->save($item['lyItem'], $item['url'], $item['alias'], $lyMeta);
         }

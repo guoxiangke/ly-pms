@@ -20,8 +20,6 @@ class Content extends Model implements HasMedia
     use Attachmentable;//attachments()
     use InteractsWithMedia;
     use Metable;
-    // $content->setMeta('joomla_article_id', 5);
-    // $content = Content::whereMeta('joomla_article_id', 5);
 
     protected $guarded = ['id', 'created_at', 'updated_at', 'deleted_at'];
     // if(App::isProduction()) use Searchable;

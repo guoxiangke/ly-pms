@@ -20,6 +20,8 @@ return new class extends Migration
             $table->text('title')->nullable()->comment('不可为空');
             $table->text('ars_summary')->nullable();
             $table->foreignId('user_id');
+            $table->foreignId('album_id')->nullable()
+                  ->constrained('albums')->nullOnDelete();
             $table->softDeletes();
             $table->timestamps();
         });

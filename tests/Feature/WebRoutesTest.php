@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Album;
 use App\Models\LyMeta;
 use App\Models\LyItem;
 use App\Models\LtsMeta;
@@ -396,5 +397,367 @@ class WebRoutesTest extends TestCase
 
         // 页面包含文本内容（body 是 markdown，页面渲染为 HTML，用金句片段验证）
         $response->assertSee('岂不知在场上赛跑的都跑', false);
+    }
+
+    // ==================== /albums 专辑列表页 ====================
+
+    /**
+     * /albums 专辑列表页应返回 200
+     */
+    public function test_albums_index_returns_ok(): void
+    {
+        $response = $this->get('/albums');
+
+        $response->assertStatus(200);
+    }
+
+    /**
+     * /albums 页面应包含已发布专辑的名称
+     */
+    public function test_albums_index_shows_published_albums(): void
+    {
+        $album = Album::where('status', 'published')->first();
+
+        if (! $album) {
+            $this->markTestSkipped('没有已发布的专辑数据，跳过测试');
+        }
+
+        $response = $this->get('/albums');
+
+        $response->assertStatus(200);
+        $response->assertSee($album->name, false);
+    }
+
+    /**
+     * /albums 页面不应显示草稿专辑
+     */
+    public function test_albums_index_hides_draft_albums(): void
+    {
+        $draft = Album::where('status', 'draft')->first();
+
+        if (! $draft) {
+            $this->markTestSkipped('没有草稿专辑数据，跳过测试');
+        }
+
+        $response = $this->get('/albums');
+
+        $response->assertStatus(200);
+        $response->assertDontSee($draft->name, false);
+    }
+
+    /**
+     * /albums 页面不应有在播/停播 tabs
+     */
+    public function test_albums_index_no_main_tabs(): void
+    {
+        $response = $this->get('/albums');
+
+        $response->assertStatus(200);
+        $response->assertDontSee('tab-onair', false);
+        $response->assertDontSee('tab-archive', false);
+        $response->assertDontSee('panel-archive', false);
+    }
+
+    /**
+     * /albums 页面停播节目名称后应显示（已停播）
+     */
+    public function test_albums_index_shows_archived_suffix(): void
+    {
+        $album = Album::where('status', 'published')
+            ->whereHasMorph('target', [LyMeta::class], fn ($q) => $q->where('end_at', '<=', now()))
+            ->with('target')
+            ->first();
+
+        if (! $album) {
+            $this->markTestSkipped('没有已停播节目的已发布专辑，跳过测试');
+        }
+
+        $response = $this->get('/albums');
+
+        $response->assertStatus(200);
+        $response->assertSee($album->target->name . '（已停播）', false);
+    }
+
+    /**
+     * /albums 页面在播节目名称后不应有（已停播）
+     */
+    public function test_albums_index_onair_no_archived_suffix(): void
+    {
+        $album = Album::where('status', 'published')
+            ->whereHasMorph('target', [LyMeta::class], fn ($q) => $q->where(function ($q2) {
+                $q2->whereNull('end_at')->orWhere('end_at', '>', now());
+            }))
+            ->with('target')
+            ->first();
+
+        if (! $album) {
+            $this->markTestSkipped('没有在播节目的已发布专辑，跳过测试');
+        }
+
+        $response = $this->get('/albums');
+
+        $response->assertStatus(200);
+        $response->assertDontSee($album->target->name . '（已停播）', false);
+    }
+
+    /**
+     * /albums 页面应有「停播节目」筛选标签
+     */
+    public function test_albums_index_has_archived_filter_tag(): void
+    {
+        $response = $this->get('/albums');
+
+        $response->assertStatus(200);
+        $response->assertSee('停播节目', false);
+        $response->assertSee('__archived__', false);
+    }
+
+    /**
+     * /albums 页面停播节目分组应有 data-archived="1" 属性
+     */
+    public function test_albums_index_archived_groups_have_data_attribute(): void
+    {
+        $album = Album::where('status', 'published')
+            ->whereHasMorph('target', [LyMeta::class], fn ($q) => $q->where('end_at', '<=', now()))
+            ->first();
+
+        if (! $album) {
+            $this->markTestSkipped('没有已停播节目的已发布专辑，跳过测试');
+        }
+
+        $response = $this->get('/albums');
+
+        $response->assertStatus(200);
+        $response->assertSee('data-archived="1"', false);
+    }
+
+    // ==================== /album/{hashId} 专辑播放页 ====================
+
+    /**
+     * /album/{hashId} 已发布专辑应返回 200
+     */
+    public function test_album_show_with_published_album(): void
+    {
+        $album = Album::where('status', 'published')->first();
+
+        if (! $album) {
+            $this->markTestSkipped('没有已发布的专辑数据，跳过测试');
+        }
+
+        $response = $this->get("/album/{$album->hashId}");
+
+        $response->assertStatus(200);
+    }
+
+    /**
+     * /album/{hashId} 草稿专辑应返回 404
+     */
+    public function test_album_show_with_draft_album_returns_404(): void
+    {
+        $album = Album::where('status', 'draft')->first();
+
+        if (! $album) {
+            $this->markTestSkipped('没有草稿专辑数据，跳过测试');
+        }
+
+        $response = $this->get("/album/{$album->hashId}");
+
+        $response->assertStatus(404);
+    }
+
+    /**
+     * /album/{hashId} 无效 hashId 应返回错误
+     */
+    public function test_album_show_with_invalid_hash_id(): void
+    {
+        $response = $this->get('/album/invalid_hash_id_xyz');
+
+        $this->assertContains($response->getStatusCode(), [404, 500]);
+    }
+
+    /**
+     * /album/{hashId} 已发布专辑页面应包含专辑名称
+     */
+    public function test_album_show_displays_album_name(): void
+    {
+        $album = Album::where('status', 'published')->first();
+
+        if (! $album) {
+            $this->markTestSkipped('没有已发布的专辑数据，跳过测试');
+        }
+
+        $response = $this->get("/album/{$album->hashId}");
+
+        $response->assertStatus(200);
+        $response->assertSee($album->name, false);
+    }
+
+    // ==================== API 公开路由 ====================
+
+    /**
+     * GET /api/categories 应返回 200 和 JSON 数据
+     */
+    public function test_api_categories_returns_ok(): void
+    {
+        $response = $this->getJson('/api/categories');
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure(['data']);
+    }
+
+    /**
+     * GET /api/categories 返回的数据应包含 ly 分类标签
+     */
+    public function test_api_categories_contains_ly_tags(): void
+    {
+        $response = $this->getJson('/api/categories');
+
+        $response->assertStatus(200);
+        $data = $response->json('data');
+        $this->assertNotEmpty($data, 'categories 应返回非空数据');
+
+        // 每个分类应有 id, name, type
+        $first = $data[0];
+        $this->assertArrayHasKey('id', $first);
+        $this->assertArrayHasKey('name', $first);
+        $this->assertArrayHasKey('type', $first);
+        $this->assertEquals('ly', $first['type']);
+    }
+
+    /**
+     * GET /api/categories 每个分类应包含 programs 列表
+     */
+    public function test_api_categories_contains_programs(): void
+    {
+        $response = $this->getJson('/api/categories');
+
+        $response->assertStatus(200);
+        $data = $response->json('data');
+        $this->assertNotEmpty($data);
+
+        $first = $data[0];
+        $this->assertArrayHasKey('programs', $first);
+    }
+
+    /**
+     * GET /api/programs 应返回 200 和 JSON 数据
+     */
+    public function test_api_programs_returns_ok(): void
+    {
+        $response = $this->getJson('/api/programs');
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure(['data']);
+    }
+
+    /**
+     * GET /api/programs 返回的节目应有基本字段
+     */
+    public function test_api_programs_contains_required_fields(): void
+    {
+        $response = $this->getJson('/api/programs');
+
+        $response->assertStatus(200);
+        $data = $response->json('data');
+        $this->assertNotEmpty($data, 'programs 应返回非空数据');
+
+        $first = $data[0];
+        $this->assertArrayHasKey('id', $first);
+        $this->assertArrayHasKey('name', $first);
+        $this->assertArrayHasKey('alias', $first); // code
+        $this->assertArrayHasKey('avatar', $first); // cover
+    }
+
+    /**
+     * GET /api/today 应返回 200 和 JSON 数据
+     */
+    public function test_api_today_returns_ok(): void
+    {
+        $response = $this->getJson('/api/today');
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure(['data']);
+    }
+
+    /**
+     * GET /api/today 返回的数据中每条应有基本字段
+     */
+    public function test_api_today_items_have_required_fields(): void
+    {
+        $response = $this->getJson('/api/today');
+
+        $response->assertStatus(200);
+        $data = $response->json('data');
+
+        if (empty($data)) {
+            $this->markTestSkipped('今天没有节目数据，跳过测试');
+        }
+
+        $first = $data[0];
+        $this->assertArrayHasKey('id', $first);
+        $this->assertArrayHasKey('alias', $first);
+        $this->assertArrayHasKey('play_at', $first);
+        $this->assertArrayHasKey('program', $first);
+    }
+
+    /**
+     * GET /api/program/{code} 有效节目 code 应返回 200
+     */
+    public function test_api_program_with_valid_code(): void
+    {
+        $lyMeta = LyMeta::first();
+
+        if (! $lyMeta) {
+            $this->markTestSkipped('没有 LyMeta 数据，跳过测试');
+        }
+
+        $response = $this->getJson("/api/program/{$lyMeta->code}");
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure(['data']);
+    }
+
+    /**
+     * GET /api/program/{code} 返回的数据应有分页信息
+     */
+    public function test_api_program_has_pagination_info(): void
+    {
+        $lyMeta = LyMeta::first();
+
+        if (! $lyMeta) {
+            $this->markTestSkipped('没有 LyMeta 数据，跳过测试');
+        }
+
+        $response = $this->getJson("/api/program/{$lyMeta->code}");
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure(['paginatorInfo' => ['total', 'currentPage', 'hasMorePages']]);
+    }
+
+    /**
+     * GET /api/program/{code} 无效 code 应返回 404
+     */
+    public function test_api_program_with_invalid_code(): void
+    {
+        $response = $this->getJson('/api/program/nonexistent_code_xyz');
+
+        $response->assertStatus(404);
+    }
+
+    /**
+     * GET /api/program/{code} LTS 节目也应正常返回
+     */
+    public function test_api_program_with_lts_code(): void
+    {
+        $lyMeta = LyMeta::where('code', 'like', 'lts%')->first();
+
+        if (! $lyMeta) {
+            $this->markTestSkipped('没有 LTS 节目数据，跳过测试');
+        }
+
+        $response = $this->getJson("/api/program/{$lyMeta->code}");
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure(['data']);
     }
 }

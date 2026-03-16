@@ -12,6 +12,7 @@ use Carbon\Carbon;
 use App\Livewire\CreateSubmission;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\App;
+use App\Models\Album;
 use Laravel\Nova\Nova;
 use App\Livewire\LyPulse;
 // use App\Livewire\CustomerSearch;
@@ -168,3 +169,67 @@ Route::get('/share/{hashId}', function ($hashId) {
     $isShowContent = $lyMeta->isShowContent;
     return view('program/playlist', compact('lyMeta', 'playlist', 'isShowContent'));
 })->name('share.lyItem');
+
+Route::get('/albums', function () {
+    $albums = Album::where('status', 'published')
+        ->with('target.tags')
+        ->get();
+
+    // 获取所有 ly 分类标签
+    $lyTags = \App\Models\Tag::where('type', 'ly')->orderBy('order_column')->get();
+
+    // 判断是否年度专辑
+    $isYearly = fn ($album) => (bool) preg_match('/\d{4}年$/', $album->name);
+
+    // 排序函数
+    $sortAlbums = function ($group) {
+        return $group->sortByDesc(function ($album) {
+            if (preg_match('/(\d{4})年$/', $album->name, $m)) {
+                return '0_' . $m[1];
+            }
+            return '1_' . $album->created_at->format('YmdHis');
+        })->values();
+    };
+
+    // 按节目分组，再分年度/非年度
+    $buildGroups = function ($collection) use ($isYearly, $sortAlbums) {
+        return $collection->groupBy(fn ($a) => $a->target?->name ?? '其他')
+            ->map(function ($group) use ($isYearly, $sortAlbums) {
+                $target = $group->first(fn ($a) => $a->target)?->target;
+                $isArchived = $target && $target->end_at && $target->end_at <= now();
+                return [
+                    'cover' => $target?->cover,
+                    'end_at' => $target?->end_at,
+                    'archived' => $isArchived,
+                    'tags' => $target?->tags->where('type', 'ly')->pluck('name')->toArray() ?? [],
+                    'yearly' => $sortAlbums($group->filter($isYearly)),
+                    'other' => $sortAlbums($group->reject($isYearly)),
+                ];
+            });
+    };
+
+    $allGroups = $buildGroups($albums);
+
+    // 排序：在播按名称升序排前面，停播按 end_at 倒序排后面
+    $allGroups = $allGroups->sortBy(function ($group, $name) {
+        if ($group['archived']) {
+            // 停播排后面，按 end_at 倒序（用 9999 减去时间戳）
+            $ts = $group['end_at'] ? (9999999999 - strtotime($group['end_at'])) : 9999999999;
+            return '1_' . str_pad($ts, 15, '0', STR_PAD_LEFT);
+        }
+        // 在播排前面，按名称升序
+        return '0_' . $name;
+    });
+
+    return view('album.index', compact('allGroups', 'lyTags'));
+})->name('albums.index');
+
+Route::get('/album/{hashId}', function ($hashId) {
+    $album = Album::findOrFail(Album::keyFromHashId($hashId));
+
+    if ($album->status !== 'published') abort(404);
+
+    $playlist = $album->getPlaylistItems();
+
+    return view('album.playlist', compact('album', 'playlist'));
+})->name('album.show');

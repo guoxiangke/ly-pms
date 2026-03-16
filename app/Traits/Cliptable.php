@@ -9,6 +9,6 @@ trait Cliptable
 {
     public function clips(): MorphToMany
     {
-        return $this->morphToMany(Clip::class, 'cliptable');
+        return $this->morphToMany(Clip::class, 'clipable');
     }
 }

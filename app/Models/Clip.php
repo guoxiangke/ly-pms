@@ -16,18 +16,25 @@ class Clip extends Model
     use SoftDeletes;
     // if(App::isProduction()) use Searchable;
 
+    protected $guarded = ['id', 'created_at', 'updated_at', 'deleted_at'];
+
     public function lyItems(): MorphToMany
     {
-        return $this->morphedByMany(LyItem::class, 'contentable');
+        return $this->morphedByMany(LyItem::class, 'clipable');
     }
 
     public function ltsItems(): MorphToMany
     {
-        return $this->morphedByMany(LtsItem::class, 'contentable');
+        return $this->morphedByMany(LtsItem::class, 'clipable');
     }
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function album(): BelongsTo
+    {
+        return $this->belongsTo(Album::class);
     }
 }

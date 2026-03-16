@@ -16,6 +16,13 @@
           .preventEvents > * {
             pointer-events: none;
           }
+          .waveform-loading {
+            animation: waveform-pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+          }
+          @keyframes waveform-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+          }
           /* Main styles */
           :root {
             --primary-color: rgb(24, 24, 24);

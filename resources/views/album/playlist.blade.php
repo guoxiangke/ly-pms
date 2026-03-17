@@ -39,9 +39,11 @@
       <div class="flex flex-nowrap audio-player my-4">
         <div class="p-4" style="padding-right: 0;">
           @if($album->avatar)
-          <img src="{{$album->avatar}}" style="max-width: 150px;" class="rounded-lg bg-slate-100 pt-1" loading="lazy">
+          <img id="albumCover" src="{{$album->avatar}}" style="max-width: 150px;" class="rounded-lg bg-slate-100 pt-1" loading="lazy">
           @elseif($album->target)
-          <img src="{{$album->target->cover}}" style="max-width: 150px;" class="rounded-lg bg-slate-100 pt-1" loading="lazy">
+          <img id="albumCover" src="{{$album->target->cover}}" style="max-width: 150px;" class="rounded-lg bg-slate-100 pt-1" loading="lazy">
+          @else
+          <img id="albumCover" src="{{$first->lyItem->ly_meta->cover ?? ''}}" style="max-width: 150px;" class="rounded-lg bg-slate-100 pt-1" loading="lazy">
           @endif
           <div class="gap-1 flex items-center justify-center mt-3">
             <button class="prev" type="button" aria-label="Previous">
@@ -72,17 +74,17 @@
           </div>
         </div>
 
-        <div class="flex-auto">
+        <div class="flex-auto min-w-0">
           <div class="p-4 player-body">
-            <p class="playButton title" id="playButton">
-              <svg id="playButton-play" class="cursor-pointer inline h-5 w-5 flex-none" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true">
-                <svg class="h-5 w-5 flex-none inline -ml-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50"><path d="M 10 5.25 L 10 44.75 L 11.5 43.875 L 42.09375 25.875 L 43.5625 25 L 42.09375 24.125 L 11.5 6.125 Z M 12 8.75 L 39.59375 25 L 12 41.25 Z"/></svg>
+            <div class="playButton title flex items-center gap-1" id="playButton">
+              <svg id="playButton-play" class="cursor-pointer h-5 w-5 flex-none" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true">
+                <svg class="h-5 w-5 flex-none -ml-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50"><path d="M 10 5.25 L 10 44.75 L 11.5 43.875 L 42.09375 25.875 L 43.5625 25 L 42.09375 24.125 L 11.5 6.125 Z M 12 8.75 L 39.59375 25 L 12 41.25 Z"/></svg>
               </svg>
-              <svg id="playButton-pause" class="cursor-pointer hidden inline flex-none h-5 w-5 m-auto h-full" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true">
+              <svg id="playButton-pause" class="cursor-pointer hidden h-5 w-5 flex-none" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M 10 6 L 10 26 L 12 26 L 12 6 Z M 20 6 L 20 26 L 22 26 L 22 6 Z"/></svg>
               </svg>
-              <span id="play_at">@if($album->is_rrule_mode){{$first->lyItem->description ?? $first->playAt?->format('Ymd')}}@else{{$first->playAt?->format('Ymd')}}@endif</span> - <span id="play_title">{{$first->title}}</span>
-            </p>
+              <span class="marquee-wrap"><span class="marquee-inner">@if($album->is_rrule_mode)<span id="play_at">{{$first->lyItem->description ?? $first->playAt?->format('Ymd')}}</span> - <span id="play_title">{{$first->title}}</span>@else<span id="play_at">{{$first->lyItem->description ?? $first->title}}</span> @<span id="play_title">{{$first->title}}</span>@endif</span></span>
+            </div>
 
             <div id="waveform" class="py-2 waveform"></div>
 
@@ -113,6 +115,7 @@
                   data-length='{{$playlistItem->length}}'
                   data-desc='{{$playlistItem->lyItem->description ?? $playlistItem->playAt?->format("Ymd")}}'
                   data-title='{{$playlistItem->title}}'
+                  data-cover='{{$playlistItem->lyItem->ly_meta->cover ?? ""}}'
                   title="Play"
                   class="preventEvents track cursor-pointer flex min-w-0 gap-x-4">
                   <div class="flex shrink-0 items-center gap-x-4">
@@ -155,16 +158,28 @@
       document.addEventListener("DOMContentLoaded", function() {
         var isRrule = {{ $album->is_rrule_mode ? 'true' : 'false' }};
         initWavePlayer({
+          timeline: {{ $album->is_rrule_mode ? 'false' : 'true' }},
           volumeOnSrc: "{{ asset('/waveplayer/volume.svg') }}",
           volumeOffSrc: "{{ asset('/waveplayer/mute.svg') }}",
           volumeOnTitle: "Mute",
           volumeOffTitle: "Unmute",
           onTrackChange: function(el) {
-            var playAtText = isRrule
-              ? (el.getAttribute('data-desc') || el.getAttribute('data-date'))
-              : el.getAttribute('data-date');
-            document.querySelector('#play_at').innerHTML = playAtText;
-            document.querySelector('#play_title').innerHTML = el.getAttribute('data-title') || '';
+            var desc = el.getAttribute('data-desc') || el.getAttribute('data-date');
+            var title = el.getAttribute('data-title') || '';
+            if (isRrule) {
+              document.querySelector('#play_at').innerHTML = desc;
+              document.querySelector('#play_title').innerHTML = title;
+            } else {
+              document.querySelector('#play_at').innerHTML = desc;
+              document.querySelector('#play_title').innerHTML = title;
+            }
+            @if(!$album->avatar && !$album->target)
+            var cover = el.getAttribute('data-cover');
+            if (cover) {
+              var img = document.querySelector('#albumCover');
+              if (img) img.src = cover;
+            }
+            @endif
           }
         });
       });

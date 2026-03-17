@@ -16,7 +16,11 @@
           .preventEvents > * {
             pointer-events: none;
           }
+          .waveform {
+            transition: filter 0.4s ease;
+          }
           .waveform-loading {
+            filter: blur(2px);
             animation: waveform-pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
           }
           @keyframes waveform-pulse {
@@ -35,6 +39,25 @@
             --border-radius: 1rem;
           }
 
+
+          /* Play button title: single line, scroll if overflow */
+          .player-body {
+            min-width: 0;
+          }
+          .playButton.title {
+            white-space: nowrap;
+          }
+          .marquee-wrap {
+            overflow: hidden;
+            flex: 1;
+            min-width: 0;
+          }
+          .marquee-wrap .marquee-inner {
+            display: inline-block;
+          }
+          .playButton.title.paused .marquee-inner {
+            animation-play-state: paused !important;
+          }
 
           /* Audio player */
           .audio-player {

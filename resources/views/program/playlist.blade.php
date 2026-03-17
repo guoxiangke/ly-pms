@@ -257,6 +257,7 @@
     <script type="text/javascript">
       document.addEventListener("DOMContentLoaded", function() {
         initWavePlayer({
+          timeline: false,
           volumeOnSrc: "{{ asset('/waveplayer/volume.svg') }}",
           volumeOffSrc: "{{ asset('/waveplayer/mute.svg') }}",
           volumeOnTitle: "静音",

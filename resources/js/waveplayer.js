@@ -33,6 +33,36 @@ window.initWavePlayer = function (options = {}) {
   let currentBeginAt = 0;
   let currentLength = 0;
 
+  // --- Clip view helpers --- //
+  const isClipMode = () => currentBeginAt > 0 && currentLength > 0;
+
+  const scrollToClipStart = () => {
+    const scrollContainer = wavesurfer.getWrapper().parentElement;
+    if (!scrollContainer) return;
+    const duration = wavesurfer.getDuration();
+    if (duration > 0) {
+      const scrollFrac = currentBeginAt / duration;
+      scrollContainer.scrollLeft = scrollFrac * scrollContainer.scrollWidth;
+    }
+  };
+
+  const applyClipView = () => {
+    if (!isClipMode()) return removeClipView();
+    // 先记录容器宽度（zoom 前），再锁定防止被撑开
+    const containerWidth = waveform.clientWidth;
+    waveform.style.maxWidth = containerWidth + 'px';
+    waveform.style.overflow = 'hidden';
+    const pxPerSec = containerWidth / currentLength;
+    wavesurfer.zoom(pxPerSec);
+    scrollToClipStart();
+  };
+
+  const removeClipView = () => {
+    wavesurfer.zoom(0);
+    waveform.style.maxWidth = '';
+    waveform.style.overflow = '';
+  };
+
   audio.dataset.id = 0;
 
   // Read initial track constraints
@@ -45,6 +75,20 @@ window.initWavePlayer = function (options = {}) {
     }
   }
 
+  const plugins = [];
+  if (options.timeline !== false) {
+    plugins.push(WaveSurferTimeline.create({
+      height: 16,
+      insertPosition: 'beforebegin',
+      style: { fontSize: '11px', color: '#888' },
+      formatTimeCallback: (seconds) => {
+        const m = Math.floor(seconds / 60);
+        const s = Math.round(seconds % 60);
+        return `${m}:${String(s).padStart(2, '0')}`;
+      },
+    }));
+  }
+
   const wavesurfer = WaveSurfer.create({
     container: '#waveform',
     peaks: preDecodeJson.data,
@@ -52,8 +96,14 @@ window.initWavePlayer = function (options = {}) {
     barGap: 1,
     barRadius: 2,
     media: audio,
-    barAlign: 'bottom'
+    barAlign: 'bottom',
+    plugins,
   });
+
+  // Clip mode: show loading blur until real decode
+  if (isClipMode()) {
+    waveform.classList.add('waveform-loading');
+  }
 
   // --- Waveform peaks cache: memory + localStorage (1 day) --- //
   const peaksCache = {};
@@ -91,6 +141,36 @@ window.initWavePlayer = function (options = {}) {
     wavesurfer.load(url);
   };
 
+  // Clip mode: use audio metadata duration to apply correct zoom on placeholder peaks,
+  // then loadTrack to decode real waveform in background
+  if (isClipMode() && firstTrack) {
+    const firstUrl = firstTrack.getAttribute('data-url');
+    const applyInitialClipView = () => {
+      if (audio.duration && isFinite(audio.duration)) {
+        // Apply zoom to placeholder peaks using real audio duration
+        const containerWidth = waveform.clientWidth;
+        if (containerWidth > 0) {
+          waveform.style.maxWidth = containerWidth + 'px';
+          waveform.style.overflow = 'hidden';
+          const pxPerSec = containerWidth / currentLength;
+          wavesurfer.zoom(pxPerSec);
+          scrollToClipStart();
+        }
+        totalDuration.innerHTML = formatTimecode(audio.duration);
+      }
+    };
+    if (audio.duration && isFinite(audio.duration)) {
+      applyInitialClipView();
+    } else {
+      audio.addEventListener('loadedmetadata', applyInitialClipView, { once: true });
+    }
+    if (firstUrl) {
+      waveform.classList.add('waveform-loading');
+      // Pass resolved URL so setSrc skips replacing audio.src
+      loadTrack(audio.src || firstUrl);
+    }
+  }
+
   // --- Play/pause button sync --- //
   const syncPlayButtons = (isPlaying) => {
     const index = audio.dataset.id;
@@ -98,6 +178,7 @@ window.initWavePlayer = function (options = {}) {
     playButtonPause.classList.toggle('hidden', !isPlaying);
     playButtonsPlay[index].classList.toggle('hidden', isPlaying);
     playButtonsPause[index].classList.toggle('hidden', !isPlaying);
+    playButton.classList.toggle('paused', !isPlaying);
   };
 
   const togglePlay = (e) => {
@@ -124,7 +205,9 @@ window.initWavePlayer = function (options = {}) {
 
         // Custom title / metadata update
         if (options.onTrackChange) {
+          playButton.classList.remove('marquee');
           options.onTrackChange(e.target);
+          requestAnimationFrame(updateMarquee);
         }
 
         // Read clip constraints
@@ -144,7 +227,9 @@ window.initWavePlayer = function (options = {}) {
           });
         }
         audio.play();
-        loadTrack(url);
+        // Pass resolved URL so wavesurfer.setSrc() sees src===url and skips
+        // replacing audio.src with blob URL (which would reset currentTime)
+        loadTrack(audio.src);
       } else {
         togglePlay(e);
       }
@@ -152,6 +237,34 @@ window.initWavePlayer = function (options = {}) {
   });
 
   // --- Helpers --- //
+  const marqueeWrap = playButton.querySelector('.marquee-wrap');
+  const marqueeInner = playButton.querySelector('.marquee-inner');
+  const updateMarquee = () => {
+    if (!marqueeInner || !marqueeWrap) return;
+    const overflow = marqueeInner.scrollWidth - marqueeWrap.clientWidth;
+    if (overflow > 0) {
+      const pauseTime = 5;
+      const scrollTime = Math.max(4.5, overflow / 100 * 4.5);
+      const duration = scrollTime + pauseTime * 2;
+      const p1 = Math.round(pauseTime / duration * 100);
+      const p2 = Math.round((pauseTime + scrollTime) / duration * 100);
+      const dist = -overflow + 'px';
+      const animName = 'mq-' + Date.now();
+      const keyframes = `@keyframes ${animName} { 0%,${p1}% { transform: translateX(0); } ${p2}%,100% { transform: translateX(${dist}); } }`;
+      let styleEl = document.getElementById('marquee-kf');
+      if (!styleEl) { styleEl = document.createElement('style'); styleEl.id = 'marquee-kf'; document.head.appendChild(styleEl); }
+      styleEl.textContent = keyframes;
+      marqueeInner.style.animation = `${animName} ${duration}s linear infinite`;
+      playButton.classList.add('marquee');
+    } else {
+      playButton.classList.remove('marquee');
+      marqueeInner.style.animation = '';
+    }
+  };
+  // Initial check (after fonts loaded); start paused
+  playButton.classList.add('paused');
+  requestAnimationFrame(updateMarquee);
+
   const formatTimecode = (seconds) =>
     new Date(seconds * 1000).toISOString().substr(14, 5);
 
@@ -187,15 +300,40 @@ window.initWavePlayer = function (options = {}) {
   // --- Event listeners --- //
   playButton.addEventListener('click', togglePlay);
   volumeIcon.addEventListener('click', toggleMute);
-  rewindButton.forEach((bt) => bt.addEventListener('click', () => wavesurfer.skip(-10)));
-  skipButton.forEach((bt) => bt.addEventListener('click', () => wavesurfer.skip(10)));
+  const clampedSkip = (delta) => {
+    if (isClipMode()) {
+      const current = wavesurfer.getCurrentTime();
+      const target = Math.max(currentBeginAt, Math.min(current + delta, currentBeginAt + currentLength));
+      wavesurfer.setTime(target);
+    } else {
+      wavesurfer.skip(delta);
+    }
+  };
+
+  rewindButton.forEach((bt) => bt.addEventListener('click', () => clampedSkip(-10)));
+  skipButton.forEach((bt) => bt.addEventListener('click', () => clampedSkip(10)));
   speedButton.forEach((bt) => bt.addEventListener('click', handleSpeedChange));
   nextButton.forEach((bt) => bt.addEventListener('click', handleNext));
   prevButton.forEach((bt) => bt.addEventListener('click', handlePrev));
 
+  // Ensure clip starts at beginAt position after wavesurfer ready
+  const restoreClipPosition = () => {
+    if (audio.currentTime < currentBeginAt) {
+      wavesurfer.setTime(currentBeginAt);
+    }
+    currentTime.innerHTML = formatTimecode(audio.currentTime);
+  };
+
   wavesurfer.on('ready', () => {
     wavesurfer.setVolume(1);
-    totalDuration.innerHTML = formatTimecode(wavesurfer.getDuration());
+    if (isClipMode()) {
+      totalDuration.innerHTML = formatTimecode(wavesurfer.getDuration());
+      applyClipView();
+      restoreClipPosition();
+    } else {
+      totalDuration.innerHTML = formatTimecode(wavesurfer.getDuration());
+      removeClipView();
+    }
     waveform.classList.remove('waveform-loading');
     cachePeaks(audio.src);
   });
@@ -214,6 +352,12 @@ window.initWavePlayer = function (options = {}) {
 
   wavesurfer.on('finish', () => handleNext());
 
+  wavesurfer.on('redrawcomplete', () => {
+    if (isClipMode()) {
+      scrollToClipStart();
+    }
+  });
+
   // --- Keyboard shortcuts --- //
   window.addEventListener('keydown', function (e) {
     if (e.metaKey || e.ctrlKey || e.altKey) return;
@@ -223,11 +367,11 @@ window.initWavePlayer = function (options = {}) {
     }
     if (e.key === 'ArrowRight') {
       e.preventDefault();
-      wavesurfer.skip(30);
+      clampedSkip(30);
     }
     if (e.key === 'ArrowLeft') {
       e.preventDefault();
-      wavesurfer.skip(-30);
+      clampedSkip(-30);
     }
     if (e.key === 'ArrowDown') {
       e.preventDefault();

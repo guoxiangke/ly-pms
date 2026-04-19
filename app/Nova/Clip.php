@@ -10,6 +10,7 @@ use Laravel\Nova\Fields\Textarea;
 use Laravel\Nova\Fields\Number;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\MorphToMany;
+use AlmirHodzic\NovaSortable5\Sortable;
 
 class Clip extends Resource
 {
@@ -38,26 +39,42 @@ class Clip extends Resource
 
     public static $perPageViaRelationship = 25;
 
+    public static function indexQuery(NovaRequest $request, $query)
+    {
+        if (empty($request->get('orderBy'))) {
+            $query->getQuery()->orders = [];
+            $query->orderBy('sort_order', 'asc');
+        }
+        return $query;
+    }
+
     public function fields(NovaRequest $request)
     {
+        $viaRelationship = $request->viaRelationship();
+
         return [
-            ID::make()->sortable(),
+            Sortable::make('Order', 'sort_order')
+                ->showOnIndex($viaRelationship),
+
+            ID::make()->sortable()
+                ->showOnIndex(! $viaRelationship),
 
             Text::make(__('Clip Title'), 'title')
                 ->rules('required')
                 ->sortable(),
 
-            Number::make(__('Begin At (seconds)'), 'begin_at')
-                ->default(0)
-                ->min(0)
-                ->step(1)
-                ->help(__('Start time in seconds. 0 means from the beginning.')),
+            Text::make(__('Begin At'), 'begin_at')
+                ->resolveUsing(fn ($value) => $this->secondsToTime($value))
+                ->fillUsing(function (NovaRequest $request, $model, $attribute) {
+                    $model->{$attribute} = $this->timeToSeconds($request->input($attribute));
+                })
+                ->default('00:00')
+                ->help(__('Format: MM:SS or HH:MM:SS. 00:00 means from the beginning.')),
 
-            Number::make(__('Length (seconds)'), 'length')
+            Text::make(__('Length'), 'length')
+                ->displayUsing(fn ($value) => $this->secondsToTime((int) $this->begin_at + (int) $value))
                 ->default(0)
-                ->min(0)
-                ->step(1)
-                ->help(__('Duration in seconds. 0 means full audio.')),
+                ->help(__('Seconds. 0 means full audio.')),
 
             Textarea::make(__('AI Summary'), 'ars_summary')
                 ->hideFromIndex()
@@ -97,5 +114,37 @@ class Clip extends Resource
     public function actions(NovaRequest $request)
     {
         return [];
+    }
+
+    protected function secondsToTime(?int $seconds): string
+    {
+        $seconds = $seconds ?? 0;
+        $h = intdiv($seconds, 3600);
+        $m = intdiv($seconds % 3600, 60);
+        $s = $seconds % 60;
+
+        return $h > 0
+            ? sprintf('%d:%02d:%02d', $h, $m, $s)
+            : sprintf('%02d:%02d', $m, $s);
+    }
+
+    protected function timeToSeconds(?string $time): int
+    {
+        if (empty($time)) {
+            return 0;
+        }
+
+        // Already numeric (seconds)
+        if (is_numeric($time)) {
+            return (int) $time;
+        }
+
+        $parts = array_map('intval', explode(':', $time));
+
+        return match (count($parts)) {
+            3 => $parts[0] * 3600 + $parts[1] * 60 + $parts[2],
+            2 => $parts[0] * 60 + $parts[1],
+            default => (int) $time,
+        };
     }
 }

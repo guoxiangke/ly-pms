@@ -1,4 +1,4 @@
-<x-player-layout>
+<x-player-layout :title="$lyMeta->name">
     <nav class="border-gray-200 bg-gray-50 dark:bg-gray-100 dark:border-gray-50">
       <div class="max-w-screen-xl flex flex-wrap items-center justify-between m-8 py-4" style="margin-top: 0;">
         <a href="#" class="">

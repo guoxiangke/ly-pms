@@ -9,11 +9,25 @@ use Illuminate\Database\Eloquent\Model;
 use App;
 use Laravel\Scout\Searchable;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\EloquentSortable\Sortable;
+use Spatie\EloquentSortable\SortableTrait;
 
-class Clip extends Model
+class Clip extends Model implements Sortable
 {
     use HasFactory;
     use SoftDeletes;
+    use SortableTrait;
+
+    public $sortable = [
+        'order_column_name' => 'sort_order',
+        'sort_when_creating' => true,
+        'sort_on_has_many' => true,
+    ];
+
+    public function buildSortQuery()
+    {
+        return static::query()->where('album_id', $this->album_id);
+    }
     // if(App::isProduction()) use Searchable;
 
     protected $guarded = ['id', 'created_at', 'updated_at', 'deleted_at'];

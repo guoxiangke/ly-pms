@@ -83,7 +83,7 @@ class CreateLymetaYearAlbum extends Command
                 'target_id' => $lyMeta->id,
                 'target_type' => LyMeta::class,
                 'rrule' => $rrule,
-                'status' => 'published',
+                'published_at' => now(),
             ]);
 
             $this->info("  创建: {$name}（{$count} 集）");

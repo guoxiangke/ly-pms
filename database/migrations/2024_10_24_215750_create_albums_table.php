@@ -17,7 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('target_id')->nullable();
             $table->string('target_type')->nullable();
             $table->text('rrule')->nullable();
-            $table->string('status')->default('draft');
+             $table->timestamp('published_at')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

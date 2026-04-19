@@ -171,9 +171,11 @@ Route::get('/share/{hashId}', function ($hashId) {
 })->name('share.lyItem');
 
 Route::get('/albums', function () {
-    $albums = Album::where('status', 'published')
-        ->with('target.tags')
-        ->get();
+    $query = Album::with('target.tags');
+    if (auth()->id() !== 1) {
+        $query->published();
+    }
+    $albums = $query->get();
 
     // 获取所有 ly 分类标签
     $lyTags = \App\Models\Tag::where('type', 'ly')->orderBy('order_column')->get();
@@ -227,7 +229,7 @@ Route::get('/albums', function () {
 Route::get('/album/{hashId}', function ($hashId) {
     $album = Album::findOrFail(Album::keyFromHashId($hashId));
 
-    if ($album->status !== 'published') abort(404);
+    if (! $album->published_at && auth()->id() !== 1) abort(404);
 
     $playlist = $album->getPlaylistItems();
 

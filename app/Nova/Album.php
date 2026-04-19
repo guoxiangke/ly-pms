@@ -9,6 +9,7 @@ use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Fields\Textarea;
 use Laravel\Nova\Fields\Image;
 use Laravel\Nova\Fields\Select;
+use Laravel\Nova\Fields\DateTime;
 use Laravel\Nova\Fields\HasMany;
 use Laravel\Nova\Fields\MorphTo;
 use Laravel\Nova\Fields\Badge;
@@ -84,19 +85,20 @@ class Album extends Resource
                 return '-';
             })->asHtml()->onlyOnIndex(),
 
-            Select::make(__('Status'), 'status')
-                ->options([
-                    'draft' => __('Draft'),
-                    'published' => __('Published'),
-                ])
-                ->default('draft')
-                ->displayUsingLabels()
-                ->hideFromIndex(),
+            DateTime::make(__('Published At'), 'published_at')
+                ->sortable()
+                ->nullable()
+                ->help(__('留空表示未发布')),
 
-            Badge::make(__('Status'), 'status')
-                ->map([
+            Badge::make(__('Status'), function () {
+                return $this->published_at ? 'published' : 'draft';
+            })->map([
                     'draft' => 'info',
                     'published' => 'success',
+                ])
+                ->labels([
+                    'draft' => __('未发布'),
+                    'published' => __('已发布'),
                 ])
                 ->onlyOnIndex(),
 
@@ -106,10 +108,11 @@ class Album extends Resource
                 ])
                 ->searchable()
                 ->nullable()
-                ->hideFromIndex(),
+                ->hideFromIndex()
+                ->help(__('RRule 模式：必须与 RRule 同时填写。Manual 模式：必须留空。')),
 
             Textarea::make(__('RRule'), 'rrule')
-                ->help(__('RFC 5545 recurrence rule. e.g.: FREQ=WEEKLY;BYDAY=FR;DTSTART=20220101T000000Z;UNTIL=20221231T235959Z'))
+                ->help(__('RFC 5545 recurrence rule，必须与 Target Program 同时填写。Manual 专辑请留空。e.g.: FREQ=WEEKLY;BYDAY=FR;DTSTART=20220101T000000Z;UNTIL=20221231T235959Z'))
                 ->hideFromIndex(),
 
             Text::make(__('Mode'), function () {

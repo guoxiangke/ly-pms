@@ -6,6 +6,10 @@ use Illuminate\View\Component;
 
 class PlayerLayout extends Component
 {
+    public function __construct(public string $title = '')
+    {
+    }
+
     /**
      * Get the view / contents that represents the component.
      *

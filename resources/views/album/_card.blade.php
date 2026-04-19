@@ -20,6 +20,9 @@
         <h3 class="text-sm font-semibold text-slate-900 truncate group-hover:text-orange-600 transition-colors">
             {{ $album->name }}
         </h3>
+        @unless($album->published_at)
+        <span class="inline-block mt-1 px-1.5 py-0.5 text-xs font-medium text-orange-600 bg-orange-50 rounded">未发布</span>
+        @endunless
         @if($album->description)
         <p class="mt-1 text-xs text-gray-500 line-clamp-2 leading-relaxed">{{ $album->description }}</p>
         @endif

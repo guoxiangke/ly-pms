@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Support\Collection;
+use Illuminate\Validation\ValidationException;
 use Deligoez\LaravelModelHashId\Traits\HasHashId;
 use Recurr\Rule;
 use Recurr\Transformer\ArrayTransformer;
@@ -26,7 +27,31 @@ class Album extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime',
+        'published_at' => 'datetime',
     ];
+
+    protected static function booted(): void
+    {
+        static::saving(function (Album $album) {
+            $hasTarget = !empty($album->target_id) && !empty($album->target_type);
+            $hasRrule = !empty($album->rrule);
+
+            // 必须同时存在或同时不存在，视为 RRule / Manual 两种互斥模式
+            if ($hasTarget !== $hasRrule) {
+                throw ValidationException::withMessages([
+                    'rrule' => 'RRule 专辑必须同时填写 Target Program 与 RRule，Manual 专辑必须同时留空。',
+                ]);
+            }
+        });
+    }
+
+    /**
+     * 已发布的专辑（published_at 非空）
+     */
+    public function scopePublished($query)
+    {
+        return $query->whereNotNull('published_at');
+    }
 
     /**
      * 多态关联到目标模型（暂时只有 LyMeta）
@@ -115,6 +140,7 @@ class Album extends Model
             ->with(['lyItems' => function ($query) {
                 $query->with('ly_meta', 'contents.attachments');
             }])
+            ->ordered()
             ->get();
 
         return $clips->flatMap(function (Clip $clip) {
@@ -128,7 +154,7 @@ class Album extends Model
                     playAt: $item->play_at,
                 );
             });
-        })->sortBy('playAt')->values();
+        })->values();
     }
 
     /**

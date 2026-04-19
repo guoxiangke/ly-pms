@@ -9,6 +9,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.1",
+        "almirhodzic/nova-sortable-5": "^1.0",
         "badinansoft/nova-language-switch": "^2.0.0",
         "deligoez/laravel-model-hashid": "^2.4",
         "guzzlehttp/guzzle": "^7.2",

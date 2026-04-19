@@ -22,6 +22,7 @@ return new class extends Migration
             $table->foreignId('user_id');
             $table->foreignId('album_id')->nullable()
                   ->constrained('albums')->nullOnDelete();
+            $table->integer('sort_order')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

@@ -19,7 +19,11 @@ class ClipPolicy
 
     public function create(User $user): bool
     {
-        return true;
+        // 仅允许通过关系入口（LyItem / Album 的 Clips 关系）创建，
+        // 屏蔽 /admin/resources/clips 列表页的全局 "+ Create Clip" 按钮。
+        $viaResource = request()->query('viaResource') ?? request()->input('viaResource');
+
+        return in_array($viaResource, ['ly-items', 'albums'], true);
     }
 
     public function update(User $user, Clip $clip): bool

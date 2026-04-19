@@ -416,7 +416,7 @@ class WebRoutesTest extends TestCase
      */
     public function test_albums_index_shows_published_albums(): void
     {
-        $album = Album::where('status', 'published')->first();
+        $album = Album::published()->first();
 
         if (! $album) {
             $this->markTestSkipped('没有已发布的专辑数据，跳过测试');
@@ -433,7 +433,7 @@ class WebRoutesTest extends TestCase
      */
     public function test_albums_index_hides_draft_albums(): void
     {
-        $draft = Album::where('status', 'draft')->first();
+        $draft = Album::whereNull('published_at')->first();
 
         if (! $draft) {
             $this->markTestSkipped('没有草稿专辑数据，跳过测试');
@@ -463,7 +463,7 @@ class WebRoutesTest extends TestCase
      */
     public function test_albums_index_shows_archived_suffix(): void
     {
-        $album = Album::where('status', 'published')
+        $album = Album::published()
             ->whereHasMorph('target', [LyMeta::class], fn ($q) => $q->where('end_at', '<=', now()))
             ->with('target')
             ->first();
@@ -483,7 +483,7 @@ class WebRoutesTest extends TestCase
      */
     public function test_albums_index_onair_no_archived_suffix(): void
     {
-        $album = Album::where('status', 'published')
+        $album = Album::published()
             ->whereHasMorph('target', [LyMeta::class], fn ($q) => $q->where(function ($q2) {
                 $q2->whereNull('end_at')->orWhere('end_at', '>', now());
             }))
@@ -517,7 +517,7 @@ class WebRoutesTest extends TestCase
      */
     public function test_albums_index_archived_groups_have_data_attribute(): void
     {
-        $album = Album::where('status', 'published')
+        $album = Album::published()
             ->whereHasMorph('target', [LyMeta::class], fn ($q) => $q->where('end_at', '<=', now()))
             ->first();
 
@@ -538,7 +538,7 @@ class WebRoutesTest extends TestCase
      */
     public function test_album_show_with_published_album(): void
     {
-        $album = Album::where('status', 'published')->first();
+        $album = Album::published()->first();
 
         if (! $album) {
             $this->markTestSkipped('没有已发布的专辑数据，跳过测试');
@@ -554,7 +554,7 @@ class WebRoutesTest extends TestCase
      */
     public function test_album_show_with_draft_album_returns_404(): void
     {
-        $album = Album::where('status', 'draft')->first();
+        $album = Album::whereNull('published_at')->first();
 
         if (! $album) {
             $this->markTestSkipped('没有草稿专辑数据，跳过测试');
@@ -580,7 +580,7 @@ class WebRoutesTest extends TestCase
      */
     public function test_album_show_displays_album_name(): void
     {
-        $album = Album::where('status', 'published')->first();
+        $album = Album::published()->first();
 
         if (! $album) {
             $this->markTestSkipped('没有已发布的专辑数据，跳过测试');

@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 use Laravel\Nova\Nova;
 use Laravel\Nova\NovaApplicationServiceProvider;
@@ -21,6 +22,7 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
         parent::boot();
         // Nova::withBreadcrumbs();
         Nova::withoutNotificationCenter();
+
         Nova::withoutThemeSwitcher();
         Nova::footer(function ($request) {
             return Blade::render('<p class="text-center">&copy; {!! $year !!} <a href="https://729ly.net">良友电台</a> · v{!! $version !!}<span class="hidden">Created by dale404200@gmail.com</span></p>', [
@@ -42,6 +44,14 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
                 ->withAuthenticationRoutes()
                 // ->withPasswordResetRoutes()
                 ->register();
+
+        // nova-sortable 路由需要触发 ServingNova 事件来注册资源
+        Route::matched(function (\Illuminate\Routing\Events\RouteMatched $event) {
+            if (str_starts_with($event->route->uri(), 'nova-vendor/nova-sortable')) {
+                Nova::serving(function () {});
+                event(new \Laravel\Nova\Events\ServingNova($event->request));
+            }
+        });
     }
 
     /**

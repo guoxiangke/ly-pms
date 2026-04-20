@@ -9,7 +9,10 @@ use Illuminate\Console\Command;
 
 class CreateLymetaYearAlbum extends Command
 {
-    protected $signature = 'create-lymeta-year-album {code : 节目代码，如 bc} {year? : 指定年份，不填则从最早年份到去前年份}';
+    protected $signature = 'create-lymeta-year-album
+                            {code : 节目代码，如 bc}
+                            {year? : 指定年份，不填则从最早年份到去前年份}
+                            {--draft : 创建为草稿（published_at 为空）}';
 
     protected $description = '为指定节目按年创建专辑（幂等，已存在则跳过）';
 
@@ -83,7 +86,7 @@ class CreateLymetaYearAlbum extends Command
                 'target_id' => $lyMeta->id,
                 'target_type' => LyMeta::class,
                 'rrule' => $rrule,
-                'published_at' => now(),
+                'published_at' => $this->option('draft') ? null : now(),
             ]);
 
             $this->info("  创建: {$name}（{$count} 集）");

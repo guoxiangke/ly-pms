@@ -57,7 +57,10 @@ class ImportAllHistory extends Command
             // 2. 创建年度专辑
             $this->line("  > 创建年度专辑...");
             try {
-                Artisan::call('create-lymeta-year-album', ['code' => $meta->code]);
+                Artisan::call('create-lymeta-year-album', [
+                    'code' => $meta->code,
+                    '--draft' => true,
+                ]);
                 $output = trim(Artisan::output());
                 collect(explode("\n", $output))->each(fn ($line) => $this->line("    {$line}"));
                 $success++;

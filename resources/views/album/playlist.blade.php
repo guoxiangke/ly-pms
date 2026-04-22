@@ -11,17 +11,12 @@
     <details open>
       <summary class="cursor-pointer text-2xl font-extrabold tracking-tight text-slate-900">
         {{$album->name}}
-        <span class="text-sm font-medium ml-2 text-gray-500">{{$playlist->count()}} episodes</span>
+        <span class="text-sm font-medium ml-2 text-gray-500">{{$playlist->count()}} 集</span>
       </summary>
       <div class="mt-2 bg-gray-50 text-gray-600">
         <div class="p-4">
           <div class="text-gray-900">
             <p class="leading-7">{{$album->description}}</p>
-            @if($album->is_rrule_mode)
-            <p class="mt-1 text-sm text-gray-500">Mode: RRule | Target: {{$album->target?->name}} ({{$album->target?->code}})</p>
-            @else
-            <p class="mt-1 text-sm text-gray-500">Mode: Manual Clips</p>
-            @endif
           </div>
         </div>
       </div>

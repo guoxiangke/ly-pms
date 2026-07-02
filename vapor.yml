@@ -14,4 +14,5 @@ environments:
         build:
             - 'COMPOSER_MIRROR_PATH_REPOS=1 composer install --no-dev'
             - 'php artisan event:cache'
+            - 'php artisan nova:publish'
             - 'npm install --package-lock-only && npm ci && npm run build && rm -rf node_modules'

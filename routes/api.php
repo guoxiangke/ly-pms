@@ -8,6 +8,8 @@ use Nuwave\Lighthouse\Execution\ContextFactory;
 use App\Models\LyMeta;
 use App\Models\LyItem;
 use App\Models\Content;
+use App\Models\Album;
+use App\Models\Tag;
 use Illuminate\Support\Facades\Log;
 // use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
 /*
@@ -203,6 +205,97 @@ Route::get('/today', function (Request $request) {
   $data2 = $result['data']['lts_items']['data'];
 
   return ['data' => collect(array_merge($data1,$data2))->shuffle()];
+});
+
+// 专辑列表：按节目分组，结构与 /albums 网页版一致
+Route::get('/albums', function () {
+    $query = Album::with('target.tags');
+    if (auth()->id() !== 1) {
+        $query->published();
+    }
+    $albums = $query->get();
+
+    // 所有 ly 分类标签
+    $lyTags = Tag::where('type', 'ly')->orderBy('order_column')->get()
+        ->map(fn ($t) => ['id' => $t->id, 'name' => $t->name, 'order_column' => $t->order_column])
+        ->values();
+
+    // 单个专辑的精简结构
+    $mapAlbum = fn (Album $album) => [
+        'hash_id' => $album->hashId,
+        'name' => $album->name,
+        'description' => $album->description,
+        'cover' => $album->avatar ?: $album->target?->cover,
+        'is_rrule_mode' => $album->is_rrule_mode,
+        'created_at' => $album->created_at?->format('Y-m-d H:i:s'),
+    ];
+
+    // 是否年度专辑（名称以 XXXX年 结尾）
+    $isYearly = fn (Album $album) => (bool) preg_match('/\d{4}年$/', $album->name);
+
+    // 组内排序：年度按年份倒序，其余按创建时间倒序
+    $sortAlbums = fn ($group) => $group->sortByDesc(function (Album $album) {
+        if (preg_match('/(\d{4})年$/', $album->name, $m)) {
+            return '0_' . $m[1];
+        }
+        return '1_' . $album->created_at->format('YmdHis');
+    })->values();
+
+    // 按节目名分组
+    $groups = $albums->groupBy(fn (Album $a) => $a->target?->name ?? '其他')
+        ->map(function ($group, $name) use ($isYearly, $sortAlbums, $mapAlbum) {
+            $target = $group->first(fn (Album $a) => $a->target)?->target;
+            $isArchived = $target && $target->end_at && $target->end_at <= now();
+            return [
+                'name' => $name,
+                'cover' => $target?->cover,
+                'end_at' => $target?->end_at?->format('Y-m-d'),
+                'archived' => $isArchived,
+                'tags' => $target?->tags->where('type', 'ly')->pluck('name')->values()->toArray() ?? [],
+                'yearly' => $sortAlbums($group->filter($isYearly))->map($mapAlbum)->values(),
+                'other' => $sortAlbums($group->reject($isYearly))->map($mapAlbum)->values(),
+            ];
+        });
+
+    // 在播按名称升序排前，停播按 end_at 倒序排后
+    $groups = $groups->sortBy(function ($group, $name) {
+        if ($group['archived']) {
+            $ts = $group['end_at'] ? (9999999999 - strtotime($group['end_at'])) : 9999999999;
+            return '1_' . str_pad($ts, 15, '0', STR_PAD_LEFT);
+        }
+        return '0_' . $name;
+    })->values();
+
+    return ['data' => $groups, 'tags' => $lyTags];
+});
+
+// 专辑详情 + 播放列表
+Route::get('/album/{hashId}', function ($hashId) {
+    $album = Album::findOrFail(Album::keyFromHashId($hashId));
+
+    if (! $album->published_at && auth()->id() !== 1) abort(404);
+
+    $playlist = $album->getPlaylistItems()->map(fn ($item) => array_merge($item->toArray(), [
+        'description' => $item->lyItem->description ?? $item->playAt?->format('Ymd'),
+        'cover' => $item->lyItem->ly_meta->cover ?? null,
+    ]))->values();
+
+    // 封面：avatar → target cover → 首集节目 cover
+    $cover = $album->avatar
+        ?: $album->target?->cover
+        ?: $album->getPlaylistItems()->first()?->lyItem->ly_meta->cover;
+
+    return [
+        'data' => [
+            'hash_id' => $album->hashId,
+            'name' => $album->name,
+            'description' => $album->description,
+            'cover' => $cover,
+            'is_rrule_mode' => $album->is_rrule_mode,
+            'count' => $playlist->count(),
+            'playlist' => $playlist,
+        ],
+    ];
 });
 
 // ltsnp+cc

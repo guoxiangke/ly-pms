@@ -23,6 +23,7 @@ type Query {
     ly_meta(id: Int! @eq): LyMeta @find
     ly_meta_by_code(code: String! @eq): LyMeta @find
     ly_item(id: Int! @eq): LyItem @find
+    ly_item_by_alias(alias: String! @eq): LyItem @find
     ly_items(play_at: String! @eq): [LyItem!]! @paginate(defaultCount: 100)
     
     lts_metas: [LtsMeta!]! @all

@@ -33,8 +33,8 @@
 
       <div class="flex flex-nowrap audio-player my-4">
         <div class="p-4" style="padding-right: 0;">
-          @if($album->avatar)
-          <img id="albumCover" src="{{$album->avatar}}" style="max-width: 150px;" class="rounded-lg bg-slate-100 pt-1" loading="lazy">
+          @if($album->avatar_url)
+          <img id="albumCover" src="{{$album->avatar_url}}" style="max-width: 150px;" class="rounded-lg bg-slate-100 pt-1" loading="lazy">
           @elseif($album->target)
           <img id="albumCover" src="{{$album->target->cover}}" style="max-width: 150px;" class="rounded-lg bg-slate-100 pt-1" loading="lazy">
           @else
@@ -168,7 +168,7 @@
               document.querySelector('#play_at').innerHTML = desc;
               document.querySelector('#play_title').innerHTML = title;
             }
-            @if(!$album->avatar && !$album->target)
+            @if(!$album->avatar_url && !$album->target)
             var cover = el.getAttribute('data-cover');
             if (cover) {
               var img = document.querySelector('#albumCover');

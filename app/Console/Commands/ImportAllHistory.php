@@ -10,7 +10,8 @@ class ImportAllHistory extends Command
 {
     protected $signature = 'import-all-history
                             {--stopped : 仅已停播节目}
-                            {--all : 所有节目（含在播）}';
+                            {--all : 所有节目（含在播）}
+                            {--skip-import : 跳过 CDN 历史导入，仅创建年度专辑}';
 
     protected $description = '批量从 CDN 导入历史 LyItem + 创建年度专辑（幂等，可重复执行）';
 
@@ -38,20 +39,22 @@ class ImportAllHistory extends Command
             $this->info("=== [{$meta->id}] {$meta->name} (code={$meta->code}) ===");
 
             // 1. 导入历史 LyItem
-            $this->line("  > 导入历史数据...");
-            try {
-                $exitCode = Artisan::call('create-lyitems-history', ['code' => $meta->code]);
-                $output = trim(Artisan::output());
-                // 输出每行缩进
-                collect(explode("\n", $output))->each(fn ($line) => $this->line("    {$line}"));
+            if (!$this->option('skip-import')) {
+                $this->line("  > 导入历史数据...");
+                try {
+                    $exitCode = Artisan::call('create-lyitems-history', ['code' => $meta->code]);
+                    $output = trim(Artisan::output());
+                    // 输出每行缩进
+                    collect(explode("\n", $output))->each(fn ($line) => $this->line("    {$line}"));
 
-                if ($exitCode !== 0) {
-                    $this->warn("    导入失败（可能无 CDN 数据），继续...");
+                    if ($exitCode !== 0) {
+                        $this->warn("    导入失败（可能无 CDN 数据），继续...");
+                        $skipped++;
+                    }
+                } catch (\Exception $e) {
+                    $this->warn("    导入异常: {$e->getMessage()}，继续...");
                     $skipped++;
                 }
-            } catch (\Exception $e) {
-                $this->warn("    导入异常: {$e->getMessage()}，继续...");
-                $skipped++;
             }
 
             // 2. 创建年度专辑

@@ -2,11 +2,9 @@
    class="group block rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow duration-200"
    style="width: 160px;">
     <div class="bg-gray-100 overflow-hidden" style="width: 160px; height: 160px;">
-        @if($album->avatar)
-        <img src="{{ $album->avatar }}" alt="{{ $album->name }}"
-             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200" loading="lazy" />
-        @elseif($album->target?->cover)
-        <img src="{{ $album->target->cover }}" alt="{{ $album->name }}"
+        {{-- 封面：cover_url = 上传的 avatar → 归属节目 cover（片段型专辑由 resolvedTarget() 从收录的片段反查） --}}
+        @if($album->cover_url)
+        <img src="{{ $album->cover_url }}" alt="{{ $album->name }}"
              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200" loading="lazy" />
         @else
         <div class="w-full h-full flex items-center justify-center text-gray-300">

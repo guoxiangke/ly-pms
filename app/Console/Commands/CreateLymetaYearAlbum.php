@@ -31,6 +31,10 @@ class CreateLymetaYearAlbum extends Command
         $year = $this->argument('year');
 
         if ($year) {
+            if ((int) $year >= now()->year) {
+                $this->error("不能创建当年或未来年份的专辑: {$year}");
+                return 1;
+            }
             $years = [(int) $year];
         } else {
             $earliest = LyItem::where('ly_meta_id', $lyMeta->id)
@@ -43,9 +47,11 @@ class CreateLymetaYearAlbum extends Command
             }
 
             $startYear = (int) date('Y', strtotime($earliest));
+            // 不包含当年：停播节目取停播年份，但最多到去年
+            $lastYear = (int) now()->year - 1;
             $endYear = $lyMeta->end_at
-                ? (int) $lyMeta->end_at->format('Y')
-                : (int) now()->year - 1;
+                ? min((int) $lyMeta->end_at->format('Y'), $lastYear)
+                : $lastYear;
             $years = range($startYear, $endYear);
         }
 

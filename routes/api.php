@@ -209,11 +209,13 @@ Route::get('/today', function (Request $request) {
 
 // 专辑列表：按节目分组，结构与 /albums 网页版一致
 Route::get('/albums', function () {
-    $query = Album::with('target.tags');
+    // clips.lyItems.ly_meta 供 Manual（片段型）专辑反查归属节目，见 Album::resolvedTarget()
+    $query = Album::with(['target.tags', 'clips.lyItems.ly_meta.tags']);
     if (auth()->id() !== 1) {
-        $query->published();
+        // $query->published();
     }
     $albums = $query->get();
+    // dd($albums);
 
     // 所有 ly 分类标签
     $lyTags = Tag::where('type', 'ly')->orderBy('order_column')->get()
@@ -225,7 +227,7 @@ Route::get('/albums', function () {
         'hash_id' => $album->hashId,
         'name' => $album->name,
         'description' => $album->description,
-        'cover' => $album->avatar ?: $album->target?->cover,
+        'cover' => $album->cover_url,
         'is_rrule_mode' => $album->is_rrule_mode,
         'created_at' => $album->created_at?->format('Y-m-d H:i:s'),
     ];
@@ -242,9 +244,9 @@ Route::get('/albums', function () {
     })->values();
 
     // 按节目名分组
-    $groups = $albums->groupBy(fn (Album $a) => $a->target?->name ?? '其他')
+    $groups = $albums->groupBy(fn (Album $a) => $a->resolvedTarget()?->name ?? '其他')
         ->map(function ($group, $name) use ($isYearly, $sortAlbums, $mapAlbum) {
-            $target = $group->first(fn (Album $a) => $a->target)?->target;
+            $target = $group->map(fn (Album $a) => $a->resolvedTarget())->filter()->first();
             $isArchived = $target && $target->end_at && $target->end_at <= now();
             return [
                 'name' => $name,
@@ -280,10 +282,8 @@ Route::get('/album/{hashId}', function ($hashId) {
         'cover' => $item->lyItem->ly_meta->cover ?? null,
     ]))->values();
 
-    // 封面：avatar → target cover → 首集节目 cover
-    $cover = $album->avatar
-        ?: $album->target?->cover
-        ?: $album->getPlaylistItems()->first()?->lyItem->ly_meta->cover;
+    // 封面：avatar → 归属节目 cover（Manual 专辑由 resolvedTarget 从首个片段反查）
+    $cover = $album->cover_url;
 
     return [
         'data' => [

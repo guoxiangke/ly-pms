@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Deligoez\LaravelModelHashId\Traits\HasHashId;
 use Recurr\Rule;
@@ -51,6 +52,53 @@ class Album extends Model
     public function scopePublished($query)
     {
         return $query->whereNotNull('published_at');
+    }
+
+    /**
+     * 专辑自己上传的封面（Nova Image 字段存的是 s3 相对路径，这里转成完整 URL）
+     */
+    protected function avatarUrl(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                if (!$this->avatar) {
+                    return null;
+                }
+                return str_starts_with($this->avatar, 'http')
+                    ? $this->avatar
+                    : Storage::disk('s3')->url($this->avatar);
+            },
+        );
+    }
+
+    /**
+     * 专辑封面：上传的 avatar 优先，其次才是归属节目的 cover
+     */
+    protected function coverUrl(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->avatar_url ?: $this->resolvedTarget()?->cover,
+        );
+    }
+
+    /**
+     * 归属节目：RRule 专辑直接看 target；Manual 专辑（片段型）没有 target，
+     * 就从它收录的第一个片段反查 —— clip → LyItem → LyMeta。
+     *
+     * 前台的分组与封面都用这个，这样片段型专辑也能落在正确的节目下面，
+     * 不必为了分组去给 Manual 专辑硬塞 target（那会破坏 target/rrule 的互斥语义）。
+     */
+    public function resolvedTarget()
+    {
+        if ($this->target) {
+            return $this->target;
+        }
+
+        return $this->clips
+            ->flatMap(fn ($clip) => $clip->lyItems)
+            ->map(fn ($item) => $item->ly_meta)
+            ->filter()
+            ->first();
     }
 
     /**

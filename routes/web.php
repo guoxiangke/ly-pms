@@ -171,7 +171,8 @@ Route::get('/share/{hashId}', function ($hashId) {
 })->name('share.lyItem');
 
 Route::get('/albums', function () {
-    $query = Album::with('target.tags');
+    // clips.lyItems.ly_meta 用于给 Manual（片段型）专辑反查归属节目，见 Album::resolvedTarget()
+    $query = Album::with(['target.tags', 'clips.lyItems.ly_meta.tags']);
     if (auth()->id() !== 1) {
         $query->published();
     }
@@ -195,9 +196,9 @@ Route::get('/albums', function () {
 
     // 按节目分组，再分年度/非年度
     $buildGroups = function ($collection) use ($isYearly, $sortAlbums) {
-        return $collection->groupBy(fn ($a) => $a->target?->name ?? '其他')
+        return $collection->groupBy(fn ($a) => $a->resolvedTarget()?->name ?? '其他')
             ->map(function ($group) use ($isYearly, $sortAlbums) {
-                $target = $group->first(fn ($a) => $a->target)?->target;
+                $target = $group->map(fn ($a) => $a->resolvedTarget())->filter()->first();
                 $isArchived = $target && $target->end_at && $target->end_at <= now();
                 return [
                     'cover' => $target?->cover,

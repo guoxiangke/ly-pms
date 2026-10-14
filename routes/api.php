@@ -229,6 +229,9 @@ Route::get('/albums', function () {
         'description' => $album->description,
         'cover' => $album->cover_url,
         'is_rrule_mode' => $album->is_rrule_mode,
+        // 发布状态：published_at 为空即草稿
+        'status' => $album->published_at ? 'published' : 'draft',
+        'published_at' => $album->published_at?->format('Y-m-d H:i:s'),
         'created_at' => $album->created_at?->format('Y-m-d H:i:s'),
     ];
 
@@ -290,6 +293,8 @@ Route::get('/album/{hashId}', function ($hashId) {
             'description' => $album->description,
             'cover' => $cover,
             'is_rrule_mode' => $album->is_rrule_mode,
+            'status' => $album->published_at ? 'published' : 'draft',
+            'published_at' => $album->published_at?->format('Y-m-d H:i:s'),
             'count' => $playlist->count(),
             'playlist' => $playlist,
         ],

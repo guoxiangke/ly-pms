@@ -17,6 +17,8 @@ class PlaylistItem
         public readonly string $title,
         public readonly string $path,
         public readonly ?Carbon $playAt,
+        // 手动（片段型）专辑的来源片段；rrule 专辑为 null。
+        public readonly ?Clip $clip = null,
     ) {}
 
     /**
@@ -40,6 +42,14 @@ class PlaylistItem
             'path' => $this->path,
             'play_at' => $this->playAt?->format('Y-m-d'),
             'is_full_audio' => $this->isFullAudio(),
+            // 片段原始字段（begin_at / length 单位秒）；用途待定，先原样给出。
+            'clip' => $this->clip ? [
+                'id' => $this->clip->id,
+                'begin_at' => $this->clip->begin_at,
+                'length' => $this->clip->length,
+                'title' => $this->clip->title,
+                'ars_summary' => $this->clip->ars_summary,
+            ] : null,
         ];
     }
 }

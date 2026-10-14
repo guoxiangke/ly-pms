@@ -200,6 +200,7 @@ class Album extends Model
                     title: $clip->title ?? $item->episode_title,
                     path: $item->path,
                     playAt: $item->play_at,
+                    clip: $clip,
                 );
             });
         })->values();

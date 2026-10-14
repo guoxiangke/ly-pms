@@ -276,7 +276,10 @@ Route::get('/albums', function () {
 
 // 专辑详情 + 播放列表
 Route::get('/album/{hashId}', function ($hashId) {
-    $album = Album::findOrFail(Album::keyFromHashId($hashId));
+    // 片段型专辑的封面要经 clips → lyItems → ly_meta 反查（resolvedTarget），
+    // 先一起载入；线上禁止懒加载，不载入会 500。
+    $album = Album::with('target', 'clips.lyItems.ly_meta')
+        ->findOrFail(Album::keyFromHashId($hashId));
 
     $playlist = $album->getPlaylistItems()->map(fn ($item) => array_merge($item->toArray(), [
         'description' => $item->lyItem->description ?? $item->playAt?->format('Ymd'),

@@ -275,8 +275,6 @@ Route::get('/albums', function () {
 Route::get('/album/{hashId}', function ($hashId) {
     $album = Album::findOrFail(Album::keyFromHashId($hashId));
 
-    if (! $album->published_at && auth()->id() !== 1) abort(404);
-
     $playlist = $album->getPlaylistItems()->map(fn ($item) => array_merge($item->toArray(), [
         'description' => $item->lyItem->description ?? $item->playAt?->format('Ymd'),
         'cover' => $item->lyItem->ly_meta->cover ?? null,

@@ -232,6 +232,11 @@ Route::get('/albums', function () {
         // 发布状态：published_at 为空即草稿
         'status' => $album->published_at ? 'published' : 'draft',
         'published_at' => $album->published_at?->format('Y-m-d H:i:s'),
+        // 片段型专辑的集数（与 /album/{hashId} 的 playlist 条数一致，clips.lyItems
+        // 上面已预加载）；rrule 专辑要按规则算日期，列表里不算，给 null。
+        'count' => $album->is_rrule_mode
+            ? null
+            : $album->clips->sum(fn ($clip) => $clip->lyItems->count()),
         'created_at' => $album->created_at?->format('Y-m-d H:i:s'),
     ];
 
